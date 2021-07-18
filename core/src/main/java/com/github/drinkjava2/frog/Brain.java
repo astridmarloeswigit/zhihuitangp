@@ -20,10 +20,10 @@ public class Brain {
 	/** Brain dimension X is 100000 cells */
 	private int xSize = 100000;
 
-	/** Brain dimension Y is 100 cells pixels */
+	/** Brain dimension Y is 100 cells */
 	private int ySize = 1000;
 
-	/** Brain dimension Z is 10 pixels */
+	/** Brain dimension Z is 10 cells */
 	private int zSize = 10;
 
 	/** cells in brain */

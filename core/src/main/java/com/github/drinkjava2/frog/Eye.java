@@ -11,11 +11,12 @@
 package com.github.drinkjava2.frog;
 
 /**
- * Each frog has a body
+ * Eye of frog, each frog has 1 eye, eye is the input device of frog, eye's
+ * output cells are located inside of brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Eye {
+
 }

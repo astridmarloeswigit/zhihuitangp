@@ -11,11 +11,16 @@
 package com.github.drinkjava2.frog;
 
 /**
- * Each frog has a body
+ * Mouth of frog, Mouth is a output device of frog , mouth's input cells are
+ * located inside of brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Mouth {
+	
+	public void eat(){
+		//when eat
+	}
+
 }

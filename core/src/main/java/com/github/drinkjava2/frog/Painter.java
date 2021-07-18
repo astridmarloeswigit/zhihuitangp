@@ -11,11 +11,14 @@
 package com.github.drinkjava2.frog;
 
 /**
- * Each frog has a body
+ * Painter of frog, frog only have 1 Painter, Painter is a output device of frog
+ * , Painter's input cells are located inside of brain
+ * 
+ * Painter used to paint a picture beside the frog, this is the language of frog.
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Painter {
+
 }

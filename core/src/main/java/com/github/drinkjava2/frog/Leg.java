@@ -11,11 +11,15 @@
 package com.github.drinkjava2.frog;
 
 /**
- * Each frog has a body
+ * Leg of frog, frog only have 1 leg, Leg is a output device of frog , Leg's
+ * input cells are located inside of brain
+ * 
+ * Leg used to move frog, has 8 directions, i.e., at least have 8 output cells
+ * in brain to control leg
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Leg {
+
 }

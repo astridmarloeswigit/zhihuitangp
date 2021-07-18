@@ -11,11 +11,15 @@
 package com.github.drinkjava2.frog;
 
 /**
- * Each frog has a body
+ * Happy level is the happiness of frog, Happy is a input device of frog ,
+ * Happy's output cells are located inside of brain
+ * 
+ * Happy level range is determined by env, not a fixed range. happiness can be
+ * negative
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Happy {
+	public int level = 0;
 }
