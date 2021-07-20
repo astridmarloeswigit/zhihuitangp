@@ -10,58 +10,49 @@
  */
 package com.github.drinkjava2.frog;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Random;
 
-import javax.swing.JButton;
+import javax.imageio.ImageIO;
 
 import com.github.drinkjava2.frog.brain.Brain;
 import com.github.drinkjava2.frog.brain.Eye;
 
 /**
- * Eye of frog, each frog has 1 eye, eye is the input device of frog, eye's
- * input cells are located inside of brain
+ * Frog = brain + body(mouth, eye, leg)
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-@SuppressWarnings("serial")
-public class Frog extends JButton {
-	/**
-	 * if energy is 0, then frog die, energy get from food, food get from god, god
-	 * is programmer. any movement and thinking will cost at least 1 energy
-	 */
-	long energy = 10000;
+public class Frog {
+	public int x;
+	public int y;
+	public int face = 1 + new Random().nextInt(4); // 0:sleep 1:up 2:right 3:down 4:left 5:right
+	public int move = 0; // 0: stop 1:up 2:right 3:down 4:left 5:right turn 6 left turn
+	public long energy = 10000;
+
+	static Image frog_up;
+	static {
+		try {
+			frog_up = ImageIO.read(new FileInputStream(new File("").getAbsolutePath() + "/frog_up.png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	Brain brain;
 	Eye eye;
 
-	/**
-	 * @param x
-	 *            x position of env
-	 * @param y
-	 *            y position of env
-	 */
 	public Frog(int x, int y) {
-		this.setBounds(new Rectangle(x, y,5,5));
-		this.setForeground(Color.red);
-		this.setBackground(Color.blue); 
-
-		this.addActionListener(new HelloListener(this));
-
+		this.x = x;
+		this.y = y;
 	}
 
-	public static class HelloListener implements ActionListener {
-		Frog frog;
-
-		public HelloListener(Frog frog) {
-			this.frog = frog;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			frog.setVisible(false);
-		}
+	public void show(Graphics g) {
+		g.drawImage(frog_up, x - 16, y - 16, 32, 32, null);
 	}
+
 }
