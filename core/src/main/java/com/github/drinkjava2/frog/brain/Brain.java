@@ -8,31 +8,35 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog;
-
-import java.util.List;
+package com.github.drinkjava2.frog.brain;
 
 /**
- * Cell represents a nerve cell, this is the basic unit of brain
+ * Brain is consisted by lots of cells
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Cell {
-	/** x location in brain */
-	public int x = 0;
+public class Brain {
+	/** Brain dimension X is 10000 cells */
+	private int xSize = 10000;
 
-	/** y location in brain */
-	public int y = 0;
+	/** Brain dimension Y is 100 cells */
+	private int ySize = 1000;
 
-	/** z location in brain */
-	public int z = 0;
+	/** Brain dimension Z is 10 cells */
+	private int zSize = 10;
 
-	public int active = 0;
+	/** cells in brain */
+	public Cell[][][] cells;
 
-	// cell type, 0:normal 1:xxx 2:xxx 3:xxx ...
-	public int type = 0;
+	public Brain() {
+		cells = new Cell[xSize][ySize][zSize];
+	}
 
-	/** Connected other cells */
-	List<Cell> connects;
+	public Brain(int xSize, int ySize, int zSize) {
+		this.xSize = xSize;
+		this.ySize = ySize;
+		this.zSize = zSize;
+		cells = new Cell[xSize][ySize][zSize];
+	}
 }

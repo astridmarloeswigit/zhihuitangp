@@ -8,18 +8,31 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog;
+package com.github.drinkjava2.frog.brain;
+
+import java.util.List;
 
 /**
- * Happy level is the happiness of frog, Happy is a input device of frog ,
- * Happy's output cells are located inside of brain
- * 
- * Happy level range is determined by env, not a fixed range. happiness can be
- * negative
+ * Cell represents a nerve cell, this is the basic unit of brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Happy {
-	public int level = 0;
+public class Cell {
+	/** x location in brain */
+	public int x = 0;
+
+	/** y location in brain */
+	public int y = 0;
+
+	/** z location in brain */
+	public int z = 0;
+
+	public int active = 0;
+
+	// cell type, 0:normal 1:xxx 2:xxx 3:xxx ...
+	public int type = 0;
+
+	/** Connected other cells */
+	List<Cell> connects;
 }

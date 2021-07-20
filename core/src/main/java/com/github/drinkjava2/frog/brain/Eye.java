@@ -8,14 +8,17 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog;
+package com.github.drinkjava2.frog.brain;
 
 /**
- * Each frog has a body
+ * Eye of frog, each frog has 1 eye, eye is the input device of frog, eye's feel
+ * cells are located inside of brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Body {
-	// TODO: body shape
+public class Eye {
+	private int xSize = 30;
+
+	private int ySize = 30;
 }

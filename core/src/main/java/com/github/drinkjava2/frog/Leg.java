@@ -12,14 +12,58 @@ package com.github.drinkjava2.frog;
 
 /**
  * Leg of frog, frog only have 1 leg, Leg is a output device of frog , Leg's
- * input cells are located inside of brain
+ * drive cells are located inside of brain
  * 
- * Leg used to move frog, has 8 directions, i.e., at least have 8 output cells
- * in brain to control leg
+ * Leg used to move frog, has 4 directions, i.e., have 4 output cells in brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
 public class Leg {
+	int up;
+	int down;
+	int left;
+	int right;
+	int stop;
+
+	public int getUp() {
+		return up;
+	}
+
+	public void setUp(int up) {
+		this.up = up;
+	}
+
+	public int getDown() {
+		return down;
+	}
+
+	public void setDown(int down) {
+		this.down = down;
+	}
+
+	public int getLeft() {
+		return left;
+	}
+
+	public void setLeft(int left) {
+		this.left = left;
+	}
+
+	public int getRight() {
+		return right;
+	}
+
+	public void setRight(int right) {
+		this.right = right;
+	}
+
+	public int getStop() {
+		return stop;
+	}
+
+	public void setStop(int stop) {
+		this.stop = stop;
+	}
 
 }

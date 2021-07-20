@@ -18,9 +18,10 @@ package com.github.drinkjava2.frog;
  * @since 1.0.0
  */
 public class Mouth {
-	
-	public void eat(){
-		//when eat
+	/**
+	 * when eat, cost 1 energy, if eat success, come cells in brain will active
+	 */
+	public void eat() {
 	}
 
 }
