@@ -10,29 +10,22 @@
  */
 package com.github.drinkjava2.frog.brain;
 
-import java.util.List;
-
 /**
- * Cell represents a nerve cell, this is the basic unit of brain
+ * Cell represents a brain nerve cell, this is the basic unit of brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
 public class Cell {
-	/** x location in brain */
-	public int x = 0;
-
-	/** y location in brain */
-	public int y = 0;
-
-	/** z location in brain */
-	public int z = 0;
-
-	public int active = 0;
-
-	// cell type, 0:normal 1:xxx 2:xxx 3:xxx ...
-	public int type = 0;
-
-	/** Connected other cells */
-	List<Cell> connects;
+	public int x;
+	public int y;
+	public int active;
+	public int drop;
+	public int inX;
+	public int inY;
+	public int inSize;
+	public int outX;
+	public int outY;
+	public int outSize;
+	public int fat;
 }
