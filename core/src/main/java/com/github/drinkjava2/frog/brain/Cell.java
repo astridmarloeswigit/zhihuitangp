@@ -11,21 +11,20 @@
 package com.github.drinkjava2.frog.brain;
 
 /**
- * Cell represents a brain nerve cell, this is the basic unit of brain
+ * Cell is a brain nerve cell, this is the basic unit of frog's brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
 public class Cell {
-	public int x;
-	public int y;
-	public int active;
-	public int drop;
-	public int inX;
-	public int inY;
-	public int inSize;
-	public int outX;
-	public int outY;
-	public int outSize;
-	public int fat;
+	public int group; // this cell belong to which group?
+	public Input[] inputs; // inputs of cell
+	public Output[] outputs; // outputs of cell
+	public boolean used = false;
+
+	public void activateOutputs() {
+		for (Output output : outputs)
+			output.energy += 55;
+	}
+
 }

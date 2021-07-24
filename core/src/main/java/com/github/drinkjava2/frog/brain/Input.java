@@ -8,11 +8,17 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog;
+package com.github.drinkjava2.frog.brain;
+
+import com.github.drinkjava2.frog.egg.Zone;
 
 /**
- * Egg is the static description of frog, can save as text file
+ * Input is the sensor of nerve cell
+ * 
+ * @author Yong Zhu
+ * @since 1.0.0
  */
-public class Egg {
-
+public class Input  extends Zone{ 
+	public float energy;
+	public Cell cell;
 }

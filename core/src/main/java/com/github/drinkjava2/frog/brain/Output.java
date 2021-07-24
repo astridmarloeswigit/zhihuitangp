@@ -10,33 +10,15 @@
  */
 package com.github.drinkjava2.frog.brain;
 
+import com.github.drinkjava2.frog.egg.Zone;
+
 /**
- * Brain is consisted by lots of cells
+ * Output can active other nerve cell's input
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Brain {
-	/** Brain dimension X is 10000 cells */
-	private int xSize = 10000;
-
-	/** Brain dimension Y is 100 cells */
-	private int ySize = 1000;
-
-	/** Brain dimension Z is 10 cells */
-	private int zSize = 10;
-
-	/** cells in brain */
-	public Cell[][][] cells;
-
-	public Brain() {
-		cells = new Cell[xSize][ySize][zSize];
-	}
-
-	public Brain(int xSize, int ySize, int zSize) {
-		this.xSize = xSize;
-		this.ySize = ySize;
-		this.zSize = zSize;
-		cells = new Cell[xSize][ySize][zSize];
-	}
+public class Output extends Zone {
+	public float energy;
+	public Cell cell;
 }
