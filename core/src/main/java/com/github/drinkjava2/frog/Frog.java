@@ -118,23 +118,23 @@ public class Frog {
 		}
 
 		for (Cell cell : cells) {
-			// 输入部分
-			for (Input input : cell.inputs) {
-				// 如果食物出现在视觉区，激活对应frog视觉区的输入触突
-				if (input.x > (-eyeRadius) && input.y > (-eyeRadius) && input.x < eyeRadius && input.y < eyeRadius) {
-					int xx = x + input.roundX();
-					int yy = y + input.roundY();
-					if (xx > 0 && xx < env.ENV_XSIZE && yy > 0 && yy < env.ENV_YSIZE && env.foods[xx][yy] > 0)
-						input.energy += 500;
-				}
-
-				// 如果任意输入触突激活，增加对应细胞的输出区激活
-				if (input.energy > 50)
-					cell.activateOutputs();
-
-				// 即使什么也不干，input的能量总在以95%的速度下降
-				input.energy *= .95;
-			}
+//			// 输入部分
+//			for (Input input : cell.inputs) {
+//				// 如果食物出现在视觉区，激活对应frog视觉区的输入触突
+//				if (input.x > (-eyeRadius) && input.y > (-eyeRadius) && input.x < eyeRadius && input.y < eyeRadius) {
+//					int xx = x + input.roundX();
+//					int yy = y + input.roundY();
+//					if (xx > 0 && xx < env.ENV_XSIZE && yy > 0 && yy < env.ENV_YSIZE && env.foods[xx][yy] > 0)
+//						input.energy += 500;
+//				}
+//
+//				// 如果任意输入触突激活，增加对应细胞的输出区激活
+//				if (input.energy > 50)
+//					cell.activateOutputs();
+//
+//				// 即使什么也不干，input的能量总在以95%的速度下降
+//				input.energy *= .95;
+//			}
 
 			// 如果输出触突位于运动区且兴奋，则frog移动一个单位
 			for (Output output : cell.outputs) {
