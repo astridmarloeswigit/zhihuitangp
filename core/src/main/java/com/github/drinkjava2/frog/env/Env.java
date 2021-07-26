@@ -18,7 +18,7 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED = 100;
+	public static int SHOW_SPEED = 10;
 
 	/** Steps of one test round */
 	public static int STEPS_PER_ROUND = 1000;
@@ -29,13 +29,12 @@ public class Env extends JPanel {
 	/** Virtual environment y size is 500 pixels */
 	public int ENV_YSIZE = 300;
 
-	public byte[][] foods = new byte[ENV_XSIZE][ENV_YSIZE];
+	public int FOOD_QTY = 2500; // as name
 
-	public int FOOD_QTY =6000; // as name
-
-	public int EGG_QTY = 2; // as name
+	public int EGG_QTY = 10; // as name
 
 	public List<Frog> frogs = new ArrayList<Frog>();
+	public List<Food> foods = new ArrayList<Food>();
 	public List<Egg> eggs;
 
 	public Env() {
@@ -46,27 +45,16 @@ public class Env extends JPanel {
 
 	private void rebuildFrogAndFood() {
 		frogs.clear();
-		for (int i = 0; i < ENV_XSIZE; i++) {
-			for (int j = 0; j < ENV_YSIZE; j++) {
-				foods[i][j] = 0;
-			}
-		}
+		foods.clear();
 		Random rand = new Random();
-		for (int i = 0; i < eggs.size(); i++) { // 1个Egg生出10个Frog
-			for (int j = 0; j < 10; j++) {
-				frogs.add(new Frog(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3), eggs.get(i))); 
-			} 
+		for (int i = 0; i < eggs.size(); i++) { // 1个Egg生出4个Frog
+			frogs.add(new Frog(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3), eggs.get(i)));
+			frogs.add(new Frog(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3), eggs.get(i)));
+			frogs.add(new Frog(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3), eggs.get(i)));
+			frogs.add(new Frog(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3), eggs.get(i)));
 		}
 		for (int i = 0; i < FOOD_QTY; i++)
-			foods[rand.nextInt(ENV_XSIZE - 3)][rand.nextInt(ENV_YSIZE - 3)] = 1;
-	}
-
-	private void drawFood(Graphics g) {
-		for (int x = 0; x < ENV_XSIZE; x++)
-			for (int y = 0; y < ENV_YSIZE; y++)
-				if (foods[x][y] > 0) {
-					g.fillOval(x, y, 4, 4);
-				}
+			foods.add(new Food(rand.nextInt(ENV_XSIZE - 3), rand.nextInt(ENV_YSIZE - 3)));
 	}
 
 	public void run() throws InterruptedException {
@@ -84,8 +72,8 @@ public class Env extends JPanel {
 				Graphics g = buffImg.getGraphics();
 				for (Frog frog : frogs)
 					frog.show(g);
-
-				drawFood(g);
+				for (Food food : foods)
+					food.show(g);
 				Graphics g2 = this.getGraphics();
 				g2.drawImage(buffImg, 0, 0, this);
 				Thread.sleep(10);

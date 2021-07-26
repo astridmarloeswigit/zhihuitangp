@@ -20,5 +20,4 @@ import com.github.drinkjava2.frog.egg.Zone;
  */
 public class Output extends Zone {
 	public float energy;
-	public Cell cell;
 }
