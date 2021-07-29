@@ -20,4 +20,5 @@ import com.github.drinkjava2.frog.egg.Zone;
  */
 public class Input  extends Zone{ 
 	public float energy;
+	public Cell cell;
 }

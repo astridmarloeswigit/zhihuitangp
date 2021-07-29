@@ -34,11 +34,19 @@ public class Zone implements Serializable {
 		this.radius = radius;
 	}
 
-	public static boolean nearby(Zone z1, Zone z2) {
-		float dist = z1.radius + z2.radius;
-		if (Math.abs(z1.x - z2.x) < dist && Math.abs(z1.y - z2.y) < dist)
+	public boolean nearby(Zone z) {
+		float dist = radius + z.radius;
+		if (Math.abs(x - z.x) < dist && Math.abs(y - z.y) < dist)
 			return true;
 		return false;
+	}
+
+	public int roundX() {
+		return Math.round(x);
+	}
+
+	public int roundY() {
+		return Math.round(y);
 	}
 
 	public static void copyXY(Zone from, Zone to) {

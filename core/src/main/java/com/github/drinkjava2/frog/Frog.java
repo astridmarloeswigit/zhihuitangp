@@ -27,10 +27,12 @@ import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.egg.Zone;
 import com.github.drinkjava2.frog.env.Application;
 import com.github.drinkjava2.frog.env.Env;
-import com.github.drinkjava2.frog.env.Food;
 
 /**
- * Frog = brain + body(mouth, eye, leg)
+ * Frog = brain + body(mouth, eye, leg), but now let's focus on brain, ignore
+ * body
+ * 
+ * 为了简化模型，这个类里出现多个固定数值的编码，以后要改进成可以可以放在蛋里遗传进化的动态数值，先让生命延生是第一步，优化是以后的事
  * 
  * @author Yong Zhu
  * @since 1.0.0
@@ -47,15 +49,18 @@ public class Frog {
 	public static Zone eye = new Zone(0, 0, 300);
 
 	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public static Zone moveUp = new Zone(500, 100, 10);
-	public static Zone moveDown = new Zone(500, 200, 10);
-	public static Zone moveLeft = new Zone(500, 300, 10);
-	public static Zone moveRight = new Zone(500, 400, 10);
+	public static Zone moveUp = new Zone(500, 50, 10);
+	public static Zone moveDown = new Zone(500, 100, 10);
+	public static Zone moveLeft = new Zone(500, 150, 10);
+	public static Zone moveRight = new Zone(500, 200, 10);
+	public static Zone moveRandom = new Zone(500, 300, 10);
 
 	public int x;
 	public int y;
 	public long energy = 10000;
 	public Egg egg;
+	public boolean alive = true; // if dead set to false
+	public int moveCount = 0; // how many times moved
 
 	static final Random r = new Random();
 	static Image frogImg;
@@ -80,12 +85,14 @@ public class Frog {
 				c.inputs = new Input[g.inputQtyPerCell];
 				for (int j = 0; j < g.inputQtyPerCell; j++) {
 					c.inputs[j] = new Input();
+					c.inputs[j].cell = c;
 					Zone.copyXY(randomPosInZone(g.groupInputZone), c.inputs[j]);
 					c.inputs[j].radius = g.cellInputRadius;
 				}
 				c.outputs = new Output[g.outputQtyPerCell];
 				for (int j = 0; j < g.outputQtyPerCell; j++) {
 					c.outputs[j] = new Output();
+					c.outputs[j].cell = c;
 					Zone.copyXY(randomPosInZone(g.groupInputZone), c.outputs[j]);
 					c.outputs[j].radius = g.cellOutputRadius;
 				}
@@ -95,45 +102,95 @@ public class Frog {
 		this.egg = egg;// 保留一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下新蛋
 	}
 
-	public void active(Env env) {
-//		this.x = this.x - 1 + r.nextInt(3);
-//		this.y = this.y - 1 + r.nextInt(3);
-		// eat food
-		boolean eatedFood = false;
-		int j = env.foods.size() - 1;
-		for (int i = j; i >= 0; i--) {
-			Food food = env.foods.get(i);
-			if (x == food.x && y == food.y) {
-				energy = energy + food.energy;
-				env.foods.remove(i);
-				eatedFood = true;
-				break;
-			}
-		}
-
-		// 奖励
-		if (eatedFood) {
-
+	/** Active a frog, if frog is dead return false */
+	public boolean active(Env env) {
+		if (!alive)
+			return false;
+		if (x < 0 || x >= env.ENV_XSIZE || y < 0 || y >= env.ENV_YSIZE) {// 越界者死！
+			alive = false;
+			return false;
 		}
 
 		// move
 		for (Cell cell : cells) {
 			for (Output output : cell.outputs) {
-				if (Zone.nearby(moveUp, output)) {
-					y += 1;
-					break;
-				} else if (Zone.nearby(moveDown, output)) {
-					y -= 1;
-					break;
-				} else if (Zone.nearby(moveLeft, output)) {
-					x -= 1;
-					break;
-				} else if (Zone.nearby(moveRight, output)) {
-					x += 1;
-					break;
-				}
+				if (moveUp.nearby(output))
+					moveUp(env);
+				if (moveDown.nearby(output))
+					moveDown(env);
+				if (moveLeft.nearby(output))
+					moveLeft(env);
+				if (moveRight.nearby(output))
+					moveRight(env);
+				if (moveRandom.nearby(output))
+					moveRandom(env);
 			}
 		}
+		return true;
+	}
+
+	/** 如果青蛙位置与food重合，吃掉它 */
+	private void checkFoodAndEat(Env env) {
+		boolean eatedFood = false;
+		if (x >= 0 && x < env.ENV_XSIZE && y > 0 && y < env.ENV_YSIZE)
+			if (env.foods[x][y] > 0) {
+				env.foods[x][y] = 0;
+				energy = energy + 1000;// 吃掉food，能量境加
+				eatedFood = true;
+			}
+
+		// 奖励
+		if (eatedFood) {
+
+		}
+	}
+
+	private void moveRandom(Env env) {
+		int ran = r.nextInt(4);
+		if (ran == 0)
+			moveUp(env);
+		if (ran == 1)
+			moveDown(env);
+		if (ran == 2)
+			moveLeft(env);
+		if (ran == 3)
+			moveRight(env);
+	}
+
+	private void moveUp(Env env) {
+		y += 1;
+		if (y < 0 || y >= env.ENV_YSIZE) {
+			alive = false;
+			return;
+		}
+		checkFoodAndEat(env);
+	}
+
+	private void moveDown(Env env) {
+		y -= 1;
+		if (y < 0 || y >= env.ENV_YSIZE) {
+			alive = false;
+			return;
+		}
+		checkFoodAndEat(env);
+	}
+
+	private void moveLeft(Env env) {
+		x -= 1;
+		if (x < 0 || x >= env.ENV_XSIZE) {
+			alive = false;
+			return;
+		}
+		checkFoodAndEat(env);
+	}
+
+	private void moveRight(Env env) {
+		x += 1;
+		if (x < 0 || x >= env.ENV_XSIZE) {
+			alive = false;
+			return;
+		}
+		checkFoodAndEat(env);
 	}
 
 	private boolean allowVariation = false;
@@ -182,6 +239,8 @@ public class Frog {
 	}
 
 	public void show(Graphics g) {
+		if (!alive)
+			return;
 		g.drawImage(frogImg, x - 8, y - 8, 16, 16, null);
 	}
 
