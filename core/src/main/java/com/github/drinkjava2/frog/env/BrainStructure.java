@@ -33,6 +33,8 @@ public class BrainStructure extends JPanel {
 	}
 
 	public void drawBrain(Frog frog) {
+		if (!Application.SHOW_FIRST_FROG_BRAIN)
+			return;
 		Graphics g = this.getGraphics();
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, 800, 800);

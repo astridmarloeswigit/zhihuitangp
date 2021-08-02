@@ -121,14 +121,14 @@ public class Frog {
 		// move
 		for (Cell cell : cells) {
 			for (Output output : cell.outputs) {
-				if (moveUp.nearby(output))
-					goUp += 1;
-				if (moveDown.nearby(output))
-					goDown += 1;
-				if (moveLeft.nearby(output))
-					goLeft += 1;
-				if (moveRight.nearby(output))
-					goRight += 1;
+				if (goUp < 3 && moveUp.nearby(output))
+					goUp++;
+				if (goDown < 3 && moveDown.nearby(output))
+					goDown++;
+				if (goLeft < 3 && moveLeft.nearby(output))
+					goLeft++;
+				if (goRight < 3 && moveRight.nearby(output))
+					goRight++;
 			}
 
 			moveAndEat(env);
