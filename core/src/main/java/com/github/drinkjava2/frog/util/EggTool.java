@@ -42,10 +42,6 @@ public class EggTool {
 		sortFrogsOrderByEnergyDesc(env);
 		System.out.print("First frog energy=" + env.frogs.get(0).energy);
 		System.out.print(",  Last frog energy=" + env.frogs.get(env.frogs.size() - 1).energy + ",  ");
-		for (Frog frog : env.frogs) {
-			System.out.print(frog.energy + ",");
-		}
-		System.out.println();
 		try {
 			List<Egg> newEggs = new ArrayList<Egg>();
 			for (int i = 0; i < env.EGG_QTY; i++)
@@ -109,7 +105,7 @@ public class EggTool {
 						"Loaded " + env.eggs.size() + " eggs from file '" + Application.CLASSPATH + "eggs.ser" + "'.");
 				eggsInputStream.close();
 			} catch (Exception e) {
-				errorfound = true; 
+				errorfound = true;
 			}
 		}
 		if (errorfound) {

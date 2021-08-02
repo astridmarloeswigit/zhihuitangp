@@ -15,15 +15,19 @@ public class Application {
 		CLASSPATH = classpath.substring(0, core);
 	}
 	public static JFrame mainFrame = new JFrame();
+	public static Env env = new Env();
+	public static BrainStructure brainStructure = new BrainStructure();
 
 	public static void main(String[] args) throws InterruptedException {
 		mainFrame.setLayout(null);
-		mainFrame.setSize(520, 550); // 窗口大小
+		mainFrame.setSize(1320, 840); // 窗口大小
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 关闭时退出程序
 
-		Env env = new Env();
 		mainFrame.add(env);
+		mainFrame.add(brainStructure);
+
 		mainFrame.setVisible(true);
+
 		env.run();
 	}
 

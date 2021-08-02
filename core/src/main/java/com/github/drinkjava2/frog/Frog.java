@@ -39,28 +39,29 @@ import com.github.drinkjava2.frog.env.Env;
  */
 public class Frog {
 
-	/** brain radius virtual unit */
-	public float brainRadius;
-
 	/** brain cells */
-	List<Cell> cells = new ArrayList<Cell>();
+	public List<Cell> cells = new ArrayList<Cell>();
 
-	/** 视觉细胞的输入区在脑中的坐标，先随便取 在原点附件就可以了，以后再考虑放到蛋里去进化 */
-	public static Zone eye = new Zone(0, 0, 300);
+	/** 视觉细胞的输入区在脑中的坐标，随便取一个区就可以了，以后再考虑进化成两个眼睛 */
+	public Zone eye = new Zone(50, 250, 50);
+
+	/** 饥饿的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
+	public Zone hungry = new Zone(200, 50, 50);
+
+	/** 进食奖励的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
+	public Zone happy = new Zone(200, 450, 50);
 
 	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public static Zone moveUp = new Zone(500, 50, 10);
-	public static Zone moveDown = new Zone(500, 100, 10);
-	public static Zone moveLeft = new Zone(500, 150, 10);
-	public static Zone moveRight = new Zone(500, 200, 10);
-	public static Zone moveRandom = new Zone(500, 300, 10);
+	public Zone moveDown = new Zone(500, 100, 10); // 屏幕y坐标是向下的
+	public Zone moveUp = new Zone(500, 400, 10);
+	public Zone moveLeft = new Zone(400, 250, 10);
+	public Zone moveRight = new Zone(600, 250, 10);
 
 	public int x;
 	public int y;
 	public long energy = 10000;
-	public Egg egg;
-	public boolean alive = true; // if dead set to false
-	public int moveCount = 0; // how many times moved
+	public Egg egg; // 青蛙是从哪个egg孵出来的,如果青蛙生存下来，将用这个egg来下蛋
+	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与任何计算，以节省时间
 
 	static final Random r = new Random();
 	static Image frogImg;
@@ -77,23 +78,24 @@ public class Frog {
 		this.y = y;
 		if (egg.cellgroups == null)
 			throw new IllegalArgumentException("Illegal egg cellgroups argument:" + egg.cellgroups);
-		this.brainRadius = egg.brainRadius;
 		for (int k = 0; k < egg.cellgroups.length; k++) {
 			CellGroup g = egg.cellgroups[k];
 			for (int i = 0; i < g.cellQty; i++) {// 开始根据蛋来创建脑细胞
 				Cell c = new Cell();
-				c.inputs = new Input[g.inputQtyPerCell];
-				for (int j = 0; j < g.inputQtyPerCell; j++) {
+				int cellQTY = Math.round(g.inputQtyPerCell);
+				c.inputs = new Input[cellQTY];
+				for (int j = 0; j < cellQTY; j++) {
 					c.inputs[j] = new Input();
 					c.inputs[j].cell = c;
 					Zone.copyXY(randomPosInZone(g.groupInputZone), c.inputs[j]);
 					c.inputs[j].radius = g.cellInputRadius;
 				}
-				c.outputs = new Output[g.outputQtyPerCell];
-				for (int j = 0; j < g.outputQtyPerCell; j++) {
+				cellQTY = Math.round(g.outputQtyPerCell);
+				c.outputs = new Output[cellQTY];
+				for (int j = 0; j < cellQTY; j++) {
 					c.outputs[j] = new Output();
 					c.outputs[j].cell = c;
-					Zone.copyXY(randomPosInZone(g.groupInputZone), c.outputs[j]);
+					Zone.copyXY(randomPosInZone(g.groupOutputZone), c.outputs[j]);
 					c.outputs[j].radius = g.cellOutputRadius;
 				}
 				cells.add(c);
@@ -102,95 +104,73 @@ public class Frog {
 		this.egg = egg;// 保留一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下新蛋
 	}
 
+	private float goUp = 0;
+	private float goDown = 0;
+	private float goLeft = 0;
+	private float goRight = 0;
+
 	/** Active a frog, if frog is dead return false */
 	public boolean active(Env env) {
 		if (!alive)
 			return false;
-		if (x < 0 || x >= env.ENV_XSIZE || y < 0 || y >= env.ENV_YSIZE) {// 越界者死！
+		energy -= 100;
+		if (energy < 0) {
 			alive = false;
 			return false;
 		}
-
 		// move
 		for (Cell cell : cells) {
 			for (Output output : cell.outputs) {
 				if (moveUp.nearby(output))
-					moveUp(env);
+					goUp += 1;
 				if (moveDown.nearby(output))
-					moveDown(env);
+					goDown += 1;
 				if (moveLeft.nearby(output))
-					moveLeft(env);
+					goLeft += 1;
 				if (moveRight.nearby(output))
-					moveRight(env);
-				if (moveRandom.nearby(output))
-					moveRandom(env);
+					goRight += 1;
 			}
+
+			moveAndEat(env);
 		}
-		return true;
+		return alive;
 	}
 
 	/** 如果青蛙位置与food重合，吃掉它 */
-	private void checkFoodAndEat(Env env) {
-		boolean eatedFood = false;
-		if (x >= 0 && x < env.ENV_XSIZE && y > 0 && y < env.ENV_YSIZE)
-			if (env.foods[x][y] > 0) {
-				env.foods[x][y] = 0;
-				energy = energy + 1000;// 吃掉food，能量境加
-				eatedFood = true;
-			}
+	private void moveAndEat(Env env) {
+		if (!alive)
+			return;
+		// 限制一次最多只能走3个单元,所以即使进化出很多运动神经元在同一个位置也是无用功，防止青蛙越跑越快
+		if (goUp > 3)
+			goUp = 3;
+		if (goDown > 3)
+			goDown = 3;
+		if (goLeft > 3)
+			goLeft = 3;
+		if (goRight > 3)
+			goRight = 3;
+		x = x + Math.round(goRight - goLeft);
+		y = y + Math.round(goUp - goDown);
 
+		goUp = 0;// 方向重置
+		goDown = 0;
+		goLeft = 0;
+		goRight = 0;
+		if (x < 0 || x >= env.ENV_XSIZE || y < 0 || y >= env.ENV_YSIZE) {// 越界者死！
+			alive = false;
+			return;
+		}
+
+		boolean eatedFood = false;
+		if (env.foods[x][y] > 0) {
+			env.foods[x][y] = 0;
+			energy = energy + 1000;// 吃掉food，能量境加
+			eatedFood = true;
+		}
 		// 奖励
 		if (eatedFood) {
 
 		}
-	}
-
-	private void moveRandom(Env env) {
-		int ran = r.nextInt(4);
-		if (ran == 0)
-			moveUp(env);
-		if (ran == 1)
-			moveDown(env);
-		if (ran == 2)
-			moveLeft(env);
-		if (ran == 3)
-			moveRight(env);
-	}
-
-	private void moveUp(Env env) {
-		y += 1;
-		if (y < 0 || y >= env.ENV_YSIZE) {
-			alive = false;
-			return;
-		}
-		checkFoodAndEat(env);
-	}
-
-	private void moveDown(Env env) {
-		y -= 1;
-		if (y < 0 || y >= env.ENV_YSIZE) {
-			alive = false;
-			return;
-		}
-		checkFoodAndEat(env);
-	}
-
-	private void moveLeft(Env env) {
-		x -= 1;
-		if (x < 0 || x >= env.ENV_XSIZE) {
-			alive = false;
-			return;
-		}
-		checkFoodAndEat(env);
-	}
-
-	private void moveRight(Env env) {
-		x += 1;
-		if (x < 0 || x >= env.ENV_XSIZE) {
-			alive = false;
-			return;
-		}
-		checkFoodAndEat(env);
 	}
 
 	private boolean allowVariation = false;
@@ -201,10 +181,10 @@ public class Frog {
 		return (float) (f * (0.99f + r.nextFloat() * 0.02));
 	}
 
-	private float percet5(float f) {
+	private float percet2(float f) {
 		if (!allowVariation)
 			return f;
-		return (float) (f * (0.95f + r.nextFloat() * 0.10));
+		return (float) (f * (0.98f + r.nextFloat() * 0.04));
 	}
 
 	private static Zone randomPosInZone(Zone z) {
@@ -218,22 +198,21 @@ public class Frog {
 		else
 			allowVariation = true;
 		Egg newEgg = new Egg();
-		newEgg.brainRadius = percet5(egg.brainRadius);
 		CellGroup[] cellgroups = new CellGroup[egg.cellgroups.length];
 		newEgg.cellgroups = cellgroups;
 		for (int i = 0; i < cellgroups.length; i++) {
 			CellGroup cellGroup = new CellGroup();
 			cellgroups[i] = cellGroup;
 			CellGroup oldGp = egg.cellgroups[i];
-			cellGroup.groupInputZone = new Zone(percet5(oldGp.groupInputZone.x), percet5(oldGp.groupInputZone.y),
-					percet5(oldGp.groupInputZone.radius));
-			cellGroup.groupOutputZone = new Zone(percet5(oldGp.groupOutputZone.x), percet5(oldGp.groupOutputZone.y),
-					percet5(oldGp.groupOutputZone.radius));
-			cellGroup.cellQty = Math.round(percet5(oldGp.cellQty));
+			cellGroup.groupInputZone = new Zone(percet2(oldGp.groupInputZone.x), percet2(oldGp.groupInputZone.y),
+					percet2(oldGp.groupInputZone.radius));
+			cellGroup.groupOutputZone = new Zone(percet2(oldGp.groupOutputZone.x), percet2(oldGp.groupOutputZone.y),
+					percet2(oldGp.groupOutputZone.radius));
+			cellGroup.cellQty = Math.round(percet2(oldGp.cellQty));
 			cellGroup.cellInputRadius = percet1(oldGp.cellInputRadius);
 			cellGroup.cellOutputRadius = percet1(oldGp.cellOutputRadius);
-			cellGroup.inputQtyPerCell = Math.round(percet5(oldGp.inputQtyPerCell));
-			cellGroup.outputQtyPerCell = Math.round(percet5(oldGp.outputQtyPerCell));
+			cellGroup.inputQtyPerCell = Math.round(percet2(oldGp.inputQtyPerCell));
+			cellGroup.outputQtyPerCell = Math.round(percet2(oldGp.outputQtyPerCell));
 		}
 		return newEgg;
 	}

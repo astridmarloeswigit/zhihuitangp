@@ -24,7 +24,7 @@ import java.util.Random;
 public class Egg implements Serializable {
 	private static final long serialVersionUID = 2L;
 	public static final int CELL_GROUP_QTY = 30;
-	public float brainRadius = 1000;
+	public static final int BRAIN_WIDTH = 800;
 	public CellGroup[] cellgroups;
 
 	public static Egg createBrandNewEgg() {
@@ -34,10 +34,10 @@ public class Egg implements Serializable {
 		for (int i = 0; i < CELL_GROUP_QTY; i++) {
 			CellGroup cellGroup = new CellGroup();
 			egg.cellgroups[i] = cellGroup;
-			cellGroup.groupInputZone = new Zone(r.nextFloat() * egg.brainRadius, r.nextFloat() * egg.brainRadius,
-					(float) (r.nextFloat() * egg.brainRadius * .01));
-			cellGroup.groupOutputZone = new Zone(r.nextFloat() * egg.brainRadius, r.nextFloat() * egg.brainRadius,
-					(float) (r.nextFloat() * egg.brainRadius * .01));
+			cellGroup.groupInputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
+					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
+			cellGroup.groupOutputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
+					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
 			cellGroup.cellQty = r.nextInt(10);
 			cellGroup.cellInputRadius = (float) (r.nextFloat() * 0.001);
 			cellGroup.cellOutputRadius = (float) (r.nextFloat() * 0.001);

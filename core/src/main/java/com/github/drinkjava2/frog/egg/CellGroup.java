@@ -33,8 +33,8 @@ public class CellGroup implements Serializable {
 	public float cellInputRadius; // input radius of each cell
 	public float cellOutputRadius; // output radius of each cell
 
-	public int cellQty; // how many nerve cells in this CellGroup
+	public float cellQty; // how many nerve cells in this CellGroup
 
-	public int inputQtyPerCell; // input qty per cell
-	public int outputQtyPerCell; // output qty per cell
+	public float inputQtyPerCell; // input qty per cell
+	public float outputQtyPerCell; // output qty per cell
 }

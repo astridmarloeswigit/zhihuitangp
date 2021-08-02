@@ -19,7 +19,7 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED =1;
+	public static int SHOW_SPEED = 1;
 
 	/** Steps of one test round */
 	public static int STEPS_PER_ROUND = 3000;
@@ -34,7 +34,7 @@ public class Env extends JPanel {
 
 	public int FOOD_QTY = 2000; // as name
 
-	public int EGG_QTY =80; // as name
+	public int EGG_QTY = 100; // as name
 
 	public List<Frog> frogs = new ArrayList<Frog>();
 	public List<Egg> eggs;
@@ -58,7 +58,8 @@ public class Env extends JPanel {
 				frogs.add(new Frog(ENV_XSIZE / 2 + rand.nextInt(90), ENV_YSIZE / 2 + rand.nextInt(90), eggs.get(i)));
 			}
 		}
-		System.out.println("Created "+4*eggs.size() +" frogs");
+
+		System.out.println("Created " + 4 * eggs.size() + " frogs");
 		for (int i = 0; i < FOOD_QTY; i++)
 			foods[rand.nextInt(ENV_XSIZE - 3)][rand.nextInt(ENV_YSIZE - 3)] = 1;
 	}
@@ -82,16 +83,14 @@ public class Env extends JPanel {
 			rebuildFrogAndFood();
 			boolean allDead = false;
 			for (int i = 0; i < STEPS_PER_ROUND; i++) {
-				if (allDead)
-					break;
+				if (allDead) {
+					System.out.println("All dead at round:" + i);
+					break; // 全死光了就直接跳到下一轮,以节省时间
+				}
 				allDead = true;
-				for (Frog frog : frogs) {
+				for (Frog frog : frogs)
 					if (frog.active(this))
 						allDead = false;
-					if (frog.alive && frog.moveCount == 0 && i > 100) {// 如果不移动就死!
-						frog.alive = false;
-					}
-				}
 				if (i % SHOW_SPEED != 0) // 画青蛙会拖慢速度
 					continue;
 				// 开始画青蛙
@@ -104,9 +103,9 @@ public class Env extends JPanel {
 				drawFood(g);
 				Graphics g2 = this.getGraphics();
 				g2.drawImage(buffImg, 0, 0, this);
-				Thread.sleep(10);
 			}
 			EggTool.layEggs(this);
+			Application.brainStructure.drawBrain(frogs.get(0));
 			t2 = System.currentTimeMillis();
 			Application.mainFrame.setTitle("Frog test round: " + round++ + ", time used: " + (t2 - t1) + " ms");
 		} while (true);
