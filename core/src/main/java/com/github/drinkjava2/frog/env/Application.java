@@ -53,6 +53,7 @@ public class Application {
 			}
 		};
 		button.addActionListener(al);
+		
 		mainFrame.add(button);
 
 		mainFrame.setVisible(true);

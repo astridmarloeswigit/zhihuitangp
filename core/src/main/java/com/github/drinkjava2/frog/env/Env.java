@@ -24,6 +24,13 @@ public class Env extends JPanel {
 	/** Steps of one test round */
 	public static int STEPS_PER_ROUND = 3000;
 
+	/** Delete eggs at beginning of each test */
+	public static boolean DELETE_EGGS = true;
+	static {
+		if (DELETE_EGGS)
+			EggTool.deleteEggs(); 
+	}
+
 	/** Virtual environment x size is 500 pixels */
 	public int ENV_XSIZE = 300;
 

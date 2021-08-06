@@ -77,6 +77,11 @@ public class EggTool {
 		});
 	}
 
+	public static void deleteEggs() {
+		FrogFileUtils.deleteFile(Application.CLASSPATH + "eggs.json");
+		FrogFileUtils.deleteFile(Application.CLASSPATH + "eggs.ser");
+	}
+
 	/**
 	 * 从磁盘读入一批Egg
 	 */
@@ -109,7 +114,7 @@ public class EggTool {
 			}
 		}
 		if (errorfound) {
-			System.out.println("No eggs files ' " + Application.CLASSPATH + " found, created " + env.EGG_QTY
+			System.out.println("No eggs files in path '" + Application.CLASSPATH + "' found, created " + env.EGG_QTY
 					+ " new eggs to do test.");
 			env.eggs = new ArrayList<Egg>();
 			for (int i = 0; i < env.EGG_QTY; i++)

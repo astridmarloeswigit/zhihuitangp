@@ -23,7 +23,7 @@ import java.util.Random;
  */
 public class Egg implements Serializable {
 	private static final long serialVersionUID = 2L;
-	public static final int CELL_GROUP_QTY = 30;
+	public static final int CELL_GROUP_QTY =80;
 	public static final int BRAIN_WIDTH = 800;
 	public CellGroup[] cellgroups;
 

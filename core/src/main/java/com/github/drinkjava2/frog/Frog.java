@@ -43,19 +43,19 @@ public class Frog {
 	public List<Cell> cells = new ArrayList<Cell>();
 
 	/** 视觉细胞的输入区在脑中的坐标，随便取一个区就可以了，以后再考虑进化成两个眼睛 */
-	public Zone eye = new Zone(50, 250, 50);
+	public Zone eye = new Zone(50, 250, 100);
 
 	/** 饥饿的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone hungry = new Zone(200, 50, 50);
+	public Zone hungry = new Zone(300, 100, 200);
 
 	/** 进食奖励的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone happy = new Zone(200, 450, 50);
+	public Zone happy = new Zone(300, 600, 200);
 
 	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone moveDown = new Zone(500, 100, 10); // 屏幕y坐标是向下的
-	public Zone moveUp = new Zone(500, 400, 10);
-	public Zone moveLeft = new Zone(400, 250, 10);
-	public Zone moveRight = new Zone(600, 250, 10);
+	public Zone moveDown = new Zone(700, 100, 50); // 屏幕y坐标是向下的
+	public Zone moveUp = new Zone(700, 400, 50);
+	public Zone moveLeft = new Zone(650, 250, 50);
+	public Zone moveRight = new Zone(750, 250, 50);
 
 	public int x;
 	public int y;
@@ -104,10 +104,10 @@ public class Frog {
 		this.egg = egg;// 保留一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下新蛋
 	}
 
-	private float goUp = 0;
-	private float goDown = 0;
-	private float goLeft = 0;
-	private float goRight = 0;
+	private int goUp = 0;
+	private int goDown = 0;
+	private int goLeft = 0;
+	private int goRight = 0;
 
 	/** Active a frog, if frog is dead return false */
 	public boolean active(Env env) {
@@ -118,19 +118,38 @@ public class Frog {
 			alive = false;
 			return false;
 		}
-		// move
-		for (Cell cell : cells) {
-			for (Output output : cell.outputs) {
-				if (goUp < 3 && moveUp.nearby(output))
-					goUp++;
-				if (goDown < 3 && moveDown.nearby(output))
-					goDown++;
-				if (goLeft < 3 && moveLeft.nearby(output))
-					goLeft++;
-				if (goRight < 3 && moveRight.nearby(output))
-					goRight++;
-			}
 
+		for (Cell cell : cells) {
+			if (energy < 10000) // in hungry
+				for (Input input : cell.inputs) {
+					if (input.nearby(hungry)) {
+						if (cell.energy < 100)
+							cell.energy++;
+					}
+				}
+
+			for (Output output : cell.outputs) { // hungry drive moves
+				if (goUp < 1 && cell.energy > 10 && moveUp.nearby(output)) {
+					goUp++;
+					if (cell.energy > 0)
+						cell.energy--;
+				}
+				if (goDown < 1 && cell.energy > 10 && moveDown.nearby(output)) {
+					goDown++;
+					if (cell.energy > 0)
+						cell.energy--;
+				}
+				if (goLeft < 1 && cell.energy > 10 && moveLeft.nearby(output)) {
+					goLeft++;
+					if (cell.energy > 0)
+						cell.energy--;
+				}
+				if (goRight < 1 && cell.energy > 10 && moveRight.nearby(output)) {
+					goRight++;
+					if (cell.energy > 0)
+						cell.energy--;
+				}
+			}
 			moveAndEat(env);
 		}
 		return alive;
@@ -140,15 +159,6 @@ public class Frog {
 	private void moveAndEat(Env env) {
 		if (!alive)
 			return;
-		// 限制一次最多只能走3个单元,所以即使进化出很多运动神经元在同一个位置也是无用功，防止青蛙越跑越快
-		if (goUp > 3)
-			goUp = 3;
-		if (goDown > 3)
-			goDown = 3;
-		if (goLeft > 3)
-			goLeft = 3;
-		if (goRight > 3)
-			goRight = 3;
 		x = x + Math.round(goRight - goLeft);
 		y = y + Math.round(goUp - goDown);
 

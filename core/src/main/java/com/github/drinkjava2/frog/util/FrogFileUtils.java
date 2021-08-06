@@ -30,6 +30,11 @@ public class FrogFileUtils {
 		// default constructor
 	}
 
+	public static boolean deleteFile(String fileFullPath) {
+		File file = new File(fileFullPath);
+		return file.delete(); // NOSONAR
+	}
+
 	public static void writeFile(String fileFullPath, byte[] byteArry) {
 		File file = new File(fileFullPath);
 		if (!file.getParentFile().exists())
