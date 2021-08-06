@@ -23,27 +23,102 @@ import java.util.Random;
  */
 public class Egg implements Serializable {
 	private static final long serialVersionUID = 2L;
-	public static final int CELL_GROUP_QTY =80;
 	public static final int BRAIN_WIDTH = 800;
+	public int randomCellGroupQty = 100;
+	public int randomCellQtyPerGroup = 5;
+	public int randomInputQtyPerCell = 10;
+	public int randomOutQtyPerCell = 5;
+	
+	
+	
 	public CellGroup[] cellgroups;
+	public int realCellGroupQty=0; //z
 
-	public static Egg createBrandNewEgg() {
-		Egg egg = new Egg();
-		Random r = new Random();
-		egg.cellgroups = new CellGroup[CELL_GROUP_QTY];
-		for (int i = 0; i < CELL_GROUP_QTY; i++) {
+	public Egg() {
+		// default constructor
+	}
+
+	private static Random r = new Random();
+	
+	public Egg(Egg e) {// clone the old egg
+		cellgroups = new CellGroup[e.cellgroups.length];
+		for (int i = 0; i < e.cellgroups.length; i++) {
+			CellGroup oldCellGroup = e.cellgroups[i];
+			CellGroup cellGroup = new CellGroup();
+			cellgroups[i] = cellGroup;
+			cellGroup.groupInputZone = new Zone(oldCellGroup.groupInputZone);
+			cellGroup.groupOutputZone = new Zone(oldCellGroup.groupOutputZone);
+			cellGroup.cellQty = oldCellGroup.cellQty;
+			cellGroup.cellInputRadius = oldCellGroup.cellInputRadius;
+			cellGroup.cellOutputRadius = oldCellGroup.cellOutputRadius;
+			cellGroup.inputQtyPerCell = oldCellGroup.inputQtyPerCell;
+			cellGroup.outputQtyPerCell = oldCellGroup.outputQtyPerCell;
+		}
+		realCellGroupQty=e.realCellGroupQty;
+	}
+
+	public Egg(Egg x, Egg y) { // use 2 eggs to create a zygote
+		cellgroups = new CellGroup[x.cellgroups.length + y.cellgroups.length+ randomCellGroupQty/5];
+		for (int i = 0; i < x.cellgroups.length; i++) {
+			CellGroup oldCellGroup = x.cellgroups[i];
+			CellGroup cellGroup = new CellGroup();
+			cellgroups[i] = cellGroup;
+			cellGroup.groupInputZone = new Zone(oldCellGroup.groupInputZone);
+			cellGroup.groupOutputZone = new Zone(oldCellGroup.groupOutputZone);
+			cellGroup.cellQty = oldCellGroup.cellQty;
+			cellGroup.cellInputRadius = oldCellGroup.cellInputRadius;
+			cellGroup.cellOutputRadius = oldCellGroup.cellOutputRadius;
+			cellGroup.inputQtyPerCell = oldCellGroup.inputQtyPerCell;
+			cellGroup.outputQtyPerCell = oldCellGroup.outputQtyPerCell;
+		}
+		int xLength = x.cellgroups.length;
+		for (int i = 0; i < y.cellgroups.length; i++) {
+			CellGroup oldCellGroup = y.cellgroups[i];
+			CellGroup cellGroup = new CellGroup();
+			cellgroups[xLength + i] = cellGroup;
+			cellGroup.groupInputZone = new Zone(oldCellGroup.groupInputZone);
+			cellGroup.groupOutputZone = new Zone(oldCellGroup.groupOutputZone);
+			cellGroup.cellQty = oldCellGroup.cellQty;
+			cellGroup.cellInputRadius = oldCellGroup.cellInputRadius;
+			cellGroup.cellOutputRadius = oldCellGroup.cellOutputRadius;
+			cellGroup.inputQtyPerCell = oldCellGroup.inputQtyPerCell;
+			cellGroup.outputQtyPerCell = oldCellGroup.outputQtyPerCell;
+		}
+		int yLength=y.cellgroups.length;
+		realCellGroupQty=xLength+yLength;
+		for (int i = 0; i < randomCellGroupQty/5; i++) {
+			CellGroup cellGroup = new CellGroup();
+			cellgroups[i+xLength+yLength] = cellGroup;
+			cellGroup.groupInputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
+					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
+			cellGroup.groupOutputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
+					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
+			cellGroup.cellQty = r.nextInt(x.randomCellQtyPerGroup);
+			cellGroup.cellInputRadius = (float) (r.nextFloat() * 0.001);
+			cellGroup.cellOutputRadius = (float) (r.nextFloat() * 0.001);
+			cellGroup.inputQtyPerCell = r.nextInt(x.randomInputQtyPerCell);
+			cellGroup.outputQtyPerCell = r.nextInt(x.randomOutQtyPerCell);
+		} 
+		
+	}
+
+	public static Egg createBrandNewEgg() { // create a brand new Egg
+		Egg egg = new Egg(); 
+		egg.cellgroups = new CellGroup[egg.randomCellGroupQty];
+		for (int i = 0; i < egg.randomCellGroupQty; i++) {
 			CellGroup cellGroup = new CellGroup();
 			egg.cellgroups[i] = cellGroup;
 			cellGroup.groupInputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
 					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
 			cellGroup.groupOutputZone = new Zone(r.nextFloat() * BRAIN_WIDTH, r.nextFloat() * BRAIN_WIDTH,
 					(float) (r.nextFloat() * BRAIN_WIDTH * .01));
-			cellGroup.cellQty = r.nextInt(10);
+			cellGroup.cellQty = r.nextInt(egg.randomCellQtyPerGroup);
 			cellGroup.cellInputRadius = (float) (r.nextFloat() * 0.001);
 			cellGroup.cellOutputRadius = (float) (r.nextFloat() * 0.001);
-			cellGroup.inputQtyPerCell = r.nextInt(10);
-			cellGroup.outputQtyPerCell = r.nextInt(5);
+			cellGroup.inputQtyPerCell = r.nextInt(egg.randomInputQtyPerCell);
+			cellGroup.outputQtyPerCell = r.nextInt(egg.randomOutQtyPerCell);
 		}
+		egg.realCellGroupQty=egg.cellgroups.length;
 		return egg;
 	}
 

@@ -37,4 +37,6 @@ public class CellGroup implements Serializable {
 
 	public float inputQtyPerCell; // input qty per cell
 	public float outputQtyPerCell; // output qty per cell
+
+	public long activeTimes = 0; // if activate times=0 ,this cellgroup may be ignored in egg
 }

@@ -8,7 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 
 /**
- * Application will build env, frogs and let them run
+ * Application's main method start the program
  */
 public class Application {
 	/** SHOW first frog's brain structure */
@@ -53,7 +53,7 @@ public class Application {
 			}
 		};
 		button.addActionListener(al);
-		
+
 		mainFrame.add(button);
 
 		mainFrame.setVisible(true);

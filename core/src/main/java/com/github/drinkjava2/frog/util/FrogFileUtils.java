@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * File Utilities usually used inside of compiler
+ * File Utilities used in this project
  * 
  * @author Yong Zhu
  * @since 1.0.0

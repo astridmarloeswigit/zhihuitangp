@@ -101,7 +101,7 @@ public class Frog {
 				cells.add(c);
 			}
 		}
-		this.egg = egg;// 保留一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下新蛋
+		this.egg = new Egg(egg);// 克隆一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下变异蛋
 	}
 
 	private int goUp = 0;
@@ -123,8 +123,10 @@ public class Frog {
 			if (energy < 10000) // in hungry
 				for (Input input : cell.inputs) {
 					if (input.nearby(hungry)) {
-						if (cell.energy < 100)
+						if (cell.energy < 100) {
 							cell.energy++;
+							egg.cellgroups[cell.group].activeTimes++;
+						}
 					}
 				}
 
@@ -191,6 +193,10 @@ public class Frog {
 		return (float) (f * (0.99f + r.nextFloat() * 0.02));
 	}
 
+	private static boolean percent70() {
+		return r.nextInt(10) > 2;
+	}
+
 	private float percet2(float f) {
 		if (!allowVariation)
 			return f;
@@ -208,11 +214,13 @@ public class Frog {
 		else
 			allowVariation = true;
 		Egg newEgg = new Egg();
-		CellGroup[] cellgroups = new CellGroup[egg.cellgroups.length];
-		newEgg.cellgroups = cellgroups;
-		for (int i = 0; i < cellgroups.length; i++) {
+
+		List<CellGroup> gpList = new ArrayList<>();
+		for (int i = 0; i < egg.cellgroups.length; i++) {
+			if (egg.cellgroups[i].activeTimes == 0 && percent70())
+				// if (egg.cellgroups[i].activeTimes == 0)
+				continue;// 从未激活过的神经元有70%的概率被丢弃掉
 			CellGroup cellGroup = new CellGroup();
-			cellgroups[i] = cellGroup;
 			CellGroup oldGp = egg.cellgroups[i];
 			cellGroup.groupInputZone = new Zone(percet2(oldGp.groupInputZone.x), percet2(oldGp.groupInputZone.y),
 					percet2(oldGp.groupInputZone.radius));
@@ -223,7 +231,9 @@ public class Frog {
 			cellGroup.cellOutputRadius = percet1(oldGp.cellOutputRadius);
 			cellGroup.inputQtyPerCell = Math.round(percet2(oldGp.inputQtyPerCell));
 			cellGroup.outputQtyPerCell = Math.round(percet2(oldGp.outputQtyPerCell));
+			gpList.add(cellGroup);
 		}
+		newEgg.cellgroups = gpList.toArray(new CellGroup[gpList.size()]);
 		return newEgg;
 	}
 

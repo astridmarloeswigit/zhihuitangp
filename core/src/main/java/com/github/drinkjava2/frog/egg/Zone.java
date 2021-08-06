@@ -42,11 +42,15 @@ public class Zone implements Serializable {
 			this.y = Egg.BRAIN_WIDTH;
 	}
 
+	public Zone(Zone z) {
+		this.x = z.x;
+		this.y = z.y;
+		this.radius = z.radius;
+	}
+
 	public boolean nearby(Zone z) {
 		float dist = radius + z.radius;
-		if (Math.abs(x - z.x) < dist && Math.abs(y - z.y) < dist)
-			return true;
-		return false;
+		return (Math.abs(x - z.x) < dist && Math.abs(y - z.y) < dist);
 	}
 
 	public int roundX() {

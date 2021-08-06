@@ -40,7 +40,8 @@ public class EggTool {
 	 */
 	public static void layEggs(Env env) {
 		sortFrogsOrderByEnergyDesc(env);
-		System.out.print("First frog energy=" + env.frogs.get(0).energy);
+		System.out.print("First frog has " + env.frogs.get(0).egg.cellgroups.length + " cellgroups, energy="
+				+ env.frogs.get(0).energy);
 		System.out.print(",  Last frog energy=" + env.frogs.get(env.frogs.size() - 1).energy + ",  ");
 		try {
 			List<Egg> newEggs = new ArrayList<Egg>();
@@ -66,6 +67,7 @@ public class EggTool {
 
 	private static void sortFrogsOrderByEnergyDesc(Env env) {
 		Collections.sort(env.frogs, new Comparator<Frog>() {
+
 			public int compare(Frog a, Frog b) {
 				if (a.energy > b.energy)
 					return -1;
