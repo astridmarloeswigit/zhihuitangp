@@ -25,7 +25,7 @@ public class Env extends JPanel {
 	public static int STEPS_PER_ROUND = 3000;
 
 	/** Delete eggs at beginning of each test */
-	public static boolean DELETE_EGGS = true;// 每次测试先删除保存的蛋
+	public static boolean DELETE_EGGS = false;// 每次测试先删除保存的蛋
 
 	static {
 		if (DELETE_EGGS)
@@ -42,9 +42,9 @@ public class Env extends JPanel {
 
 	public byte[][] foods = new byte[ENV_XSIZE][ENV_YSIZE];
 
-	public int FOOD_QTY = 80; // as name
+	public int FOOD_QTY =800; // as name
 
-	public int EGG_QTY = 200; // as name
+	public int EGG_QTY = 50; // as name
 
 	public List<Frog> frogs = new ArrayList<Frog>();
 	public List<Egg> eggs;
@@ -63,11 +63,11 @@ public class Env extends JPanel {
 			}
 		}
 		Random rand = new Random();
-		for (int j = 0; j < 12; j++) {//第一名多生出12个蛋
+		for (int j = 0; j < 12; j++) {// 第一名多生出12个蛋
 			Egg zygote = new Egg(eggs.get(0), eggs.get(r.nextInt(eggs.size())));
 			frogs.add(new Frog(ENV_XSIZE / 2 + rand.nextInt(90), ENV_YSIZE / 2 + rand.nextInt(90), zygote));
 		}
-		for (int i = 0; i < eggs.size()-3; i++) { // 1个Egg生出4个Frog，但是最后3名不生蛋(名额让给了第一名)
+		for (int i = 0; i < eggs.size() - 3; i++) { // 1个Egg生出4个Frog，但是最后3名不生蛋(名额让给了第一名)
 			for (int j = 0; j < 4; j++) {
 				Egg zygote = new Egg(eggs.get(i), eggs.get(r.nextInt(eggs.size())));
 				frogs.add(new Frog(ENV_XSIZE / 2 + rand.nextInt(90), ENV_YSIZE / 2 + rand.nextInt(90), zygote));

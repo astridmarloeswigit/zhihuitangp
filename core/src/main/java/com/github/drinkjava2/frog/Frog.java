@@ -43,19 +43,19 @@ public class Frog {
 	public List<Cell> cells = new ArrayList<Cell>();
 
 	/** 视觉细胞的输入区在脑中的坐标，随便取一个区就可以了，以后再考虑进化成两个眼睛 */
-	public Zone eye = new Zone(50, 250, 100);
+	public Zone eye = new Zone(50, 250, 50);
 
 	/** 饥饿的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone hungry = new Zone(300, 100, 200);
+	public Zone hungry = new Zone(300, 100, 100);
 
 	/** 进食奖励的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone happy = new Zone(300, 600, 200);
+	public Zone happy = new Zone(300, 600, 100);
 
 	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone moveDown = new Zone(700, 100, 50); // 屏幕y坐标是向下的
-	public Zone moveUp = new Zone(700, 400, 50);
-	public Zone moveLeft = new Zone(650, 250, 50);
-	public Zone moveRight = new Zone(750, 250, 50);
+	public Zone moveDown = new Zone(700, 100, 40); // 屏幕y坐标是向下的
+	public Zone moveUp = new Zone(700, 400, 40);
+	public Zone moveLeft = new Zone(650, 250, 40);
+	public Zone moveRight = new Zone(750, 250, 40);
 
 	public int x;
 	public int y;
@@ -113,7 +113,7 @@ public class Frog {
 	public boolean active(Env env) {
 		if (!alive)
 			return false;
-		energy -= 100;
+		energy -= 20;
 		if (energy < 0) {
 			alive = false;
 			return false;

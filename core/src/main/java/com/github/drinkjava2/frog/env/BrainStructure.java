@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.egg.CellGroup;
 import com.github.drinkjava2.frog.egg.Zone;
 
@@ -25,11 +24,27 @@ public class BrainStructure extends JPanel {
 	}
 
 	void drawZone(Graphics g, Zone z) {
-		g.drawRect(round(z.x - z.radius / 2), round(z.y - z.radius / 2), round(z.radius), round(z.radius));
+		g.drawRect(round(z.x - z.radius), round(z.y - z.radius), round(z.radius * 2), round(z.radius * 2));
 	}
 
 	void fillZone(Graphics g, Zone z) {
-		g.fillRect(round(z.x - z.radius / 2), round(z.y - z.radius / 2), round(z.radius), round(z.radius));
+		g.fillRect(round(z.x - z.radius), round(z.y - z.radius), round(z.radius * 2), round(z.radius * 2));
+	}
+
+	private static Color color(float i) {
+		if (i <= 1)
+			return Color.GRAY;
+		if (i <= 3)
+			return Color.ORANGE;
+		if (i <= 10)
+			return Color.YELLOW;
+		if (i <= 20)
+			return Color.GREEN;
+		if (i <= 50)
+			return Color.CYAN;
+		if (i <= 100)
+			return Color.BLUE;
+		return Color.MAGENTA;
 	}
 
 	public void drawBrain(Frog frog) {
@@ -58,25 +73,14 @@ public class BrainStructure extends JPanel {
 
 		g.setColor(Color.black);
 
-		int c = 1;
-		for (int j = 0; j <  frog.egg.realCellGroupQty; j++) {
-			CellGroup group=frog.egg.cellgroups[j];
-			g.setColor(new Color((c++) * 130 + c * 70000 + c * 3333333));// 取随机色
+		for (int j = 0; j < frog.egg.realCellGroupQty; j++) {
+			CellGroup group = frog.egg.cellgroups[j];
+			g.setColor(color(group.cellQty));// 取随机色
 			g.drawLine(round(group.groupInputZone.x), round(group.groupInputZone.y), round(group.groupOutputZone.x),
 					round(group.groupOutputZone.y));
 			drawZone(g, group.groupInputZone);
 			fillZone(g, group.groupOutputZone);
 		}
-		
-		
-//		for (CellGroup group : frog.egg.cellgroups) {
-//			g.setColor(new Color((i++) * 130 + i * 70000 + i * 3333333));// 取随机色
-//			g.drawLine(round(group.groupInputZone.x), round(group.groupInputZone.y), round(group.groupOutputZone.x),
-//					round(group.groupOutputZone.y));
-//			drawZone(g, group.groupInputZone);
-//			fillZone(g, group.groupOutputZone);
-//		}
- 
 
 	}
 }
