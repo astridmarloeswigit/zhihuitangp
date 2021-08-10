@@ -32,6 +32,8 @@ public class Env extends JPanel {
 			EggTool.deleteEggs();
 	}
 
+	public static boolean pause = false;
+
 	private static final Random r = new Random();
 
 	/** Virtual environment x size is 500 pixels */
@@ -42,7 +44,7 @@ public class Env extends JPanel {
 
 	public byte[][] foods = new byte[ENV_XSIZE][ENV_YSIZE];
 
-	public int FOOD_QTY =800; // as name
+	public int FOOD_QTY = 1800; // as name
 
 	public int EGG_QTY = 50; // as name
 
@@ -87,6 +89,15 @@ public class Env extends JPanel {
 				}
 	}
 
+	private static void sleep() {
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void run() throws InterruptedException {
 		EggTool.loadEggs(this); // 从磁盘加载egg，或新建一批egg
 		int round = 1;
@@ -94,6 +105,10 @@ public class Env extends JPanel {
 		Graphics g = buffImg.getGraphics();
 		long t1, t2;
 		do {
+			if (pause) {
+				sleep();
+				continue;
+			}
 			t1 = System.currentTimeMillis();
 			rebuildFrogAndFood();
 			boolean allDead = false;
@@ -119,10 +134,12 @@ public class Env extends JPanel {
 				Graphics g2 = this.getGraphics();
 				g2.drawImage(buffImg, 0, 0, this);
 			}
+
 			EggTool.layEggs(this);
 			Application.brainStructure.drawBrain(frogs.get(0));
 			t2 = System.currentTimeMillis();
-			Application.mainFrame.setTitle("Frog test round: " + round++ + ", time used: " + (t2 - t1) + " ms");
+			Application.mainFrame.setTitle("Frog test round: " + round++ + ", time used: " + (t2 - t1) + " ms, x="
+					+ frogs.get(0).x + ", y=" + frogs.get(0).y);
 		} while (true);
 	}
 }

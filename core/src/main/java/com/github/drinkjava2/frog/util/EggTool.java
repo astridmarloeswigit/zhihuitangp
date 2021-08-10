@@ -40,14 +40,15 @@ public class EggTool {
 	 */
 	public static void layEggs(Env env) {
 		sortFrogsOrderByEnergyDesc(env);
-		System.out.print("First frog has " + env.frogs.get(0).egg.cellgroups.length + " cellgroups, energy="
+		System.out.print("First frog has " + env.frogs.get(0).cellGroups.length + " cellgroups, energy="
 				+ env.frogs.get(0).energy);
 		System.out.print(",  Last frog energy=" + env.frogs.get(env.frogs.size() - 1).energy + ",  ");
 		try {
 			List<Egg> newEggs = new ArrayList<Egg>();
 			for (int i = 0; i < env.EGG_QTY; i++)
-				newEggs.add(env.frogs.get(i).layEgg());
-
+				newEggs.add(  new Egg(env.frogs.get(i), true));
+			System.out.print(",  EggCellGroups="+newEggs.get(0).cellGroups.length);
+ 
 			if (JSON_FILE_FORMAT) {
 				String newEggsString = JSON.toJSONString(newEggs);
 				FrogFileUtils.writeFile(Application.CLASSPATH + "eggs.json", newEggsString, "utf-8");
@@ -59,7 +60,7 @@ public class EggTool {
 			}
 			env.eggs = newEggs;
 			System.out
-					.println("Saved " + env.eggs.size() + " eggs to file '" + Application.CLASSPATH + "eggs.ser" + "'");
+					.println(" Saved " + env.eggs.size() + " eggs to file '" + Application.CLASSPATH + "eggs.ser" + "'");
 		} catch (IOException e) {
 			System.out.println(e);
 		}

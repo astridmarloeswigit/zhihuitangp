@@ -29,7 +29,7 @@ public class Application {
 		if (SHOW_FIRST_FROG_BRAIN)
 			mainFrame.setSize(1320, 840); // 窗口大小
 		else
-			mainFrame.setSize(550, 550); // 窗口大小
+			mainFrame.setSize(550, 570); // 窗口大小
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 关闭时退出程序
 		mainFrame.add(env);
 
@@ -48,13 +48,30 @@ public class Application {
 					mainFrame.setSize(1320, 840);
 				} else {
 					button.setText("Show first frog's brain");
-					mainFrame.setSize(550, 550);
+					mainFrame.setSize(550, 570);
 				}
 			}
 		};
 		button.addActionListener(al);
-
 		mainFrame.add(button);
+
+		JButton stopButton = new JButton("Pause");
+		stopButton.setVisible(true);
+		stopButton.setLayout(null);// 空布局
+		stopButton.setBounds(150, 490, 180, 30);
+		ActionListener a2 = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Env.pause = !Env.pause; 
+				if (Env.pause) {
+					stopButton.setText("Resume"); 
+				} else {
+					stopButton.setText("Pause"); 
+				}
+			}
+		};
+		stopButton.addActionListener(a2);
+		mainFrame.add(stopButton);
 
 		mainFrame.setVisible(true);
 

@@ -29,8 +29,7 @@ import com.github.drinkjava2.frog.env.Application;
 import com.github.drinkjava2.frog.env.Env;
 
 /**
- * Frog = brain + body(mouth, eye, leg), but now let's focus on brain, ignore
- * body
+ * Frog = brain + body, but now let's only focus on brain, ignore body
  * 
  * 为了简化模型，这个类里出现多个固定数值的编码，以后要改进成可以可以放在蛋里遗传进化的动态数值，先让生命延生是第一步，优化是以后的事
  * 
@@ -38,6 +37,8 @@ import com.github.drinkjava2.frog.env.Env;
  * @since 1.0.0
  */
 public class Frog {
+
+	public CellGroup[] cellGroups;
 
 	/** brain cells */
 	public List<Cell> cells = new ArrayList<Cell>();
@@ -59,8 +60,7 @@ public class Frog {
 
 	public int x;
 	public int y;
-	public long energy = 10000;
-	public Egg egg; // 青蛙是从哪个egg孵出来的,如果青蛙生存下来，将用这个egg来下蛋
+	public long energy = 10000; 
 	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与任何计算，以节省时间
 
 	static final Random r = new Random();
@@ -76,12 +76,16 @@ public class Frog {
 	public Frog(int x, int y, Egg egg) {
 		this.x = x;
 		this.y = y;
-		if (egg.cellgroups == null)
-			throw new IllegalArgumentException("Illegal egg cellgroups argument:" + egg.cellgroups);
-		for (int k = 0; k < egg.cellgroups.length; k++) {
-			CellGroup g = egg.cellgroups[k];
+		if (egg.cellGroups == null)
+			throw new IllegalArgumentException("Illegal egg cellgroups argument:" + egg.cellGroups);
+
+		cellGroups = new CellGroup[egg.cellGroups.length];
+		for (int k = 0; k < egg.cellGroups.length; k++) {
+			CellGroup g = egg.cellGroups[k];
+			cellGroups[k] = new CellGroup(g);
 			for (int i = 0; i < g.cellQty; i++) {// 开始根据蛋来创建脑细胞
 				Cell c = new Cell();
+				c.group = k;
 				int cellQTY = Math.round(g.inputQtyPerCell);
 				c.inputs = new Input[cellQTY];
 				for (int j = 0; j < cellQTY; j++) {
@@ -100,8 +104,7 @@ public class Frog {
 				}
 				cells.add(c);
 			}
-		}
-		this.egg = new Egg(egg);// 克隆一份蛋，如果没被淘汰掉，将来下蛋时要用这个蛋来下变异蛋
+		} 
 	}
 
 	private int goUp = 0;
@@ -122,38 +125,40 @@ public class Frog {
 		for (Cell cell : cells) {
 			if (energy < 10000) // in hungry
 				for (Input input : cell.inputs) {
-					if (input.nearby(hungry)) {
-						if (cell.energy < 100) {
+					if (input.nearby(hungry)) { 
+						if (cell.energy < 100)
 							cell.energy++;
-							egg.cellgroups[cell.group].activeTimes++;
-						}
 					}
 				}
 
 			for (Output output : cell.outputs) { // hungry drive moves
 				if (goUp < 1 && cell.energy > 10 && moveUp.nearby(output)) {
+					cellGroups[cell.group].fat++;
 					goUp++;
 					if (cell.energy > 0)
 						cell.energy--;
 				}
 				if (goDown < 1 && cell.energy > 10 && moveDown.nearby(output)) {
+					cellGroups[cell.group].fat++;
 					goDown++;
 					if (cell.energy > 0)
 						cell.energy--;
 				}
 				if (goLeft < 1 && cell.energy > 10 && moveLeft.nearby(output)) {
+					cellGroups[cell.group].fat++;
 					goLeft++;
 					if (cell.energy > 0)
 						cell.energy--;
 				}
 				if (goRight < 1 && cell.energy > 10 && moveRight.nearby(output)) {
+					cellGroups[cell.group].fat++;
 					goRight++;
 					if (cell.energy > 0)
 						cell.energy--;
 				}
 			}
-			moveAndEat(env);
 		}
+		moveAndEat(env);
 		return alive;
 	}
 
@@ -185,56 +190,9 @@ public class Frog {
 		}
 	}
 
-	private boolean allowVariation = false;
-
-	private float percet1(float f) {
-		if (!allowVariation)
-			return f;
-		return (float) (f * (0.99f + r.nextFloat() * 0.02));
-	}
-
-	private static boolean percent70() {
-		return r.nextInt(10) > 2;
-	}
-
-	private float percet2(float f) {
-		if (!allowVariation)
-			return f;
-		return (float) (f * (0.98f + r.nextFloat() * 0.04));
-	}
-
 	private static Zone randomPosInZone(Zone z) {
 		return new Zone(z.x - z.radius + z.radius * 2 * r.nextFloat(), z.y - z.radius + z.radius * 2 * r.nextFloat(),
 				0);
-	}
-
-	public Egg layEgg() {
-		if (r.nextInt(100) > 25) // 变异率先固定在25%
-			allowVariation = false;// 如果不允许变异，下的蛋就相当于克隆原来的蛋
-		else
-			allowVariation = true;
-		Egg newEgg = new Egg();
-
-		List<CellGroup> gpList = new ArrayList<>();
-		for (int i = 0; i < egg.cellgroups.length; i++) {
-			if (egg.cellgroups[i].activeTimes == 0 && percent70())
-				// if (egg.cellgroups[i].activeTimes == 0)
-				continue;// 从未激活过的神经元有70%的概率被丢弃掉
-			CellGroup cellGroup = new CellGroup();
-			CellGroup oldGp = egg.cellgroups[i];
-			cellGroup.groupInputZone = new Zone(percet2(oldGp.groupInputZone.x), percet2(oldGp.groupInputZone.y),
-					percet2(oldGp.groupInputZone.radius));
-			cellGroup.groupOutputZone = new Zone(percet2(oldGp.groupOutputZone.x), percet2(oldGp.groupOutputZone.y),
-					percet2(oldGp.groupOutputZone.radius));
-			cellGroup.cellQty = Math.round(percet2(oldGp.cellQty));
-			cellGroup.cellInputRadius = percet1(oldGp.cellInputRadius);
-			cellGroup.cellOutputRadius = percet1(oldGp.cellOutputRadius);
-			cellGroup.inputQtyPerCell = Math.round(percet2(oldGp.inputQtyPerCell));
-			cellGroup.outputQtyPerCell = Math.round(percet2(oldGp.outputQtyPerCell));
-			gpList.add(cellGroup);
-		}
-		newEgg.cellgroups = gpList.toArray(new CellGroup[gpList.size()]);
-		return newEgg;
 	}
 
 	public void show(Graphics g) {
