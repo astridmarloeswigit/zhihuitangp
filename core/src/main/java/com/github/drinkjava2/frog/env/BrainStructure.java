@@ -1,7 +1,5 @@
 package com.github.drinkjava2.frog.env;
 
-import static java.lang.Math.round;
-
 import java.awt.Color;
 import java.awt.Graphics;
 
@@ -16,23 +14,47 @@ import com.github.drinkjava2.frog.egg.Zone;
  */
 @SuppressWarnings("serial")
 public class BrainStructure extends JPanel {
+	private float brainWidth;
+	private int brainDispWidth;
 
-	public BrainStructure() {
+	public BrainStructure(int x, int y, float brainWidth, int brainDispWidth) {
 		super();
 		this.setLayout(null);// 空布局
-		this.setBounds(500, 0, 1000, 1000);
+		this.brainDispWidth = brainDispWidth;
+		this.brainWidth = brainWidth;
+		this.setBounds(x, y, brainDispWidth + 1, brainDispWidth + 1);
 	}
 
 	void drawZone(Graphics g, Zone z) {
-		g.drawRect(round(z.x - z.radius), round(z.y - z.radius), round(z.radius * 2), round(z.radius * 2));
+		float rate = brainDispWidth / brainWidth;
+		int x = Math.round(z.x * rate);
+		int y = Math.round(z.y * rate);
+		int radius = Math.round(z.radius * rate);
+		g.drawRect(x - radius, y - radius, radius * 2, radius * 2);
 	}
 
-	void drawZoneCircle(Graphics g, Zone z) {
-		g.drawArc(round(z.x - 8), round(z.y - 8), 16, 16, 0, 360);
+	void drawCircle(Graphics g, Zone z) {
+		float rate = brainDispWidth / brainWidth;
+		int x = Math.round(z.x * rate);
+		int y = Math.round(z.y * rate);
+		g.drawArc(x - 5, y - 5, 10, 10, 0, 360);
 	}
 
 	void fillZone(Graphics g, Zone z) {
-		g.fillRect(round(z.x - z.radius), round(z.y - z.radius), round(z.radius * 2), round(z.radius * 2));
+		float rate = brainDispWidth / brainWidth;
+		int x = Math.round(z.x * rate);
+		int y = Math.round(z.y * rate);
+		int radius = Math.round(z.radius * rate);
+		g.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+	}
+
+	void drawLine(Graphics g, Zone z1, Zone z2) {
+		float rate = brainDispWidth / brainWidth;
+		int x1 = Math.round(z1.x * rate);
+		int y1 = Math.round(z1.y * rate);
+		int x2 = Math.round(z2.x * rate);
+		int y2 = Math.round(z2.y * rate);
+		g.drawLine(x1, y1, x2, y2);
 	}
 
 	private static Color color(float i) {
@@ -56,15 +78,12 @@ public class BrainStructure extends JPanel {
 			return;
 		Graphics g = this.getGraphics();// border
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, 800, 800);
+		g.fillRect(0, 0, brainDispWidth, brainDispWidth);
 		g.setColor(Color.black);
-		g.drawRect(0, 0, 800, 800);
+		g.drawRect(0, 0, brainDispWidth, brainDispWidth);
 
 		g.setColor(Color.red);
 		drawZone(g, frog.eye); // eye
-
-		g.setColor(Color.green);
-		drawZone(g, frog.happy); // happy
 
 		g.setColor(Color.yellow);
 		drawZone(g, frog.hungry); // hungry
@@ -80,15 +99,13 @@ public class BrainStructure extends JPanel {
 				g.setColor(Color.lightGray); // 如果是本轮随机生成的，灰色表示
 			else
 				g.setColor(color(group.cellQty)); // 如果是继承的，彩虹色表示，颜色数越往后表示数量越多
-			g.drawLine(round(group.groupInputZone.x), round(group.groupInputZone.y), round(group.groupOutputZone.x),
-					round(group.groupOutputZone.y));
+			drawLine(g, group.groupInputZone, group.groupOutputZone);
 			drawZone(g, group.groupInputZone);
-		 
 			fillZone(g, group.groupOutputZone);
 			if (group.fat > 0) {
 				g.setColor(Color.BLACK);
-				drawZoneCircle(g, group.groupOutputZone); // 如果胖了，表示激活过了，下次下蛋少不了这一组
-				}
+				drawCircle(g, group.groupOutputZone); // 如果胖了，表示激活过了，下次下蛋少不了这一组
+			}
 		}
 
 	}

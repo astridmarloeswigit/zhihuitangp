@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.env.Env;
 
 /**
  * Egg is the static structure description of frog, can save as text file, to
@@ -27,8 +28,7 @@ import com.github.drinkjava2.frog.Frog;
  */
 public class Egg implements Serializable {
 	private static final long serialVersionUID = 2L;
-	public static final int BRAIN_WIDTH = 800;
-	public int randomCellGroupQty = 100; // 随机生成多少个组
+	public int randomCellGroupQty = 30; // 随机生成多少个组
 	public int randomCellQtyPerGroup = 3; // 每个组有多少个脑细胞
 	public int randomInputQtyPerCell = 3;// 每个脑细胞有多少个输入触突
 	public int randomOutQtyPerCell = 2; // 每个脑细胞有多少个输出触突
@@ -44,7 +44,7 @@ public class Egg implements Serializable {
 	// 我靠，两个蛋怎么合成一个蛋?看来要模拟XY染色体了，不能做加法，会撑暴内存的，但现在，每次只随机加一个
 	public Egg(Egg x, Egg y) { // use 2 eggs to create a zygote
 		// x里原来的CellGroup
-		cellGroups = new CellGroup[x.cellGroups.length + 1 + randomCellGroupQty / 3];
+		cellGroups = new CellGroup[x.cellGroups.length + 1 + randomCellGroupQty ];
 		for (int i = 0; i < x.cellGroups.length; i++) {
 			CellGroup oldCellGroup = x.cellGroups[i];
 			CellGroup cellGroup = new CellGroup();
@@ -62,11 +62,11 @@ public class Egg implements Serializable {
 		// 从y里借一个CellGroup
 		CellGroup randomY = y.cellGroups[r.nextInt(y.cellGroups.length)];
 		CellGroup cellGroup = new CellGroup(randomY);
-		cellGroups[x.cellGroups.length ] = cellGroup;
+		cellGroups[x.cellGroups.length] = cellGroup;
 
-		//随机生成一批CellGroup
-		for (int i = 0; i < randomCellGroupQty / 3; i++)
-			cellGroups[i + x.cellGroups.length + 1] = new CellGroup(Egg.BRAIN_WIDTH, x.randomCellQtyPerGroup,
+		// 随机生成一批CellGroup
+		for (int i = 0; i < randomCellGroupQty ; i++)
+			cellGroups[i + x.cellGroups.length + 1] = new CellGroup(Env.FROG_BRAIN_WIDTH, x.randomCellQtyPerGroup,
 					x.randomInputQtyPerCell, x.randomOutQtyPerCell);
 	}
 
@@ -74,8 +74,8 @@ public class Egg implements Serializable {
 		Egg egg = new Egg();
 		egg.cellGroups = new CellGroup[egg.randomCellGroupQty];
 		for (int i = 0; i < egg.randomCellGroupQty; i++)
-			egg.cellGroups[i] = new CellGroup(Egg.BRAIN_WIDTH, egg.randomCellQtyPerGroup, egg.randomInputQtyPerCell,
-					egg.randomOutQtyPerCell);
+			egg.cellGroups[i] = new CellGroup(Env.FROG_BRAIN_WIDTH, egg.randomCellQtyPerGroup,
+					egg.randomInputQtyPerCell, egg.randomOutQtyPerCell);
 		return egg;
 	}
 
@@ -102,10 +102,10 @@ public class Egg implements Serializable {
 		List<CellGroup> gpList = new ArrayList<>();
 		for (int i = 0; i < frog.cellGroups.length; i++) {
 			if (frog.cellGroups[i].fat <= 0) {
-				 if (!  frog.cellGroups[i].inherit)
-				 continue;// 从未激活过的神经元，并且就是本轮随机生成的，丢弃之
-				 if (percent(10))
-				continue;// 继承下来的神经元，但是本轮并没用到， 扔掉又可惜，可以小概率丢掉
+				if (!frog.cellGroups[i].inherit)
+					continue;// 从未激活过的神经元，并且就是本轮随机生成的，丢弃之
+				if (percent(10))
+					continue;// 继承下来的神经元，但是本轮并没用到， 扔掉又可惜，可以小概率丢掉
 			}
 			CellGroup cellGroup = new CellGroup();
 			CellGroup oldGp = frog.cellGroups[i];

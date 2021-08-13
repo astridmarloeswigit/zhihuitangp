@@ -19,34 +19,39 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED = 1;
+	public static int SHOW_SPEED = 50; // 测试速度，1~1000, 数值越小，速度越慢
+
+	public static int ENV_WIDTH = 400; // 虚拟环境宽度, 可调
+
+	/** Virtual environment y size pixels */
+	public static int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
+
+	/** Frog's brain display width on screen, not important */
+	public static final int FROG_BRAIN_DISP_WIDTH = 400; // Frog的脑图在屏幕上的显示大小,可调
+
+	/** Frog's brain width */
+	public static final float FROG_BRAIN_WIDTH = 1000; // frog的脑宽度固定为1000,不要调整它,因为器官的大小是假定脑宽为1000的
 
 	/** Steps of one test round */
-	public static int STEPS_PER_ROUND = 3000;
+	public static int STEPS_PER_ROUND = 3000;// 每轮测试步数,可以调整
 
-	/** Delete eggs at beginning of each test */
-	public static boolean DELETE_EGGS = false;// 每次测试先删除保存的蛋
+	/** Delete eggs at beginning of each run */
+	public static boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
 
 	static {
 		if (DELETE_EGGS)
 			EggTool.deleteEggs();
 	}
 
-	public static boolean pause = false;
+	public int FOOD_QTY = 4000; // 食物数量
 
-	private static final Random r = new Random();
+	public int EGG_QTY = 50; // 每轮下n个蛋，只有最优秀的前n个青蛙们才允许下蛋
 
-	/** Virtual environment x size is 500 pixels */
-	public int ENV_XSIZE = 300;
+	public static boolean pause = false; // 暂停测试
 
-	/** Virtual environment y size is 500 pixels */
-	public int ENV_YSIZE = 300;
+	private static final Random r = new Random(); // 随机数发生器
 
-	public byte[][] foods = new byte[ENV_XSIZE][ENV_YSIZE];
-
-	public int FOOD_QTY = 1800; // as name
-
-	public int EGG_QTY = 50; // as name
+	public boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
 
 	public List<Frog> frogs = new ArrayList<Frog>();
 	public List<Egg> eggs;
@@ -54,37 +59,37 @@ public class Env extends JPanel {
 	public Env() {
 		super();
 		this.setLayout(null);// 空布局
-		this.setBounds(100, 100, ENV_XSIZE, ENV_YSIZE);
+		this.setBounds(1, 1, ENV_WIDTH, ENV_HEIGHT);
 	}
 
 	private void rebuildFrogAndFood() {
 		frogs.clear();
-		for (int i = 0; i < ENV_XSIZE; i++) {// clear foods
-			for (int j = 0; j < ENV_YSIZE; j++) {
-				foods[i][j] = 0;
+		for (int i = 0; i < ENV_WIDTH; i++) {// clear foods
+			for (int j = 0; j < ENV_HEIGHT; j++) {
+				foods[i][j] = false;
 			}
 		}
 		Random rand = new Random();
 		for (int j = 0; j < 12; j++) {// 第一名多生出12个蛋
 			Egg zygote = new Egg(eggs.get(0), eggs.get(r.nextInt(eggs.size())));
-			frogs.add(new Frog(ENV_XSIZE / 2 + rand.nextInt(90), ENV_YSIZE / 2 + rand.nextInt(90), zygote));
+			frogs.add(new Frog(ENV_WIDTH / 2 + rand.nextInt(90), ENV_HEIGHT / 2 + rand.nextInt(90), zygote));
 		}
 		for (int i = 0; i < eggs.size() - 3; i++) { // 1个Egg生出4个Frog，但是最后3名不生蛋(名额让给了第一名)
 			for (int j = 0; j < 4; j++) {
 				Egg zygote = new Egg(eggs.get(i), eggs.get(r.nextInt(eggs.size())));
-				frogs.add(new Frog(ENV_XSIZE / 2 + rand.nextInt(90), ENV_YSIZE / 2 + rand.nextInt(90), zygote));
+				frogs.add(new Frog(ENV_WIDTH / 2 + rand.nextInt(90), ENV_HEIGHT / 2 + rand.nextInt(90), zygote));
 			}
 		}
 
 		System.out.println("Created " + 4 * eggs.size() + " frogs");
 		for (int i = 0; i < FOOD_QTY; i++)
-			foods[rand.nextInt(ENV_XSIZE - 3)][rand.nextInt(ENV_YSIZE - 3)] = 1;
+			foods[rand.nextInt(ENV_WIDTH - 3)][rand.nextInt(ENV_HEIGHT - 3)] = true;
 	}
 
 	private void drawFood(Graphics g) {
-		for (int x = 0; x < ENV_XSIZE; x++)
-			for (int y = 0; y < ENV_YSIZE; y++)
-				if (foods[x][y] > 0) {
+		for (int x = 0; x < ENV_WIDTH; x++)
+			for (int y = 0; y < ENV_HEIGHT; y++)
+				if (foods[x][y]) {
 					g.fillOval(x, y, 4, 4);
 				}
 	}

@@ -60,7 +60,7 @@ public class CellGroup implements Serializable {
 		inherit = g.inherit;
 	}
 
-	public CellGroup(int brainWidth, int randomCellQtyPerGroup, int randomInputQtyPerCell, int randomOutQtyPerCell) {
+	public CellGroup(float brainWidth, int randomCellQtyPerGroup, int randomInputQtyPerCell, int randomOutQtyPerCell) {
 		inherit = false;
 		groupInputZone = new Zone(r.nextFloat() * brainWidth, r.nextFloat() * brainWidth,
 				(float) (r.nextFloat() * brainWidth * .01));

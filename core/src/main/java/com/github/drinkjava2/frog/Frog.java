@@ -44,13 +44,10 @@ public class Frog {
 	public List<Cell> cells = new ArrayList<Cell>();
 
 	/** 视觉细胞的输入区在脑中的坐标，随便取一个区就可以了，以后再考虑进化成两个眼睛 */
-	public Zone eye = new Zone(50, 250, 50);
+	public Zone eye = new Zone(100, 400, 100);
 
 	/** 饥饿的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
 	public Zone hungry = new Zone(300, 100, 100);
-
-	/** 进食奖励的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone happy = new Zone(300, 600, 100);
 
 	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
 	public Zone moveDown = new Zone(700, 100, 40); // 屏幕y坐标是向下的
@@ -58,10 +55,10 @@ public class Frog {
 	public Zone moveLeft = new Zone(650, 250, 40);
 	public Zone moveRight = new Zone(750, 250, 40);
 
-	public int x;
-	public int y;
-	public long energy = 10000; 
-	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与任何计算，以节省时间
+	public int x; // frog在env中的x坐标
+	public int y; // frog在env中的y坐标
+	public long energy = 10000; // 能量为0则死掉
+	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与任何计算和显示，以节省时间
 
 	static final Random r = new Random();
 	static Image frogImg;
@@ -104,7 +101,7 @@ public class Frog {
 				}
 				cells.add(c);
 			}
-		} 
+		}
 	}
 
 	private int goUp = 0;
@@ -123,38 +120,42 @@ public class Frog {
 		}
 
 		for (Cell cell : cells) {
-			if (energy < 10000) // in hungry
-				for (Input input : cell.inputs) {
-					if (input.nearby(hungry)) { 
+			if (cell.energy > 0)
+				cell.energy--;
+
+			for (Input input : cell.inputs) {
+				if (energy < 10000) // if hungry
+					if (input.nearby(hungry)) {
 						if (cell.energy < 100)
 							cell.energy++;
 					}
+
+				if (input.nearby(eye)) {
+
+					// cell.energy+=10;
 				}
+			}
 
 			for (Output output : cell.outputs) { // hungry drive moves
 				if (goUp < 1 && cell.energy > 10 && moveUp.nearby(output)) {
 					cellGroups[cell.group].fat++;
 					goUp++;
-					if (cell.energy > 0)
-						cell.energy--;
+					cell.energy -= 6;
 				}
 				if (goDown < 1 && cell.energy > 10 && moveDown.nearby(output)) {
 					cellGroups[cell.group].fat++;
 					goDown++;
-					if (cell.energy > 0)
-						cell.energy--;
+					cell.energy -= 6;
 				}
 				if (goLeft < 1 && cell.energy > 10 && moveLeft.nearby(output)) {
 					cellGroups[cell.group].fat++;
 					goLeft++;
-					if (cell.energy > 0)
-						cell.energy--;
+					cell.energy -= 6;
 				}
 				if (goRight < 1 && cell.energy > 10 && moveRight.nearby(output)) {
 					cellGroups[cell.group].fat++;
 					goRight++;
-					if (cell.energy > 0)
-						cell.energy--;
+					cell.energy -= 6;
 				}
 			}
 		}
@@ -173,17 +174,18 @@ public class Frog {
 		goDown = 0;
 		goLeft = 0;
 		goRight = 0;
-		if (x < 0 || x >= env.ENV_XSIZE || y < 0 || y >= env.ENV_YSIZE) {// 越界者死！
+		if (x < 0 || x >= Env.ENV_WIDTH || y < 0 || y >= Env.ENV_HEIGHT) {// 越界者死！
 			alive = false;
 			return;
 		}
 
 		boolean eatedFood = false;
-		if (env.foods[x][y] > 0) {
-			env.foods[x][y] = 0;
+		if (env.foods[x][y]) {
+			env.foods[x][y] = false;
 			energy = energy + 1000;// 吃掉food，能量境加
 			eatedFood = true;
 		}
+
 		// 奖励
 		if (eatedFood) {
 

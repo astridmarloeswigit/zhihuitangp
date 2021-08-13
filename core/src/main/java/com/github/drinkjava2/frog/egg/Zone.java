@@ -12,8 +12,10 @@ package com.github.drinkjava2.frog.egg;
 
 import java.io.Serializable;
 
+import com.github.drinkjava2.frog.env.Env;
+
 /**
- * Zone represents a position in brain
+ * Zone represents a rectangle zone in brain
  * 
  * @author Yong Zhu
  * @since 1.0.0
@@ -22,7 +24,7 @@ public class Zone implements Serializable {
 	private static final long serialVersionUID = 3L;
 	public float x;
 	public float y;
-	public float radius;
+	public float radius;// so width of the zone= radius*2
 
 	public Zone() {
 		// 空构造器不能省，FastJSON实例化时要用到
@@ -36,10 +38,10 @@ public class Zone implements Serializable {
 			this.x = 0;
 		if (this.y < 0)
 			this.y = 0;
-		if (this.x > Egg.BRAIN_WIDTH)
-			this.x = Egg.BRAIN_WIDTH;
-		if (this.y > Egg.BRAIN_WIDTH)
-			this.y = Egg.BRAIN_WIDTH;
+		if (this.x > Env.FROG_BRAIN_WIDTH)
+			this.x = Env.FROG_BRAIN_WIDTH;
+		if (this.y > Env.FROG_BRAIN_WIDTH)
+			this.y = Env.FROG_BRAIN_WIDTH;
 	}
 
 	public Zone(Zone z) {
