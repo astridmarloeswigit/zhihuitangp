@@ -8,18 +8,18 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.brain;
+package com.github.drinkjava2.frog.egg;
 
 /**
- * Cell is a brain nerve cell, this is the basic unit of frog's brain
- * 
- * @author Yong Zhu
- * @since 1.0.0
+ * OrganDesc store info to create Organ
  */
-public class Cell {
-	public int group; // this cell belong to which group
-	public Input[] inputs; // inputs of cell
-	public Output[] outputs; // outputs of cell
-	public long energy;
+public class OrganDesc extends Zone {
+	private static final long serialVersionUID = 1L;
+	public int type;
+
+	public OrganDesc(int type, float x, float y, float radius) {
+		super(x, y, radius);
+		this.type = type;
+	}
 
 }

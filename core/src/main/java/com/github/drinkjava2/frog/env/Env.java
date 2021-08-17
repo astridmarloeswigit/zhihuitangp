@@ -19,41 +19,41 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED = 50; // 测试速度，1~1000, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 40; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
-	public static int ENV_WIDTH = 400; // 虚拟环境宽度, 可调
+	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
 	/** Virtual environment y size pixels */
-	public static int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
+	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
-	public static final int FROG_BRAIN_DISP_WIDTH = 400; // Frog的脑图在屏幕上的显示大小,可调
-
-	/** Frog's brain width */
-	public static final float FROG_BRAIN_WIDTH = 1000; // frog的脑宽度固定为1000,不要调整它,因为器官的大小是假定脑宽为1000的
+	public static final int FROG_BRAIN_DISP_WIDTH = ENV_WIDTH; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
-	public static int STEPS_PER_ROUND = 3000;// 每轮测试步数,可以调整
+	public static final int STEPS_PER_ROUND = 3000;// 每轮测试步数,可调
+
+	/** Frog's brain width, fixed to 1000 unit */
+	public static final float FROG_BRAIN_WIDTH = 900; // frog的脑宽度固定为800,不要随便调整,因为器官的相对位置和大小都是按假定脑大小设定的
 
 	/** Delete eggs at beginning of each run */
-	public static boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
+	public static final boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
 
 	static {
 		if (DELETE_EGGS)
 			EggTool.deleteEggs();
 	}
 
-	public int FOOD_QTY = 4000; // 食物数量
+	public static final int FOOD_QTY = 2000; // 食物数量, 可调
 
-	public int EGG_QTY = 50; // 每轮下n个蛋，只有最优秀的前n个青蛙们才允许下蛋
-
-	public static boolean pause = false; // 暂停测试
+	public static final int EGG_QTY = 50; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
 
 	private static final Random r = new Random(); // 随机数发生器
 
-	public boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
+	public static boolean pause = false; // 暂停按钮按下将暂停测试
 
-	public List<Frog> frogs = new ArrayList<Frog>();
+	public static final boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
+
+	public List<Frog> frogs = new ArrayList<>();
 	public List<Egg> eggs;
 
 	public Env() {
@@ -82,7 +82,7 @@ public class Env extends JPanel {
 		}
 
 		System.out.println("Created " + 4 * eggs.size() + " frogs");
-		for (int i = 0; i < FOOD_QTY; i++)
+		for (int i = 0; i < Env.FOOD_QTY; i++)
 			foods[rand.nextInt(ENV_WIDTH - 3)][rand.nextInt(ENV_HEIGHT - 3)] = true;
 	}
 
@@ -141,7 +141,7 @@ public class Env extends JPanel {
 			}
 
 			EggTool.layEggs(this);
-			Application.brainStructure.drawBrain(frogs.get(0));
+			Application.brainStructure.drawBrainPicture(frogs.get(0));
 			t2 = System.currentTimeMillis();
 			Application.mainFrame.setTitle("Frog test round: " + round++ + ", time used: " + (t2 - t1) + " ms, x="
 					+ frogs.get(0).x + ", y=" + frogs.get(0).y);

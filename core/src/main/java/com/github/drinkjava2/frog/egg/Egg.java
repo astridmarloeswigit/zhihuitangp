@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.env.Env;
 
 /**
@@ -27,7 +28,7 @@ import com.github.drinkjava2.frog.env.Env;
  * 
  */
 public class Egg implements Serializable {
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 	public int randomCellGroupQty = 30; // 随机生成多少个组
 	public int randomCellQtyPerGroup = 3; // 每个组有多少个脑细胞
 	public int randomInputQtyPerCell = 3;// 每个脑细胞有多少个输入触突
@@ -35,16 +36,20 @@ public class Egg implements Serializable {
 
 	public CellGroup[] cellGroups;
 
+	public List<OrganDesc> organDescs = new ArrayList<>();
+
 	public Egg() {
 		// default constructor
 	}
 
 	private static Random r = new Random();
 
-	// 我靠，两个蛋怎么合成一个蛋?看来要模拟XY染色体了，不能做加法，会撑暴内存的，但现在，每次只随机加一个
-	public Egg(Egg x, Egg y) { // use 2 eggs to create a zygote
+	/** Create a egg by join 2 eggs, x+y=zygote */
+	public Egg(Egg x, Egg y) {
+		// 模拟XY染色体，不能做简单加法，会撑暴内存的，现在每次只随机加一个y的cellgroup进来，这也不太好，因为基因会越加越多，只好用用进废退原则来加大淘汰率。
+
 		// x里原来的CellGroup
-		cellGroups = new CellGroup[x.cellGroups.length + 1 + randomCellGroupQty ];
+		cellGroups = new CellGroup[x.cellGroups.length + 1 + randomCellGroupQty];
 		for (int i = 0; i < x.cellGroups.length; i++) {
 			CellGroup oldCellGroup = x.cellGroups[i];
 			CellGroup cellGroup = new CellGroup();
@@ -65,40 +70,44 @@ public class Egg implements Serializable {
 		cellGroups[x.cellGroups.length] = cellGroup;
 
 		// 随机生成一批CellGroup
-		for (int i = 0; i < randomCellGroupQty ; i++)
+		for (int i = 0; i < randomCellGroupQty; i++)
 			cellGroups[i + x.cellGroups.length + 1] = new CellGroup(Env.FROG_BRAIN_WIDTH, x.randomCellQtyPerGroup,
 					x.randomInputQtyPerCell, x.randomOutQtyPerCell);
+
+		addOrganDescs();
 	}
 
-	public static Egg createBrandNewEgg() { // create a brand new Egg
+	/** create a brand new Egg */
+	public static Egg createBrandNewEgg() { // 无中生有，创建一个蛋，先有蛋，后有鸡
 		Egg egg = new Egg();
 		egg.cellGroups = new CellGroup[egg.randomCellGroupQty];
 		for (int i = 0; i < egg.randomCellGroupQty; i++)
 			egg.cellGroups[i] = new CellGroup(Env.FROG_BRAIN_WIDTH, egg.randomCellQtyPerGroup,
 					egg.randomInputQtyPerCell, egg.randomOutQtyPerCell);
+		egg.addOrganDescs();
 		return egg;
-	}
-
-	private static boolean allowVariation = false;
-
-	private static float percet1(float f) {
-		if (!allowVariation)
-			return f;
-		return (float) (f * (0.99f + r.nextFloat() * 0.02));
 	}
 
 	private static boolean percent(int percent) {
 		return r.nextInt(100) < percent;
 	}
 
-	private static float percet2(float f) {
+	private static boolean allowVariation = true;
+
+	private static float varyPercet1(float f) {
+		if (!allowVariation)
+			return f;
+		return (float) (f * (0.99f + r.nextFloat() * 0.02));
+	}
+
+	private static float varyPercet2(float f) {
 		if (!allowVariation)
 			return f;
 		return (float) (f * (0.98f + r.nextFloat() * 0.04));
 	}
 
-	public Egg(Frog frog, boolean allowVariate) { // create a brand new Egg
-		allowVariation = allowVariate;
+	/** Create egg from frog */
+	public Egg(Frog frog) { // 青蛙下蛋，蛋的基因生成遵循用进废退、随机变异两个原则
 		List<CellGroup> gpList = new ArrayList<>();
 		for (int i = 0; i < frog.cellGroups.length; i++) {
 			if (frog.cellGroups[i].fat <= 0) {
@@ -109,19 +118,31 @@ public class Egg implements Serializable {
 			}
 			CellGroup cellGroup = new CellGroup();
 			CellGroup oldGp = frog.cellGroups[i];
-			cellGroup.groupInputZone = new Zone(percet2(oldGp.groupInputZone.x), percet2(oldGp.groupInputZone.y),
-					percet2(oldGp.groupInputZone.radius));
-			cellGroup.groupOutputZone = new Zone(percet2(oldGp.groupOutputZone.x), percet2(oldGp.groupOutputZone.y),
-					percet2(oldGp.groupOutputZone.radius));
-			cellGroup.cellQty = Math.round(percet2(oldGp.cellQty));
-			cellGroup.cellInputRadius = percet1(oldGp.cellInputRadius);
-			cellGroup.cellOutputRadius = percet1(oldGp.cellOutputRadius);
-			cellGroup.inputQtyPerCell = Math.round(percet2(oldGp.inputQtyPerCell));
-			cellGroup.outputQtyPerCell = Math.round(percet2(oldGp.outputQtyPerCell));
+			cellGroup.groupInputZone = new Zone(varyPercet2(oldGp.groupInputZone.x),
+					varyPercet2(oldGp.groupInputZone.y), varyPercet2(oldGp.groupInputZone.radius));
+			cellGroup.groupOutputZone = new Zone(varyPercet2(oldGp.groupOutputZone.x),
+					varyPercet2(oldGp.groupOutputZone.y), varyPercet2(oldGp.groupOutputZone.radius));
+			cellGroup.cellQty = Math.round(varyPercet2(oldGp.cellQty));
+			cellGroup.cellInputRadius = varyPercet1(oldGp.cellInputRadius);
+			cellGroup.cellOutputRadius = varyPercet1(oldGp.cellOutputRadius);
+			cellGroup.inputQtyPerCell = Math.round(varyPercet2(oldGp.inputQtyPerCell));
+			cellGroup.outputQtyPerCell = Math.round(varyPercet2(oldGp.outputQtyPerCell));
 			cellGroup.inherit = true;
 			gpList.add(cellGroup);
 		}
 		cellGroups = gpList.toArray(new CellGroup[gpList.size()]);
+		addOrganDescs();
+	}
+
+	/** Hard code add organs */
+	public void addOrganDescs() { // 硬编码添加器官，将来考虑器官的数量、位置、大小也可以遗传、变异、进化
+		organDescs.add(new OrganDesc(Organ.HUNGRY, 300, 100, 100));
+		organDescs.add(new OrganDesc(Organ.UP, 700, 400, 40));
+		organDescs.add(new OrganDesc(Organ.DOWN, 700, 100, 40));
+		organDescs.add(new OrganDesc(Organ.LEFT, 650, 250, 40));
+		organDescs.add(new OrganDesc(Organ.RIGHT, 750, 250, 40));
+		organDescs.add(new OrganDesc(Organ.EAT, 0, 0, 0));
+		organDescs.add(new OrganDesc(Organ.EYE, 100, 400, 100));
 	}
 
 }

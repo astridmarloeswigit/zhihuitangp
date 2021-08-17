@@ -1,23 +1,25 @@
 package com.github.drinkjava2.frog.env;
 
 import java.awt.Color;
+import static java.awt.Color.*;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.egg.CellGroup;
 import com.github.drinkjava2.frog.egg.Zone;
 
 /**
- * BrainStructure show first frog's brain structure, for debug purpose
+ * BrainPicture show first frog's brain structure, for debug purpose only
  */
 @SuppressWarnings("serial")
-public class BrainStructure extends JPanel {
-	private float brainWidth;
-	private int brainDispWidth;
+public class BrainPicture extends JPanel {
+	private float brainWidth; // real brain width
+	private int brainDispWidth; // screen display width
 
-	public BrainStructure(int x, int y, float brainWidth, int brainDispWidth) {
+	public BrainPicture(int x, int y, float brainWidth, int brainDispWidth) {
 		super();
 		this.setLayout(null);// 空布局
 		this.brainDispWidth = brainDispWidth;
@@ -57,6 +59,22 @@ public class BrainStructure extends JPanel {
 		g.drawLine(x1, y1, x2, y2);
 	}
 
+	void drawText(Graphics g, Zone z, String text) {
+		float rate = brainDispWidth / brainWidth;
+		int x = Math.round(z.x * rate);
+		int y = Math.round(z.y * rate);
+		g.drawString(text, x, y);
+	}
+
+	private static final Color[] rainbow = new Color[] { RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, MAGENTA };
+	private static int nextColor = 0;
+
+	private static Color nextRainbowColor() {
+		if (nextColor == rainbow.length)
+			nextColor = 0;
+		return rainbow[nextColor++];
+	}
+
 	private static Color color(float i) {
 		if (i <= 1)
 			return Color.RED;
@@ -73,7 +91,7 @@ public class BrainStructure extends JPanel {
 		return Color.MAGENTA;
 	}
 
-	public void drawBrain(Frog frog) {
+	public void drawBrainPicture(Frog frog) {
 		if (!Application.SHOW_FIRST_FROG_BRAIN)
 			return;
 		Graphics g = this.getGraphics();// border
@@ -82,17 +100,11 @@ public class BrainStructure extends JPanel {
 		g.setColor(Color.black);
 		g.drawRect(0, 0, brainDispWidth, brainDispWidth);
 
-		g.setColor(Color.red);
-		drawZone(g, frog.eye); // eye
-
-		g.setColor(Color.yellow);
-		drawZone(g, frog.hungry); // hungry
-
-		g.setColor(Color.gray);
-		drawZone(g, frog.moveUp); // moves
-		drawZone(g, frog.moveDown);
-		drawZone(g, frog.moveLeft);
-		drawZone(g, frog.moveRight);
+		for (Organ organ : frog.organs) {
+			g.setColor(nextRainbowColor());
+			drawZone(g, organ);
+			drawText(g, organ, String.valueOf(organ.type));
+		}
 
 		for (CellGroup group : frog.cellGroups) {
 			if (!group.inherit)

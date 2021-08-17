@@ -22,7 +22,7 @@ public class Application {
 	}
 	public static JFrame mainFrame = new JFrame();
 	public static Env env = new Env();
-	public static BrainStructure brainStructure = new BrainStructure(Env.ENV_WIDTH + 5, 0, Env.FROG_BRAIN_WIDTH,
+	public static BrainPicture brainStructure = new BrainPicture(Env.ENV_WIDTH + 5, 0, Env.FROG_BRAIN_WIDTH,
 			Env.FROG_BRAIN_DISP_WIDTH);
 
 	public static void main(String[] args) throws InterruptedException {

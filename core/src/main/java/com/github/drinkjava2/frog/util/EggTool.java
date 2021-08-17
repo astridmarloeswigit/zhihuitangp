@@ -44,9 +44,9 @@ public class EggTool {
 				+ env.frogs.get(0).energy);
 		System.out.print(", Last frog energy=" + env.frogs.get(env.frogs.size() - 1).energy + ", ");
 		try {
-			List<Egg> newEggs = new ArrayList<Egg>();
-			for (int i = 0; i < env.EGG_QTY; i++)
-				newEggs.add(  new Egg(env.frogs.get(i), true));
+			List<Egg> newEggs = new ArrayList<>();
+			for (int i = 0; i < Env.EGG_QTY; i++)
+				newEggs.add(  new Egg(env.frogs.get(i)));
 			System.out.print("EggCellGroups="+newEggs.get(0).cellGroups.length+", ");
  
 			if (JSON_FILE_FORMAT) {
@@ -117,10 +117,10 @@ public class EggTool {
 			}
 		}
 		if (errorfound) {
-			System.out.println("No eggs files in path '" + Application.CLASSPATH + "' found, created " + env.EGG_QTY
+			System.out.println("No eggs files in path '" + Application.CLASSPATH + "' found, created " + Env.EGG_QTY
 					+ " new eggs to do test.");
 			env.eggs = new ArrayList<Egg>();
-			for (int i = 0; i < env.EGG_QTY; i++)
+			for (int i = 0; i < Env.EGG_QTY; i++)
 				env.eggs.add(Egg.createBrandNewEgg());
 		}
 	}

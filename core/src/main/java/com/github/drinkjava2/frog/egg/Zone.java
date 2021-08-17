@@ -21,7 +21,7 @@ import com.github.drinkjava2.frog.env.Env;
  * @since 1.0.0
  */
 public class Zone implements Serializable {
-	private static final long serialVersionUID = 3L;
+	private static final long serialVersionUID = 1L;
 	public float x;
 	public float y;
 	public float radius;// so width of the zone= radius*2
