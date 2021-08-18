@@ -16,7 +16,7 @@ import com.github.drinkjava2.frog.egg.Zone;
  * Output can active other nerve cell's input
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Output extends Zone {

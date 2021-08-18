@@ -16,7 +16,7 @@ import com.github.drinkjava2.frog.egg.Zone;
  * Input is the sensor of nerve cell
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Input extends Zone {

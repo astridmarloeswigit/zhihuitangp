@@ -23,7 +23,7 @@ import java.util.Random;
  * 模拟一公一母两个蛋受精，CellGroup叠加也许很fun,这样可以将不同环境训练出的蛋叠加成一个。但现在暂时不考虑。
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 public class CellGroup implements Serializable {
 	private static final long serialVersionUID = 1L;

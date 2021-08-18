@@ -11,6 +11,7 @@
 package com.github.drinkjava2.frog.brain;
 
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.organ.Eye;
 import com.github.drinkjava2.frog.egg.OrganDesc;
 import com.github.drinkjava2.frog.egg.Zone;
 import com.github.drinkjava2.frog.env.Env;
@@ -30,7 +31,7 @@ import com.github.drinkjava2.frog.env.Env;
  * </pre>
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 public class Organ extends Zone {
 	private static final long serialVersionUID = 1L;
@@ -90,18 +91,18 @@ public class Organ extends Zone {
 			if (f.energy < 10000 && cell.energy < 100)
 				for (Input input : cell.inputs)
 					if (input.nearby(this)) // input zone near by hungry zone
-						cell.energy++;
+						cell.energy += 3;
 		}
 	}
 
 	public void up(Frog f) {
 		if (outputActive(f))
-			f.y--;
+			f.y++;
 	}
 
 	public void down(Frog f) {
 		if (outputActive(f))
-			f.y++;
+			f.y--;
 	}
 
 	public void left(Frog f) {
@@ -129,7 +130,7 @@ public class Organ extends Zone {
 	}
 
 	public void eye(Frog f) {
-		// TODO
+		Eye.act(f, this);
 	}
 
 	// ======public methods========

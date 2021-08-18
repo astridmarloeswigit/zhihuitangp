@@ -20,20 +20,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.env.Application;
 import com.github.drinkjava2.frog.env.Env;
 
 /**
- * Egg is the static structure description of frog, can save as text file, to
- * build a frog, first need build a egg.
+ * EggTool store public static methods of egg
+ * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 public class EggTool {
-
-	public static final boolean JSON_FILE_FORMAT = false; // JSON is slow but easier to debug
 
 	/**
 	 * 利用Java串行机制存盘。 能量多(也就是吃的更多，更fat)的Frog下蛋并存盘, 以进行下一伦测试，能量少的Frog被淘汰，没有下蛋的资格。
@@ -46,18 +44,14 @@ public class EggTool {
 		try {
 			List<Egg> newEggs = new ArrayList<>();
 			for (int i = 0; i < Env.EGG_QTY; i++)
-				newEggs.add(  new Egg(env.frogs.get(i)));
-			System.out.print("EggCellGroups="+newEggs.get(0).cellGroups.length+", ");
- 
-			if (JSON_FILE_FORMAT) {
-				String newEggsString = JSON.toJSONString(newEggs);
-				FrogFileUtils.writeFile(Application.CLASSPATH + "eggs.json", newEggsString, "utf-8");
-			} else {
-				FileOutputStream fo = new FileOutputStream(Application.CLASSPATH + "eggs.ser");
-				ObjectOutputStream so = new ObjectOutputStream(fo);
-				so.writeObject(newEggs);
-				so.close();
-			}
+				newEggs.add(new Egg(env.frogs.get(i)));
+			System.out.print("EggCellGroups=" + newEggs.get(0).cellGroups.length + ", ");
+
+			FileOutputStream fo = new FileOutputStream(Application.CLASSPATH + "eggs.ser");
+			ObjectOutputStream so = new ObjectOutputStream(fo);
+			so.writeObject(newEggs);
+			so.close();
+
 			env.eggs = newEggs;
 			System.out
 					.println("Saved " + env.eggs.size() + " eggs to file '" + Application.CLASSPATH + "eggs.ser" + "'");
@@ -91,33 +85,18 @@ public class EggTool {
 	@SuppressWarnings("unchecked")
 	public static void loadEggs(Env env) {
 		boolean errorfound = false;
-		if (JSON_FILE_FORMAT) {
-			String eggsString = FrogFileUtils.readFile(Application.CLASSPATH + "eggs.json", "utf-8");
-			if (eggsString != null) {
-				List<JSONObject> jsonEggs = (List<JSONObject>) JSON.parse(eggsString);
-				env.eggs = new ArrayList<Egg>();
-				for (JSONObject json : jsonEggs) {
-					Egg egg = json.toJavaObject(Egg.class);
-					env.eggs.add(egg);
-				}
-				System.out.println(
-						"Loaded " + env.eggs.size() + " eggs from file '" + Application.CLASSPATH + "eggs.json" + "'.");
-			} else
-				errorfound = true;
-		} else {
-			try {
-				FileInputStream eggsFile = new FileInputStream(Application.CLASSPATH + "eggs.ser");
-				ObjectInputStream eggsInputStream = new ObjectInputStream(eggsFile);
-				env.eggs = (List<Egg>) eggsInputStream.readObject();
-				System.out.println(
-						"Loaded " + env.eggs.size() + " eggs from file '" + Application.CLASSPATH + "eggs.ser" + "'.");
-				eggsInputStream.close();
-			} catch (Exception e) {
-				errorfound = true;
-			}
+		try {
+			FileInputStream eggsFile = new FileInputStream(Application.CLASSPATH + "eggs.ser");
+			ObjectInputStream eggsInputStream = new ObjectInputStream(eggsFile);
+			env.eggs = (List<Egg>) eggsInputStream.readObject();
+			System.out.println(
+					"Loaded " + env.eggs.size() + " eggs from file '" + Application.CLASSPATH + "eggs.ser" + "'.");
+			eggsInputStream.close();
+		} catch (Exception e) {
+			errorfound = true;
 		}
 		if (errorfound) {
-			System.out.println("No eggs files in path '" + Application.CLASSPATH + "' found, created " + Env.EGG_QTY
+			System.out.println("Fail to load egg file at path '" + Application.CLASSPATH + "', created " + Env.EGG_QTY
 					+ " new eggs to do test.");
 			env.eggs = new ArrayList<Egg>();
 			for (int i = 0; i < Env.EGG_QTY; i++)

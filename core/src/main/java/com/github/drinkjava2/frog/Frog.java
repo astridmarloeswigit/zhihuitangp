@@ -37,7 +37,7 @@ import com.github.drinkjava2.frog.env.Env;
  * 青蛙由脑细胞和器官组成，目前脑细胞可以变异、进化、遗传，以由电脑自动生成神经网络，但是器官在蛋里硬编码，不许进化，将来可以考虑器官的进化
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 public class Frog {
 
@@ -117,9 +117,9 @@ public class Frog {
 	}
 
 	public boolean active(Env v) {
+		energy -= 50;
 		if (!alive)
-			return false;
-		energy -= 10;
+			return false; 
 		if (energy < 0) {
 			alive = false;
 			return false;

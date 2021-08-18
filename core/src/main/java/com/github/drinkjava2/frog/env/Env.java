@@ -15,11 +15,14 @@ import com.github.drinkjava2.frog.util.EggTool;
 
 /**
  * Env is the living space of frog. draw it on JPanel
+ * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 40; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 80; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
@@ -27,13 +30,13 @@ public class Env extends JPanel {
 	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
-	public static final int FROG_BRAIN_DISP_WIDTH = ENV_WIDTH; // Frog的脑图在屏幕上的显示大小,可调
+	public static final int FROG_BRAIN_DISP_WIDTH = 800; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
 	public static final int STEPS_PER_ROUND = 3000;// 每轮测试步数,可调
 
 	/** Frog's brain width, fixed to 1000 unit */
-	public static final float FROG_BRAIN_WIDTH = 900; // frog的脑宽度固定为800,不要随便调整,因为器官的相对位置和大小都是按假定脑大小设定的
+	public static final float FROG_BRAIN_WIDTH = 1000; // frog的脑宽度固定为1000,不要随便调整,因为器官的相对位置和大小是按脑大小设定的
 
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
@@ -43,7 +46,7 @@ public class Env extends JPanel {
 			EggTool.deleteEggs();
 	}
 
-	public static final int FOOD_QTY = 2000; // 食物数量, 可调
+	public static final int FOOD_QTY =2000; // 食物数量, 可调
 
 	public static final int EGG_QTY = 50; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
 
@@ -54,6 +57,7 @@ public class Env extends JPanel {
 	public static final boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
 
 	public List<Frog> frogs = new ArrayList<>();
+
 	public List<Egg> eggs;
 
 	public Env() {

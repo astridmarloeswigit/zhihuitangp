@@ -26,6 +26,8 @@ import com.github.drinkjava2.frog.env.Env;
  * 蛋存在的目的是为了以最小的字节数串行化存储Frog,它是Frog的生成算法描述，而不是Frog本身，这样一来Frog就不能"永生"了，因为每一个egg都不等同于
  * 它的母体， 而且每一次测试，大部分条件反射的建立都必须从头开始训练，类似于人类，无论人类社会有多聪明， 婴儿始终是一张白纸，需要花大量的时间从头学习。
  * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 public class Egg implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -36,7 +38,7 @@ public class Egg implements Serializable {
 
 	public CellGroup[] cellGroups;
 
-	public List<OrganDesc> organDescs = new ArrayList<>();
+	public List<OrganDesc> organDescs;
 
 	public Egg() {
 		// default constructor
@@ -136,11 +138,12 @@ public class Egg implements Serializable {
 
 	/** Hard code add organs */
 	public void addOrganDescs() { // 硬编码添加器官，将来考虑器官的数量、位置、大小也可以遗传、变异、进化
+		organDescs = new ArrayList<>();
 		organDescs.add(new OrganDesc(Organ.HUNGRY, 300, 100, 100));
-		organDescs.add(new OrganDesc(Organ.UP, 700, 400, 40));
-		organDescs.add(new OrganDesc(Organ.DOWN, 700, 100, 40));
-		organDescs.add(new OrganDesc(Organ.LEFT, 650, 250, 40));
-		organDescs.add(new OrganDesc(Organ.RIGHT, 750, 250, 40));
+		organDescs.add(new OrganDesc(Organ.DOWN, 800, 100, 60));
+		organDescs.add(new OrganDesc(Organ.UP, 800, 400, 60)); 
+		organDescs.add(new OrganDesc(Organ.LEFT, 700, 250, 60));
+		organDescs.add(new OrganDesc(Organ.RIGHT, 900, 250, 60));
 		organDescs.add(new OrganDesc(Organ.EAT, 0, 0, 0));
 		organDescs.add(new OrganDesc(Organ.EYE, 100, 400, 100));
 	}

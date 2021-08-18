@@ -12,6 +12,9 @@ package com.github.drinkjava2.frog.egg;
 
 /**
  * OrganDesc store info to create Organ
+ * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 public class OrganDesc extends Zone {
 	private static final long serialVersionUID = 1L;

@@ -9,6 +9,9 @@ import javax.swing.JFrame;
 
 /**
  * Application's main method start the program
+ * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 public class Application {
 	/** SHOW first frog's brain structure */

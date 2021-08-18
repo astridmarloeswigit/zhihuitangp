@@ -14,7 +14,7 @@ package com.github.drinkjava2.frog.brain;
  * Cell is a brain nerve cell, this is the basic unit of frog's brain
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 public class Cell {
 	public int group; // this cell belong to which group

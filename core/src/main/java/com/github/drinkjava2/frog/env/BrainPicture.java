@@ -13,6 +13,9 @@ import com.github.drinkjava2.frog.egg.Zone;
 
 /**
  * BrainPicture show first frog's brain structure, for debug purpose only
+ * 
+ * @author Yong Zhu
+ * @since 1.0
  */
 @SuppressWarnings("serial")
 public class BrainPicture extends JPanel {

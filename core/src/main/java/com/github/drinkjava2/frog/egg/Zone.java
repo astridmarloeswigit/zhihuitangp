@@ -18,7 +18,7 @@ import com.github.drinkjava2.frog.env.Env;
  * Zone represents a rectangle zone in brain
  * 
  * @author Yong Zhu
- * @since 1.0.0
+ * @since 1.0
  */
 public class Zone implements Serializable {
 	private static final long serialVersionUID = 1L;
