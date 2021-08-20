@@ -22,7 +22,7 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 80; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 1; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
@@ -30,7 +30,7 @@ public class Env extends JPanel {
 	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
-	public static final int FROG_BRAIN_DISP_WIDTH = 800; // Frog的脑图在屏幕上的显示大小,可调
+	public static final int FROG_BRAIN_DISP_WIDTH = 300; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
 	public static final int STEPS_PER_ROUND = 3000;// 每轮测试步数,可调
@@ -46,7 +46,7 @@ public class Env extends JPanel {
 			EggTool.deleteEggs();
 	}
 
-	public static final int FOOD_QTY =2000; // 食物数量, 可调
+	public static final int FOOD_QTY = 2000; // 食物数量, 可调
 
 	public static final int EGG_QTY = 50; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
 
@@ -68,26 +68,27 @@ public class Env extends JPanel {
 
 	private void rebuildFrogAndFood() {
 		frogs.clear();
-		for (int i = 0; i < ENV_WIDTH; i++) {// clear foods
+		for (int i = 0; i < ENV_WIDTH; i++) {// 清除食物
 			for (int j = 0; j < ENV_HEIGHT; j++) {
 				foods[i][j] = false;
 			}
 		}
 		Random rand = new Random();
-		for (int j = 0; j < 12; j++) {// 第一名多生出12个蛋
-			Egg zygote = new Egg(eggs.get(0), eggs.get(r.nextInt(eggs.size())));
-			frogs.add(new Frog(ENV_WIDTH / 2 + rand.nextInt(90), ENV_HEIGHT / 2 + rand.nextInt(90), zygote));
-		}
-		for (int i = 0; i < eggs.size() - 3; i++) { // 1个Egg生出4个Frog，但是最后3名不生蛋(名额让给了第一名)
-			for (int j = 0; j < 4; j++) {
+		for (int i = 0; i < eggs.size(); i++) {// 创建青蛙，每个蛋生成4个蛙，并随机取一个别的蛋作为精子
+			int loop = 4;
+			if (i == 0)
+				loop = 8;
+			if (i == eggs.size() - 1)
+				loop = 0;
+			for (int j = 0; j < loop; j++) {
 				Egg zygote = new Egg(eggs.get(i), eggs.get(r.nextInt(eggs.size())));
-				frogs.add(new Frog(ENV_WIDTH / 2 + rand.nextInt(90), ENV_HEIGHT / 2 + rand.nextInt(90), zygote));
+				frogs.add(new Frog(rand.nextInt(ENV_WIDTH), rand.nextInt(ENV_HEIGHT), zygote));
 			}
 		}
 
 		System.out.println("Created " + 4 * eggs.size() + " frogs");
-		for (int i = 0; i < Env.FOOD_QTY; i++)
-			foods[rand.nextInt(ENV_WIDTH - 3)][rand.nextInt(ENV_HEIGHT - 3)] = true;
+		for (int i = 0; i < Env.FOOD_QTY; i++) // 生成食物
+			foods[rand.nextInt(ENV_WIDTH)][rand.nextInt(ENV_HEIGHT)] = true;
 	}
 
 	private void drawFood(Graphics g) {

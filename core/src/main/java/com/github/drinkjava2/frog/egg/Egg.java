@@ -94,18 +94,14 @@ public class Egg implements Serializable {
 		return r.nextInt(100) < percent;
 	}
 
-	private static boolean allowVariation = true;
-
-	private static float varyPercet1(float f) {
-		if (!allowVariation)
+	private static float vary(float f) { // 大部分时候不变，有极小机会变异,有极极小机会大变异，有极极极小机会大大大变异
+		int i=r.nextInt(100);
+		if (i<95)
 			return f;
-		return (float) (f * (0.99f + r.nextFloat() * 0.02));
-	}
-
-	private static float varyPercet2(float f) {
-		if (!allowVariation)
-			return f;
-		return (float) (f * (0.98f + r.nextFloat() * 0.04));
+		float rate = .05f;
+		if(i>97)
+			rate = .1f;
+		return (float) (f * ((1 - rate) + r.nextFloat() * rate * 2));
 	}
 
 	/** Create egg from frog */
@@ -115,20 +111,20 @@ public class Egg implements Serializable {
 			if (frog.cellGroups[i].fat <= 0) {
 				if (!frog.cellGroups[i].inherit)
 					continue;// 从未激活过的神经元，并且就是本轮随机生成的，丢弃之
-				if (percent(10))
+				if (percent(5))
 					continue;// 继承下来的神经元，但是本轮并没用到， 扔掉又可惜，可以小概率丢掉
 			}
 			CellGroup cellGroup = new CellGroup();
 			CellGroup oldGp = frog.cellGroups[i];
-			cellGroup.groupInputZone = new Zone(varyPercet2(oldGp.groupInputZone.x),
-					varyPercet2(oldGp.groupInputZone.y), varyPercet2(oldGp.groupInputZone.radius));
-			cellGroup.groupOutputZone = new Zone(varyPercet2(oldGp.groupOutputZone.x),
-					varyPercet2(oldGp.groupOutputZone.y), varyPercet2(oldGp.groupOutputZone.radius));
-			cellGroup.cellQty = Math.round(varyPercet2(oldGp.cellQty));
-			cellGroup.cellInputRadius = varyPercet1(oldGp.cellInputRadius);
-			cellGroup.cellOutputRadius = varyPercet1(oldGp.cellOutputRadius);
-			cellGroup.inputQtyPerCell = Math.round(varyPercet2(oldGp.inputQtyPerCell));
-			cellGroup.outputQtyPerCell = Math.round(varyPercet2(oldGp.outputQtyPerCell));
+			cellGroup.groupInputZone = new Zone(vary(oldGp.groupInputZone.x), vary(oldGp.groupInputZone.y),
+					vary(oldGp.groupInputZone.radius));
+			cellGroup.groupOutputZone = new Zone(vary(oldGp.groupOutputZone.x), vary(oldGp.groupOutputZone.y),
+					vary(oldGp.groupOutputZone.radius));
+			cellGroup.cellQty = Math.round(vary(oldGp.cellQty));
+			cellGroup.cellInputRadius = vary(oldGp.cellInputRadius);
+			cellGroup.cellOutputRadius = vary(oldGp.cellOutputRadius);
+			cellGroup.inputQtyPerCell = Math.round(vary(oldGp.inputQtyPerCell));
+			cellGroup.outputQtyPerCell = Math.round(vary(oldGp.outputQtyPerCell));
 			cellGroup.inherit = true;
 			gpList.add(cellGroup);
 		}
@@ -141,11 +137,12 @@ public class Egg implements Serializable {
 		organDescs = new ArrayList<>();
 		organDescs.add(new OrganDesc(Organ.HUNGRY, 300, 100, 100));
 		organDescs.add(new OrganDesc(Organ.DOWN, 800, 100, 60));
-		organDescs.add(new OrganDesc(Organ.UP, 800, 400, 60)); 
+		organDescs.add(new OrganDesc(Organ.UP, 800, 400, 60));
 		organDescs.add(new OrganDesc(Organ.LEFT, 700, 250, 60));
 		organDescs.add(new OrganDesc(Organ.RIGHT, 900, 250, 60));
 		organDescs.add(new OrganDesc(Organ.EAT, 0, 0, 0));
 		organDescs.add(new OrganDesc(Organ.EYE, 100, 400, 100));
+		//organDescs.add(new OrganDesc(Organ.EYE, 100, 700, 100));
 	}
 
 }

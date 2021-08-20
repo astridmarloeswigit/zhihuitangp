@@ -91,7 +91,7 @@ public class Organ extends Zone {
 			if (f.energy < 10000 && cell.energy < 100)
 				for (Input input : cell.inputs)
 					if (input.nearby(this)) // input zone near by hungry zone
-						cell.energy += 3;
+						cell.energy += 2;
 		}
 	}
 
@@ -140,7 +140,7 @@ public class Organ extends Zone {
 			for (Output output : cell.outputs) { //
 				if (cell.energy > 10 && this.nearby(output)) {
 					f.cellGroups[cell.group].fat++;
-					cell.energy -= 6;
+					cell.energy -= 30;
 					return true;
 				}
 			}

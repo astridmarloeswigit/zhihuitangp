@@ -117,7 +117,7 @@ public class Frog {
 	}
 
 	public boolean active(Env v) {
-		energy -= 50;
+		energy -= 20;
 		if (!alive)
 			return false; 
 		if (energy < 0) {
