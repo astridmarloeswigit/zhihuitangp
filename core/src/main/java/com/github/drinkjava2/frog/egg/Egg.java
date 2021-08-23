@@ -142,7 +142,7 @@ public class Egg implements Serializable {
 		organDescs.add(new OrganDesc(Organ.RIGHT, 900, 250, 60));
 		organDescs.add(new OrganDesc(Organ.EAT, 0, 0, 0));
 		organDescs.add(new OrganDesc(Organ.EYE, 100, 400, 100));
-		//organDescs.add(new OrganDesc(Organ.EYE, 100, 700, 100));
+	    organDescs.add(new OrganDesc(Organ.EYE, 100, 700, 100));
 	}
 
 }

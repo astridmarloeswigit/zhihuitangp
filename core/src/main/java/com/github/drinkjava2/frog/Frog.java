@@ -44,20 +44,9 @@ public class Frog {
 	public CellGroup[] cellGroups;
 
 	/** brain cells */
-	public List<Cell> cells = new ArrayList<>();
-
-	/** 视觉细胞的输入区在脑中的坐标，随便取一个区就可以了，以后再考虑进化成两个眼睛 */
-	public Zone eye = new Zone(100, 400, 100);
-
-	/** 饥饿的感收区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone hungry = new Zone(300, 100, 100);
-
-	/** 运动细胞的输入区在脑中的坐标，先随便取就可以了，以后再考虑放到蛋里去进化 */
-	public Zone moveDown = new Zone(700, 100, 40); // 屏幕y坐标是向下的
-	public Zone moveUp = new Zone(700, 400, 40);
-	public Zone moveLeft = new Zone(650, 250, 40);
-	public Zone moveRight = new Zone(750, 250, 40);
-
+	public List<Cell> cells = new ArrayList<>(); 
+ 
+	/** organs */
 	public List<Organ> organs = new ArrayList<>();
 
 	public int x; // frog在env中的x坐标
