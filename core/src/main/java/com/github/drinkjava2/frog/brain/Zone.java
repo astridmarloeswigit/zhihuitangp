@@ -8,11 +8,11 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.egg;
+package com.github.drinkjava2.frog.brain;
 
 import java.io.Serializable;
 
-import com.github.drinkjava2.frog.env.Env;
+import com.github.drinkjava2.frog.Env;
 
 /**
  * Zone represents a rectangle zone in brain
@@ -66,5 +66,11 @@ public class Zone implements Serializable {
 	public static void copyXY(Zone from, Zone to) {
 		to.x = from.x;
 		to.y = from.y;
+	}
+
+	public static void copyXYR(Zone from, Zone to) {
+		to.x = from.x;
+		to.y = from.y;
+		to.radius = from.radius;
 	}
 }

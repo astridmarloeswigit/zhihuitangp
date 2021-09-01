@@ -10,8 +10,6 @@
  */
 package com.github.drinkjava2.frog.brain;
 
-import com.github.drinkjava2.frog.egg.Zone;
-
 /**
  * Input is the sensor of nerve cell
  * 

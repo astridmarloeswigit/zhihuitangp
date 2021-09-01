@@ -8,7 +8,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.util;
+package com.github.drinkjava2.frog.egg;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,10 +20,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.github.drinkjava2.frog.Application;
+import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.egg.Egg;
-import com.github.drinkjava2.frog.env.Application;
-import com.github.drinkjava2.frog.env.Env;
+import com.github.drinkjava2.frog.util.FrogFileUtils;
 
 /**
  * EggTool store public static methods of egg

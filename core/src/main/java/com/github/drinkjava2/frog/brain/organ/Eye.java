@@ -10,12 +10,12 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
+import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.egg.Zone;
-import com.github.drinkjava2.frog.env.Env;
+import com.github.drinkjava2.frog.brain.Zone;
 
 /**
  * Eye is an organ can see environment, and active brain cells which inputs are
@@ -24,20 +24,22 @@ import com.github.drinkjava2.frog.env.Env;
  * @author Yong Zhu
  * @since 1.0
  */
-public class Eye {
+public class Eye extends Organ {
+	private static final long serialVersionUID = 1L;
 
 	private static boolean hasFood(int x, int y) {
 		return x >= 0 && y >= 0 && x < Env.ENV_WIDTH && y < Env.ENV_HEIGHT && Env.foods[x][y];
 	}
 
-	/** First eye can only see if food nearby at 4 directions */
-	public static void act(Frog f, Organ eye) {// 第一个眼睛只能观察上、下、左、右四个方向有没有食物 
-		float qRadius = eye.radius / 4;
-		float q3Radius = (float) (eye.radius * .75);
-		Zone seeUp = new Zone(eye.x, eye.y + q3Radius, qRadius);
-		Zone seeDown = new Zone(eye.x, eye.y - q3Radius, qRadius);
-		Zone seeLeft = new Zone(eye.x - q3Radius, eye.y, qRadius);
-		Zone seeRight = new Zone(eye.x + q3Radius, eye.y, qRadius);
+	@Override
+	public void active(Frog f) {
+		// 第一个眼睛只能观察上、下、左、右四个方向有没有食物
+		float qRadius = radius / 4;
+		float q3Radius = (float) (radius * .75);
+		Zone seeUp = new Zone(x, y + q3Radius, qRadius);
+		Zone seeDown = new Zone(x, y - q3Radius, qRadius);
+		Zone seeLeft = new Zone(x - q3Radius, y, qRadius);
+		Zone seeRight = new Zone(x + q3Radius, y, qRadius);
 
 		boolean seeFood = false;
 		boolean foodAtUp = false;
@@ -78,7 +80,7 @@ public class Eye {
 			for (Cell cell : f.cells) {
 				if (cell.energy < 100)
 					for (Input input : cell.inputs) {
-						if (input.nearby(eye)) {
+						if (input.nearby(this)) {
 							if (foodAtUp && input.nearby(seeUp)) {
 								input.cell.energy += 30;
 							}
@@ -94,6 +96,7 @@ public class Eye {
 						}
 					}
 			}
+
 	}
 
 }

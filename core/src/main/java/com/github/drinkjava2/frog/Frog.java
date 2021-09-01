@@ -23,12 +23,9 @@ import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.brain.Output;
-import com.github.drinkjava2.frog.egg.CellGroup;
+import com.github.drinkjava2.frog.brain.Zone;
+import com.github.drinkjava2.frog.brain.group.RandomConnectGroup;
 import com.github.drinkjava2.frog.egg.Egg;
-import com.github.drinkjava2.frog.egg.OrganDesc;
-import com.github.drinkjava2.frog.egg.Zone;
-import com.github.drinkjava2.frog.env.Application;
-import com.github.drinkjava2.frog.env.Env;
 
 /**
  * Frog = brain + organ, but now let's only focus on brain, organs are hard
@@ -41,11 +38,11 @@ import com.github.drinkjava2.frog.env.Env;
  */
 public class Frog {
 
-	public CellGroup[] cellGroups;
+	public RandomConnectGroup[] cellGroups;
 
 	/** brain cells */
-	public List<Cell> cells = new ArrayList<>(); 
- 
+	public List<Cell> cells = new ArrayList<>();
+
 	/** organs */
 	public List<Organ> organs = new ArrayList<>();
 
@@ -70,10 +67,10 @@ public class Frog {
 
 		// Brain cells
 		if (egg.cellGroups != null) {
-			cellGroups = new CellGroup[egg.cellGroups.length];
+			cellGroups = new RandomConnectGroup[egg.cellGroups.length];
 			for (int k = 0; k < egg.cellGroups.length; k++) {
-				CellGroup g = egg.cellGroups[k];
-				cellGroups[k] = new CellGroup(g);
+				RandomConnectGroup g = egg.cellGroups[k];
+				cellGroups[k] = new RandomConnectGroup(g);
 				for (int i = 0; i < g.cellQty; i++) {// 开始根据蛋来创建脑细胞
 					Cell c = new Cell();
 					c.group = k;
@@ -98,17 +95,15 @@ public class Frog {
 			}
 		}
 
-		// Create organs from egg, like eye, moves, eat...
-		if (egg.organDescs != null)
-			for (OrganDesc od : egg.organDescs)
-				organs.add(new Organ(od));
+		for (Organ org : egg.organs)
+			organs.add(org.newCopy());
 
 	}
 
 	public boolean active(Env v) {
 		energy -= 20;
 		if (!alive)
-			return false; 
+			return false;
 		if (energy < 0) {
 			alive = false;
 			return false;

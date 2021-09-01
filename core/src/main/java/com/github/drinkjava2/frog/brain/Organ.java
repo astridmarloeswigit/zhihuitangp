@@ -11,130 +11,23 @@
 package com.github.drinkjava2.frog.brain;
 
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.organ.Eye;
-import com.github.drinkjava2.frog.egg.OrganDesc;
-import com.github.drinkjava2.frog.egg.Zone;
-import com.github.drinkjava2.frog.env.Env;
 
 /**
- * Organ is a sensor or execute part connected to frog's brain cell, like:
- * 器官，分为输入器官和输出器官两大类，它们在蛋里定义，数量、位置、大小可以随机变异进化，但目前在蛋里用硬编码写死，不允许器官进化,一个眼睛都没搞定，要进化出10个眼睛来会吓死人
+ * Organ is a part of frog, organ can be saved in egg
  * 
- * <pre/>
- *  
- * Sensors:
- * hungry sensor,  eye, ear, smell, happy sensor
- * 
- * Executor:
- *  moves (up/down/left/right), eat ...
- * 
- * </pre>
+ * 器官是脑的一部分，多个器官在脑内可以允许重叠出现在同一位置。
  * 
  * @author Yong Zhu
- * @since 1.0
+ * @since 1.0.4
  */
 public class Organ extends Zone {
 	private static final long serialVersionUID = 1L;
-	public static final int HUNGRY = 0;
-	public static final int UP = 1;
-	public static final int DOWN = 2;
-	public static final int LEFT = 3;
-	public static final int RIGHT = 4;
-	public static final int EAT = 5;
-	public static final int EYE = 6;
+	public String name; // 显示在脑图上的器官名称
+	public long fat = 0; // 如果细胞活跃多，fat值高，则保留（以及变异）的可能性大，反之则舍弃掉
+	public int qtyLimit = 5; // 最多允许数量
+	public boolean inherit = false; // 器官是继承来的，还是变异来的，后者淘汰率会高
 
-	public int type;
-
-	public Organ(OrganDesc od) {
-		super(od.x, od.y, od.radius);
-		type = od.type;
-	}
-
-	public Organ(int type, float x, float y, float radius) {
-		super(x, y, radius);
-		this.type = type;
-	}
-
-	public void active(Frog f) {
-		switch (type) {
-		case HUNGRY:
-			hungry(f);
-			break;
-		case UP:
-			up(f);
-			break;
-		case DOWN:
-			down(f);
-			break;
-		case LEFT:
-			left(f);
-			break;
-		case RIGHT:
-			right(f);
-			break;
-		case EAT:
-			eat(f);
-			break;
-		case EYE:
-			eye(f);
-			break;
-		default:
-			break;
-		}
-	}
-
-	public void hungry(Frog f) {
-		for (Cell cell : f.cells) {
-			if (cell.energy > 0)
-				cell.energy--;
-
-			if (f.energy < 10000 && cell.energy < 100)
-				for (Input input : cell.inputs)
-					if (input.nearby(this)) // input zone near by hungry zone
-						cell.energy += 2;
-		}
-	}
-
-	public void up(Frog f) {
-		if (outputActive(f))
-			f.y++;
-	}
-
-	public void down(Frog f) {
-		if (outputActive(f))
-			f.y--;
-	}
-
-	public void left(Frog f) {
-		if (outputActive(f))
-			f.x--;
-	}
-
-	public void right(Frog f) {
-		if (outputActive(f))
-			f.x++;
-	}
-
-	public void eat(Frog f) {
-		int x = f.x;
-		int y = f.y;
-		if (x < 0 || x >= Env.ENV_WIDTH || y < 0 || y >= Env.ENV_HEIGHT) {// 越界者死！
-			f.alive = false;
-			return;
-		}
-
-		if (Env.foods[x][y]) {
-			Env.foods[x][y] = false;
-			f.energy = f.energy + 1000;// 吃掉food，能量境加
-		}
-	}
-
-	public void eye(Frog f) {
-		Eye.act(f, this);
-	}
-
-	// ======public methods========
-
+	/** If active in this organ's zone? */
 	public boolean outputActive(Frog f) {
 		for (Cell cell : f.cells) {
 			for (Output output : cell.outputs) { //
@@ -146,6 +39,45 @@ public class Organ extends Zone {
 			}
 		}
 		return false;
+	}
+
+	/** make a new copy of current organ */
+	public Organ newCopy() { // 新建一份，用于从蛋复制到Frog
+		Organ newOrgan = null;
+		try {
+			newOrgan = this.getClass().newInstance();
+			copyXYR(this, newOrgan);
+			newOrgan.name = this.name;
+			newOrgan.fat = this.fat;
+			return newOrgan;
+		} catch (Exception e) {
+			throw new UnknownError("Can not make new Organ copy for " + this);
+		}
+	}
+
+	/** Set X, Y, Radius of current Organ */
+	public Organ setXYR(float x, float y, float radius) {
+		this.x = x;
+		this.y = y;
+		this.radius = radius;
+		return this;
+	}
+
+	/** Set X, Y, Radius, name of current Organ */
+	public Organ setXYRN(float x, float y, float radius, String name) {
+		this.x = x;
+		this.y = y;
+		this.radius = radius;
+		this.name = name;
+		return this;
+	}
+
+	/** Only call once when frog created , Child class can override this method */
+	public void init(Frog f) {
+	}
+
+	/** Each loop step call active method, Child class can override this method */
+	public void active(Frog f) {
 	}
 
 }

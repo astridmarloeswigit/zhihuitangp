@@ -1,4 +1,4 @@
-package com.github.drinkjava2.frog.env;
+package com.github.drinkjava2.frog;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -9,9 +9,8 @@ import java.util.Random;
 
 import javax.swing.JPanel;
 
-import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.egg.Egg;
-import com.github.drinkjava2.frog.util.EggTool;
+import com.github.drinkjava2.frog.egg.EggTool;
 
 /**
  * Env is the living space of frog. draw it on JPanel
@@ -22,7 +21,7 @@ import com.github.drinkjava2.frog.util.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 10; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 80; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 

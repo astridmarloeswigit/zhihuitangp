@@ -1,15 +1,21 @@
-package com.github.drinkjava2.frog.env;
+package com.github.drinkjava2.frog.brain;
+
+import static java.awt.Color.BLUE;
+import static java.awt.Color.CYAN;
+import static java.awt.Color.GREEN;
+import static java.awt.Color.MAGENTA;
+import static java.awt.Color.ORANGE;
+import static java.awt.Color.RED;
+import static java.awt.Color.YELLOW;
 
 import java.awt.Color;
-import static java.awt.Color.*;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.egg.CellGroup;
-import com.github.drinkjava2.frog.egg.Zone;
+import com.github.drinkjava2.frog.brain.group.RandomConnectGroup;
 
 /**
  * BrainPicture show first frog's brain structure, for debug purpose only
@@ -66,13 +72,13 @@ public class BrainPicture extends JPanel {
 		float rate = brainDispWidth / brainWidth;
 		int x = Math.round(z.x * rate);
 		int y = Math.round(z.y * rate);
-		g.drawString(text, x, y);
+		g.drawString(text, x - text.length() * 3, y);
 	}
 
 	private static final Color[] rainbow = new Color[] { RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, MAGENTA };
 	private static int nextColor = 0;
 
-	private static Color nextRainbowColor() {
+	public static Color nextRainbowColor() {
 		if (nextColor == rainbow.length)
 			nextColor = 0;
 		return rainbow[nextColor++];
@@ -104,12 +110,13 @@ public class BrainPicture extends JPanel {
 		g.drawRect(0, 0, brainDispWidth, brainDispWidth);
 
 		for (Organ organ : frog.organs) {
-			g.setColor(nextRainbowColor());
+			g.setColor(Color.BLACK);
 			drawZone(g, organ);
-			drawText(g, organ, String.valueOf(organ.type));
+			if (organ.name != null)
+				drawText(g, organ, String.valueOf(organ.name));
 		}
 
-		for (CellGroup group : frog.cellGroups) {
+		for (RandomConnectGroup group : frog.cellGroups) {
 			if (!group.inherit)
 				g.setColor(Color.lightGray); // 如果是本轮随机生成的，灰色表示
 			else
