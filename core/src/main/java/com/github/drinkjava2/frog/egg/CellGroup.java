@@ -8,27 +8,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.brain;
+package com.github.drinkjava2.frog.egg;
 
-import com.github.drinkjava2.frog.brain.group.Group;
-
-/**
- * Cell is the basic unit of frog's brain
- * 
- * @author Yong Zhu
- * @since 1.0
- */
-public class Cell {
-	// this cell belong to frog's which organ
-	public Group group;
-
-	// inputs of cell
-	public Input[] inputs; // 每个细胞有一组输入触突
-
-	// outputs of cell
-	public Output[] outputs; // 每个细胞有一组输出触突
-
-	// energy of cell, energy got from food
-	public long energy; // 每个细胞当前的能量值
-
+public class CellGroup {
 }

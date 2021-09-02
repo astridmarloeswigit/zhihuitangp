@@ -23,11 +23,8 @@ public class Hungry extends Organ {
 
 	@Override
 	public void active(Frog f) {
-		for (Cell cell : f.cells) {
-			if (cell.energy > 0)
-				cell.energy--;
-
-			if (f.energy < 10000 && cell.energy < 100)
+		for (Cell cell : f.cells) {  
+			if (f.frogEngery < 10000 && cell.energy < 1000)
 				for (Input input : cell.inputs)
 					if (input.nearby(this)) // input zone near by hungry zone
 						cell.energy += 2;

@@ -22,18 +22,19 @@ import com.github.drinkjava2.frog.Env;
  */
 public class Zone implements Serializable {
 	private static final long serialVersionUID = 1L;
+
 	public float x;
 	public float y;
-	public float radius;// so width of the zone= radius*2
+	public float r;// r为这个矩形区边长的一半
 
 	public Zone() {
-		// 空构造器不能省，FastJSON实例化时要用到
+		// 空构造器不能省
 	}
 
-	public Zone(float x, float y, float radius) {
+	public Zone(float x, float y, float r) {
 		this.x = x;
 		this.y = y;
-		this.radius = radius;
+		this.r = r;
 		if (this.x < 0)
 			this.x = 0;
 		if (this.y < 0)
@@ -47,11 +48,11 @@ public class Zone implements Serializable {
 	public Zone(Zone z) {
 		this.x = z.x;
 		this.y = z.y;
-		this.radius = z.radius;
+		this.r = z.r;
 	}
 
 	public boolean nearby(Zone z) {
-		float dist = radius + z.radius;
+		float dist = r + z.r;
 		return (Math.abs(x - z.x) < dist && Math.abs(y - z.y) < dist);
 	}
 
@@ -71,6 +72,13 @@ public class Zone implements Serializable {
 	public static void copyXYR(Zone from, Zone to) {
 		to.x = from.x;
 		to.y = from.y;
-		to.radius = from.radius;
+		to.r = from.r;
 	}
+
+	public void setXYR(float x, float y, float r) {
+		this.x = x;
+		this.y = y;
+		this.r = r;
+	}
+
 }

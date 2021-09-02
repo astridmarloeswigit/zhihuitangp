@@ -10,17 +10,25 @@
  */
 package com.github.drinkjava2.frog.brain.group;
 
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Graphics;
 
+import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.BrainPicture;
+import com.github.drinkjava2.frog.brain.Cell;
+import com.github.drinkjava2.frog.brain.Input;
+import com.github.drinkjava2.frog.brain.Organ;
+import com.github.drinkjava2.frog.brain.Output;
 import com.github.drinkjava2.frog.brain.Zone;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * RandomConnectGroup
  * 
- * 这是一个随机方式连接两端的Group，它是从旧版的CellGroup改造过来，这是一种最简单的神经元排列方式，只有
- * 它代表一组细胞，触突输入区和输出区分别位于Zone内的任意随机两点。至于是否合理则由frog的遗传进化来决定，不合理的RandomConnectGroup会被淘汰掉。
+ * 这是一个随机方式连接两端的Group，它是从旧版的CellGroup改造过来，这是一种最简单的神经元排列方式，只有一组细胞，触突输入区和输出区分别位于Zone内的任意随机两点。
+ * 至于是否合理则由frog的遗传进化来决定，不合理的RandomConnectGroup会被淘汰掉。
  * 
- *  (还没改造完成，在不破坏原有外在表现的基础上，要平滑将它改造成一个标准Group的子类，也是第一个子类 )
+ * (还没改造完成，在不破坏原有外在表现的基础上，要平滑将它改造成一个标准Group的子类，也是第一个子类 )
  * 
  * @author Yong Zhu
  * @since 1.0
@@ -28,50 +36,58 @@ import com.github.drinkjava2.frog.brain.Zone;
 public class RandomConnectGroup extends Group {
 	private static final long serialVersionUID = 1L;
 
-	// TODO need delete below fields, use grid replace
-	public Zone groupInputZone; // input distribute zone
+	public Zone inputZone; // 输入触突区
+	public Zone outputZone; // 输出触突区
 
-	public Zone groupOutputZone; // output distribute zone
+	@Override
+	public void init(Frog f) {
+		if (inputZone == null)
+			inputZone = RandomUtils.randomPosInZone(this);
+		if (outputZone == null)
+			outputZone = RandomUtils.randomPosInZone(this);
 
-	public float cellInputRadius; // input radius of each cell
-	public float cellOutputRadius; // output radius of each cell
+		Cell c = new Cell();
+		Input in = new Input(inputZone);
+		in.cell = c;
+		c.inputs = new Input[] { in };
 
-	public float inputQtyPerCell; // input qty per cell
-	public float outputQtyPerCell; // output qty per cell
-	// TODO need delete above fields
+		Output out = new Output(outputZone);
+		out.cell = c;
+		c.outputs = new Output[] { out };
 
-	public float cellQty; // how many nerve cells in this CellGroup
-
-	private static final Random r = new Random();
-
-	public RandomConnectGroup() {
-
+		c.group = this;
+		f.cells.add(c);
 	}
 
-	public RandomConnectGroup(RandomConnectGroup g) {// clone old CellGroup
-		groupInputZone = new Zone(g.groupInputZone);
-		groupOutputZone = new Zone(g.groupOutputZone);
-		cellInputRadius = g.cellInputRadius;
-		cellOutputRadius = g.cellOutputRadius;
-		cellQty = g.cellQty;
-		inputQtyPerCell = g.inputQtyPerCell;
-		outputQtyPerCell = g.outputQtyPerCell;
-		fat = g.fat;
-		inherit = g.inherit;
+	@Override
+	public Organ[] vary() {
+		if (fat <= 0)
+			if (RandomUtils.percent(30))
+				return new Organ[] {};
+		if (RandomUtils.percent(80))
+			return new Organ[] { this };
+		return new Organ[] { this, newRandomConnGroup(this) };
 	}
 
-	public RandomConnectGroup(float brainWidth, int randomCellQtyPerGroup, int randomInputQtyPerCell,
-			int randomOutQtyPerCell) {
-		inherit = false;
-		groupInputZone = new Zone(r.nextFloat() * brainWidth, r.nextFloat() * brainWidth,
-				(float) (r.nextFloat() * brainWidth * .01));
-		groupOutputZone = new Zone(r.nextFloat() * brainWidth, r.nextFloat() * brainWidth,
-				(float) (r.nextFloat() * brainWidth * .01));
-		cellQty = 1 + r.nextInt(randomCellQtyPerGroup);
-		cellInputRadius = (float) (0.001 + r.nextFloat() * 2);
-		cellOutputRadius = (float) (0.001 + r.nextFloat() * 2);
-		inputQtyPerCell = 1 + r.nextInt(randomInputQtyPerCell);
-		outputQtyPerCell = 1 + r.nextInt(randomOutQtyPerCell);
+	public static RandomConnectGroup newRandomConnGroup(Zone z) {
+		RandomConnectGroup newOne = new RandomConnectGroup();
+		newOne.inputZone = RandomUtils.randomPosInZone(z);
+		newOne.outputZone = RandomUtils.randomPosInZone(z);
+		return newOne;
+	}
+
+	/** Child class can override this method to drawing picture */
+	public void drawOnBrainPicture(BrainPicture pic) {// 把自已这个器官在脑图上显示出来，子类可以重写这个方法
+		Graphics g = pic.getGraphics();// border
+		g.setColor(Color.gray); // 缺省是灰色
+		pic.drawZone(g, this);
+		pic.drawLine(g, inputZone, outputZone);
+		pic.drawZone(g, inputZone);
+		pic.fillZone(g, outputZone);
+		if (fat > 0) {
+			g.setColor(Color.red);
+			pic.drawCircle(g, outputZone); // 如果胖了，表示激活过了，下次下蛋少不了这一组
+		}
 	}
 
 }

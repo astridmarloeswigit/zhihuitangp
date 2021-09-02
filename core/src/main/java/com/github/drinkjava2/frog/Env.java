@@ -21,7 +21,7 @@ import com.github.drinkjava2.frog.egg.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 80; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 1; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
@@ -40,6 +40,8 @@ public class Env extends JPanel {
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
 
+	public static final boolean DEBUG_MODE = false; // Debug 模式下会打印出更多的调试信息
+
 	static {
 		if (DELETE_EGGS)
 			EggTool.deleteEggs();
@@ -53,7 +55,7 @@ public class Env extends JPanel {
 
 	public static boolean pause = false; // 暂停按钮按下将暂停测试
 
-	public static final boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
+	private static final boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
 
 	public List<Frog> frogs = new ArrayList<>();
 
@@ -63,6 +65,26 @@ public class Env extends JPanel {
 		super();
 		this.setLayout(null);// 空布局
 		this.setBounds(1, 1, ENV_WIDTH, ENV_HEIGHT);
+	}
+
+	public static boolean insideEnv(int x, int y) {
+		return !(x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT);
+	}
+
+	public static boolean outsideEnv(int x, int y) {
+		return x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT;
+	}
+
+	public static boolean foundFood(int x, int y) {
+		return !(x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT) && Env.foods[x][y];
+	}
+
+	public static boolean foundAndDeleteFood(int x, int y) {// 如果x,y有食物，将其清0，返回true
+		if (foundFood(x, y)) {
+			foods[x][y] = false;
+			return true;
+		}
+		return false;
 	}
 
 	private void rebuildFrogAndFood() {
@@ -124,7 +146,7 @@ public class Env extends JPanel {
 			for (int i = 0; i < STEPS_PER_ROUND; i++) {
 				if (allDead) {
 					System.out.println("All dead at round:" + i);
-					break; // 全死光了就直接跳到下一轮,以节省时间
+					break; // 青蛙全死光了就直接跳到下一轮,以节省时间
 				}
 				allDead = true;
 				for (Frog frog : frogs)
