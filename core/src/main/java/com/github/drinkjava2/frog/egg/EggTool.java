@@ -58,7 +58,7 @@ public class EggTool {
 			List<Egg> newEggs = new ArrayList<>();
 			for (int i = 0; i < Env.EGG_QTY; i++)
 				newEggs.add(new Egg(env.frogs.get(i)));
-			System.out.print("organs =" + newEggs.get(0).organs.size() + ", ");
+			System.out.print(", organs =" + newEggs.get(0).organs.size() + ", ");
 
 			FileOutputStream fo = new FileOutputStream(Application.CLASSPATH + "eggs.ser");
 			ObjectOutputStream so = new ObjectOutputStream(fo);

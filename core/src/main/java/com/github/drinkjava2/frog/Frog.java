@@ -19,7 +19,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import com.github.drinkjava2.frog.brain.Cell;
-import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.egg.Egg;
 
@@ -41,7 +40,7 @@ public class Frog {
 
 	public int x; // frog在Env中的x坐标
 	public int y; // frog在Env中的y坐标
-	public long frogEngery = 100000; // 能量为0则死掉
+	 public long frogEngery = 10000; // 能量为0则死掉
 	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与计算和显示，以节省时间
 
 	static Image frogImg;
@@ -63,22 +62,16 @@ public class Frog {
 	}
 
 	public boolean active(Env v) {
-		frogEngery -= 1;
+		frogEngery-=0.01;
 		if (!alive) {
-			frogEngery -= 50;// 死了需要消耗更多的能量，退出生存竞争
 			return false;
 		}
 		if (frogEngery < 0) { // 如果能量小于0则死
+			frogEngery-=10;
 			alive = false;
 			return false;
 		}
-		// for (Cell cell1 : cells) {// 大脑主循环
-		// if (cell1.energy > 0)
-		// cell1.energy--;
-		// for (Input input : cell1.inputs) {
-		// // TODO
-		// }
-		// }
+
 		for (Organ o : organs) { // 调用每个Organ的active方法
 			o.active(this);
 		}

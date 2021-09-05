@@ -31,9 +31,19 @@ public class RandomUtils {
 		return rand.nextFloat();
 	}
 
-	public static Zone randomPosInZone(Zone z) {
+	/** Return a random zone inside a zone */
+	public static Zone randomPosInZone(Zone z) { // 在一个区内随机取一个小小区
 		return new Zone(z.x - z.r + z.r * 2 * rand.nextFloat(), z.y - z.r + z.r * 2 * rand.nextFloat(),
-				z.r * rand.nextFloat() * .02f);
+				z.r * rand.nextFloat() * .04f);
+	}
+
+	/** vary a zone position, size a little bit */
+	public static Zone varyZone(Zone z) {
+		Zone zz = new Zone();
+		zz.x = vary(z.x);
+		zz.y = vary(z.y);
+		zz.r = vary(z.r);
+		return zz;
 	}
 
 	public static boolean percent(int percent) {

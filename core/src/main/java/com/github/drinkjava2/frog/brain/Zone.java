@@ -31,7 +31,7 @@ public class Zone implements Serializable {
 		// 空构造器不能省
 	}
 
-	public Zone(float x, float y, float r) {
+	public Zone(float x, float y, float r) {// 用x,y,r来构造
 		this.x = x;
 		this.y = y;
 		this.r = r;
@@ -45,7 +45,7 @@ public class Zone implements Serializable {
 			this.y = Env.FROG_BRAIN_WIDTH;
 	}
 
-	public Zone(Zone z) {
+	public Zone(Zone z) {// 用另一个Zone来构造
 		this.x = z.x;
 		this.y = z.y;
 		this.r = z.r;

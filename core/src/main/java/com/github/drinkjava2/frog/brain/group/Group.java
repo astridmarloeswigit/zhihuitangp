@@ -29,7 +29,7 @@ import com.github.drinkjava2.frog.brain.Organ;
  * @author Yong Zhu
  * @since 1.0
  */
-public abstract class Group extends Organ { 
+public abstract class Group extends Organ {
 	private static final long serialVersionUID = 1L;
 
 	@Override
@@ -40,7 +40,7 @@ public abstract class Group extends Organ {
 	/** Each loop step call active method, Child class can override this method */
 	@Override
 	public void active(Frog f) { // 每一步都会调用器官的active方法
-		f.frogEngery -= 3; // 每个器官运动都要消耗能量, 死了也要消耗能量
+		f.frogEngery -= 1; // 每个器官运动都要消耗能量, 死了也要消耗能量
 		if (!f.alive)
 			return;
 		if (f.frogEngery < 0) { // 如果能量小于0则死

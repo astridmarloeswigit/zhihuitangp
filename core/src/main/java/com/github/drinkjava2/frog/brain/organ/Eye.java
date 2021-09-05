@@ -78,16 +78,16 @@ public class Eye extends Organ {
 					for (Input input : cell.inputs) {
 						if (input.nearby(this)) {
 							if (foodAtUp && input.nearby(seeUp)) {
-								input.cell.energy += 30;
+								input.cell.energy += 500; // 所有的硬编码都是bug，这个500将来要参与进化，下同
 							}
 							if (foodAtDown && input.nearby(seeDown)) {
-								input.cell.energy += 30;
+								input.cell.energy += 500;
 							}
 							if (foodAtLeft && input.nearby(seeLeft)) {
-								input.cell.energy += 30;
+								input.cell.energy += 500;
 							}
 							if (foodAtRight && input.nearby(seeRight)) {
-								input.cell.energy += 30;
+								input.cell.energy += 500;
 							}
 						}
 					}

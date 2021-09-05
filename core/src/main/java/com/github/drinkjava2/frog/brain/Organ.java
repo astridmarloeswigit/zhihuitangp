@@ -27,22 +27,23 @@ public abstract class Organ extends Zone {
 	private static final long serialVersionUID = 1L;
 	public String name; // 显示在脑图上的器官名称，可选
 
-	 public long fat = 0; // 如果活跃多，fat值高，则保留（及变异）的可能性大，反之则很可能丢弃掉
+	public long fat = 0; // 如果活跃多，fat值高，则保留（及变异）的可能性大，反之则很可能丢弃掉
 
 	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
 		return false;
 	}
 
 	/** If active in this organ's zone? */
-	public boolean outputActive(Frog f) {
+	public boolean outputActive(Frog f) { // 如果一个细胞能量>10,且它的输出触突位于这个器官内，则器官被激活
 		for (Cell cell : f.cells) {
-			for (Output output : cell.outputs) { //
-				if (cell.energy > 10 && this.nearby(output)) {
-					cell.group.fat++;
-					cell.energy -= 1;
-					return true;
+			if (cell.energy > 10)
+				for (Output output : cell.outputs) { //
+					if (this.nearby(output)) {
+						cell.group.fat++;
+						cell.energy -= 3; 
+						return true;
+					}
 				}
-			}
 		}
 		return false;
 	}
@@ -72,7 +73,7 @@ public abstract class Organ extends Zone {
 			newOrgan = this.getClass().newInstance();
 			copyXYR(this, newOrgan);
 			newOrgan.name = this.name;
-			newOrgan.fat = this.fat; 
+			newOrgan.fat = this.fat;
 			return newOrgan;
 		} catch (Exception e) {
 			throw new UnknownError("Can not make new Organ copy for " + this);

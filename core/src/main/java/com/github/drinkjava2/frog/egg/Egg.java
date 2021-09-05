@@ -20,11 +20,13 @@ import com.github.drinkjava2.frog.brain.group.Group;
 import com.github.drinkjava2.frog.brain.group.RandomConnectGroup;
 import com.github.drinkjava2.frog.brain.organ.Eat;
 import com.github.drinkjava2.frog.brain.organ.Eye;
+import com.github.drinkjava2.frog.brain.organ.Happy;
 import com.github.drinkjava2.frog.brain.organ.Hungry;
 import com.github.drinkjava2.frog.brain.organ.MoveDown;
 import com.github.drinkjava2.frog.brain.organ.MoveLeft;
 import com.github.drinkjava2.frog.brain.organ.MoveRight;
 import com.github.drinkjava2.frog.brain.organ.MoveUp;
+import com.github.drinkjava2.frog.brain.organ.Pain;
 import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
@@ -45,6 +47,8 @@ public class Egg implements Serializable {
 	public List<Group> groups = new ArrayList<>();
 
 	public Egg() {// 无中生有，创建一个蛋，先有蛋，后有鸡
+		organs.add(new Happy().setXYRN(300, 700, 100, "Happy"));
+		organs.add(new Pain().setXYRN(600, 700, 100, "Pain"));
 		organs.add(new Hungry().setXYRN(300, 100, 100, "Hungry"));
 		organs.add(new MoveUp().setXYRN(800, 100, 60, "Up"));
 		organs.add(new MoveDown().setXYRN(800, 400, 60, "Down"));
@@ -52,9 +56,7 @@ public class Egg implements Serializable {
 		organs.add(new MoveRight().setXYRN(900, 250, 60, "Right"));
 		organs.add(new Eat().setXYRN(0, 0, 0, "Eat"));
 		organs.add(new Eye().setXYRN(100, 400, 100, "Eye"));
-		for (int i = 0; i <10; i++) {
-			organs.add( new RandomConnectGroup().setXYRN(500, 500, 500, null));
-		} 
+		addRandomConnectionGroups();
 
 	}
 
@@ -62,10 +64,14 @@ public class Egg implements Serializable {
 	public Egg(Frog frog) { // 青蛙下蛋，每个青蛙的器官会创建自已的副本或变异，可以是0或多个
 		for (Organ organ : frog.organs)
 			for (Organ newOrgan : organ.vary())
-				organs.add(newOrgan); 
-		for (int i = 0; i <10; i++) {
-			organs.add( new RandomConnectGroup().setXYRN(500, 500, 500, null));
-		} 
+				organs.add(newOrgan);
+		addRandomConnectionGroups();
+	}
+
+	private void addRandomConnectionGroups() {
+		for (int i = 0; i < 20; i++) {
+			organs.add(new RandomConnectGroup(500, 500, 500));
+		}
 	}
 
 	/**
@@ -87,9 +93,7 @@ public class Egg implements Serializable {
 			if (o.allowBorrow())
 				organs.add(o);
 		}
-		for (int i = 0; i <10; i++) {
-			organs.add( new RandomConnectGroup().setXYRN(500, 500, 500, null));
-		}
+		addRandomConnectionGroups();
 	}
 
 }

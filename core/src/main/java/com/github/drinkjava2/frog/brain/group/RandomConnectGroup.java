@@ -38,6 +38,8 @@ public class RandomConnectGroup extends Group {
 
 	public Zone inputZone; // 输入触突区
 	public Zone outputZone; // 输出触突区
+	float inputWeight = 1; // 输入权重
+	float outputWeight = 1; // 输出权重
 
 	@Override
 	public void init(Frog f) {
@@ -47,6 +49,7 @@ public class RandomConnectGroup extends Group {
 			outputZone = RandomUtils.randomPosInZone(this);
 
 		Cell c = new Cell();
+
 		Input in = new Input(inputZone);
 		in.cell = c;
 		c.inputs = new Input[] { in };
@@ -61,19 +64,27 @@ public class RandomConnectGroup extends Group {
 
 	@Override
 	public Organ[] vary() {
-		if (fat <= 0)
-			if (RandomUtils.percent(30))
+		if (fat <= 0)// 如果胖值为0，表示这个组的细胞没有用到，可以小概率丢掉它了
+			if (RandomUtils.percent(50))
 				return new Organ[] {};
-		if (RandomUtils.percent(80))
-			return new Organ[] { this };
-		return new Organ[] { this, newRandomConnGroup(this) };
+		if (RandomUtils.percent(20)) { // 有20机率权重变大
+			inputWeight = RandomUtils.vary(inputWeight);
+			outputWeight = RandomUtils.vary(outputWeight);
+		}
+		return new Organ[] { this }; // 大部分时间原样返回它的副本就行了，相当于儿子是父亲的克隆
 	}
 
-	public static RandomConnectGroup newRandomConnGroup(Zone z) {
-		RandomConnectGroup newOne = new RandomConnectGroup();
-		newOne.inputZone = RandomUtils.randomPosInZone(z);
-		newOne.outputZone = RandomUtils.randomPosInZone(z);
-		return newOne;
+	public RandomConnectGroup(float x, float y, float r) {
+		this.x = x;
+		this.y = y;
+		this.r = r;
+		inputZone = RandomUtils.randomPosInZone(this);
+		outputZone = RandomUtils.randomPosInZone(this);
+	}
+
+	public RandomConnectGroup(Zone z) {
+		inputZone = RandomUtils.randomPosInZone(z);
+		outputZone = RandomUtils.randomPosInZone(z);
 	}
 
 	/** Child class can override this method to drawing picture */
