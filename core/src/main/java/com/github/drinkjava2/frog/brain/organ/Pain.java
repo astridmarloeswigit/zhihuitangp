@@ -15,6 +15,7 @@ import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * Pain zone active after some bad thingg happen like close to edge, hurt...
@@ -25,22 +26,31 @@ public class Pain extends Organ { // Pain器官目前激活的条件是离边境
 
 	private static final long serialVersionUID = 1L;
 
-	public float pain = 0; // happy初始值为0, 如果frog靠近边界，将增加Pain值，将来如果天敌出现也会激活Frog的Pain区
+	@Override
+	public void initFrog(Frog f) {
+		if (!initilized) {
+			initilized = true;
+			organOutputEnergy = 150;
+		}
+	}
+
+//	@Override
+//	public Organ[] vary() {
+//		if (RandomUtils.percent(20)) // 有20机率权重变化
+//			organOutputEnergy = RandomUtils.vary(organOutputEnergy);
+//		return new Organ[] { this };
+//	}
 
 	@Override
 	public void active(Frog f) {
-		if (Env.closeToEdge(f))
-			pain = 500;// 所有的硬编码都是bug，包括这个500
-		else
-			pain = 0;
-		if (pain > 0) {
+		if (Env.closeToEdge(f)) {
 			for (Cell cell : f.cells) {
 				if (cell.energy > 0)
 					cell.energy--;
 				if (cell.energy < Cell.MAX_ENERGY_LIMIT)
 					for (Input input : cell.inputs)
 						if (input.nearby(this)) // if input zone near by happy zone
-							cell.energy += pain / 10; // 所有的硬编码都是bug，包括这个10
+							cell.energy += organOutputEnergy;
 			}
 		}
 	}

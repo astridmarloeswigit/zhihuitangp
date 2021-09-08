@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * Organ is a part of frog, organ can be saved in egg
@@ -23,24 +24,30 @@ import com.github.drinkjava2.frog.Frog;
  * @author Yong Zhu
  * @since 1.0.4
  */
-public abstract class Organ extends Zone {
+public class Organ extends Zone {
 	private static final long serialVersionUID = 1L;
 	public String name; // 显示在脑图上的器官名称，可选
-
 	public long fat = 0; // 如果活跃多，fat值高，则保留（及变异）的可能性大，反之则很可能丢弃掉
+	public float organActiveEnergy = 1; // 执行器官激活需要消耗细胞多少能量
+	public float organOutputEnergy = 2; // 感觉 器官激活会给细胞增加多少能量
+	public boolean initilized; // 通过这个标记判断是否需要手工给定它的参数初值
 
 	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
 		return false;
 	}
 
+	/** Each loop step call active method, Child class can override this method */
+	public void active(Frog f) { // 每一步都会调用器官的active方法 ，缺省啥也不干
+	}
+
 	/** If active in this organ's zone? */
 	public boolean outputActive(Frog f) { // 如果一个细胞能量>10,且它的输出触突位于这个器官内，则器官被激活
 		for (Cell cell : f.cells) {
-			if (cell.energy > 10)
+			if (cell.energy > organActiveEnergy)
 				for (Output output : cell.outputs) { //
 					if (this.nearby(output)) {
-						cell.group.fat++;
-						cell.energy -= 3; 
+						cell.organ.fat++;
+						cell.energy -= organActiveEnergy;
 						return true;
 					}
 				}
@@ -50,9 +57,7 @@ public abstract class Organ extends Zone {
 
 	/** Set X, Y, Radius, name of current Organ */
 	public Organ setXYRN(float x, float y, float r, String name) {
-		this.x = x;
-		this.y = y;
-		this.r = r;
+		this.setXYR(x, y, r);
 		this.name = name;
 		return this;
 	}
@@ -66,31 +71,27 @@ public abstract class Organ extends Zone {
 			pic.drawText(g, this, String.valueOf(this.name));
 	}
 
-	/** make a new copy of current organ */
-	public Organ newCopy() { // 创建一个当前器官的副本
+	/** Only call once when frog created , Child class can override this method */
+	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Group子类的初始化
+	}
+
+	public void varyParam() {
+		organActiveEnergy = RandomUtils.vary(organActiveEnergy);
+		organOutputEnergy = RandomUtils.vary(organOutputEnergy);
+	}
+
+	/** Only call once after organ be created by new() method */
+	public Organ[] vary() { // 在下蛋时每个器官会调用这个方法，缺省返回一个类似自已的副本，子类通常要覆盖这个方法
 		Organ newOrgan = null;
 		try {
 			newOrgan = this.getClass().newInstance();
-			copyXYR(this, newOrgan);
-			newOrgan.name = this.name;
-			newOrgan.fat = this.fat;
-			return newOrgan;
 		} catch (Exception e) {
 			throw new UnknownError("Can not make new Organ copy for " + this);
 		}
-	}
-
-	/** Only call once when frog created , Child class can override this method */
-	public void init(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Group子类的初始化
-	}
-
-	/** Only call once when frog created , Child class can override this method */
-	public Organ[] vary() { // 在下蛋时每个器官会调用这个方法，缺省返回自已的副本，Group类通常要覆盖这个方法
-		return new Organ[] { newCopy() };
-	}
-
-	/** Each loop step call active method, Child class can override this method */
-	public void active(Frog f) { // 每一步都会调用器官的active方法 ，缺省啥也不干
+		copyXYR(this, newOrgan);
+		newOrgan.name = this.name;
+		newOrgan.fat = this.fat;
+		return new Organ[] { newOrgan };
 	}
 
 }

@@ -38,15 +38,19 @@ public class RandomConnectGroup extends Group {
 
 	public Zone inputZone; // 输入触突区
 	public Zone outputZone; // 输出触突区
-	float inputWeight = 1; // 输入权重
-	float outputWeight = 1; // 输出权重
 
 	@Override
-	public void init(Frog f) {
-		if (inputZone == null)
+	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
+		return true;
+	}
+
+	@Override
+	public void initFrog(Frog f) {
+		if (!initilized) {
+			initilized = true;
 			inputZone = RandomUtils.randomPosInZone(this);
-		if (outputZone == null)
 			outputZone = RandomUtils.randomPosInZone(this);
+		}
 
 		Cell c = new Cell();
 
@@ -58,7 +62,7 @@ public class RandomConnectGroup extends Group {
 		out.cell = c;
 		c.outputs = new Output[] { out };
 
-		c.group = this;
+		c.organ = this;
 		f.cells.add(c);
 	}
 
@@ -67,11 +71,8 @@ public class RandomConnectGroup extends Group {
 		if (fat <= 0)// 如果胖值为0，表示这个组的细胞没有用到，可以小概率丢掉它了
 			if (RandomUtils.percent(50))
 				return new Organ[] {};
-		if (RandomUtils.percent(20)) { // 有20机率权重变大
-			inputWeight = RandomUtils.vary(inputWeight);
-			outputWeight = RandomUtils.vary(outputWeight);
-		}
-		return new Organ[] { this }; // 大部分时间原样返回它的副本就行了，相当于儿子是父亲的克隆
+		this.varyParam(); // 器官缺省权重变异
+		return new Organ[] { this };
 	}
 
 	public RandomConnectGroup(float x, float y, float r) {
@@ -90,7 +91,9 @@ public class RandomConnectGroup extends Group {
 	/** Child class can override this method to drawing picture */
 	public void drawOnBrainPicture(BrainPicture pic) {// 把自已这个器官在脑图上显示出来，子类可以重写这个方法
 		Graphics g = pic.getGraphics();// border
-		g.setColor(Color.gray); // 缺省是灰色
+		if (fat <= 0)
+			g.setColor(Color.LIGHT_GRAY); // 缺省是灰色
+		else g.setColor(Color.red);
 		pic.drawZone(g, this);
 		pic.drawLine(g, inputZone, outputZone);
 		pic.drawZone(g, inputZone);

@@ -52,12 +52,24 @@ public class RandomUtils {
 
 	public static float vary(float f) { // 大部分时候不变，有极小机会变异,有极极小机会大变异，有极极极小机会大大大变异
 		int i = rand.nextInt(100);
-		if (i < 95)
+		if (i < 50) // 有50的机率不变异
 			return f;
-		float rate = .05f;
-		if (i > 97)
-			rate = .1f;
-		return (float) (f * ((1 - rate) + rand.nextFloat() * rate * 2));
+		float rate = 0.2f; // 50%机率在0.2倍范围变异
+		if (i > 80)
+			rate = 1f; // 有20%的机率在1倍的范围变异
+		if (i > 90)
+			rate = 10f; // 有10%的机率在10倍的范围变异
+		if (i > 95)
+			rate = 100f; // 有5%的机率在100倍的范围变异
+		if (i > 98)
+			rate = 1000f; // 有1%的机率在1000倍的范围变异
+
+		boolean bigger = rand.nextInt(2) > 0;
+		if (bigger)
+			f = f + f * rate * rand.nextFloat() + .001f;
+		else
+			f = f - f * rate * rand.nextFloat() - .001f;
+		return f * rate;
 	}
 
 }

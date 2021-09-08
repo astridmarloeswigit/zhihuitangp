@@ -28,7 +28,7 @@ public class Eat extends Organ {// Eat这个类将食物转化为能量，能量
 			// 能量境加青蛙感觉不到，但是Happy区激活青蛙能感觉到，因为Happy区是一个脑器官
 
 			Organ o = f.organs.get(0);
-			((Happy) o).happy += 200; // 找到食物有奖！
+			((Happy) o).happy += 2; // 找到食物有奖！
 		}
 	}
 

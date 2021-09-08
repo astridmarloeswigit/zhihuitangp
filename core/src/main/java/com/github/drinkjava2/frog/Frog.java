@@ -57,7 +57,7 @@ public class Frog {
 		this.y = y;
 		for (Organ org : egg.organs) {
 			organs.add(org);
-			org.init(this);// 每个新器官初始化，如果是Group类，它们会生成许多脑细胞
+			org.initFrog(this);// 每个新器官初始化，如果是Group类，它们会生成许多脑细胞
 		}
 	}
 

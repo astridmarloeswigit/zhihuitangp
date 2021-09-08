@@ -51,7 +51,8 @@ public class EggTool {
 		if (Env.DEBUG_MODE)
 			for (int i = 0; i < first.organs.size(); i++) {
 				Organ org = first.organs.get(i);
-				System.out.println("Organ(" + i + ")=" + org + ", fat=" + org.fat);
+				System.out.println("Organ(" + i + ")=" + org + ", fat=" + org.fat + ", activeEnergy=" + org.organActiveEnergy
+						+ ", outputEnergy=" + org.organOutputEnergy);
 			}
 
 		try {

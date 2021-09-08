@@ -10,7 +10,6 @@
  */
 package com.github.drinkjava2.frog.brain.group;
 
-import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Organ;
 
 /**
@@ -32,20 +31,4 @@ import com.github.drinkjava2.frog.brain.Organ;
 public abstract class Group extends Organ {
 	private static final long serialVersionUID = 1L;
 
-	@Override
-	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
-		return true;
-	}
-
-	/** Each loop step call active method, Child class can override this method */
-	@Override
-	public void active(Frog f) { // 每一步都会调用器官的active方法
-		f.frogEngery -= 1; // 每个器官运动都要消耗能量, 死了也要消耗能量
-		if (!f.alive)
-			return;
-		if (f.frogEngery < 0) { // 如果能量小于0则死
-			f.alive = false;
-			return;
-		}
-	}
 }

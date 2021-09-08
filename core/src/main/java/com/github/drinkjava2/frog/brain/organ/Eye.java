@@ -12,6 +12,7 @@ package com.github.drinkjava2.frog.brain.organ;
 
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.BrainPicture;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
@@ -26,6 +27,33 @@ import com.github.drinkjava2.frog.brain.Zone;
  */
 public class Eye extends Organ {
 	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Group子类的初始化
+		if (!initilized) {
+			initilized = true;
+			organOutputEnergy = 300;
+		}
+	}
+
+	public void drawOnBrainPicture(BrainPicture pic) {// 把自已这个器官在脑图上显示出来
+		super.drawOnBrainPicture(pic);
+		float qRadius = r / 4;
+		float q3Radius = (float) (r * .75);
+		Zone seeUp = new Zone(x, y + q3Radius, qRadius);
+		Zone seeDown = new Zone(x, y - q3Radius, qRadius);
+		Zone seeLeft = new Zone(x - q3Radius, y, qRadius);
+		Zone seeRight = new Zone(x + q3Radius, y, qRadius);
+		pic.drawZone(pic.getGraphics(), seeUp);
+		pic.drawZone(pic.getGraphics(), seeDown);
+		pic.drawZone(pic.getGraphics(), seeLeft);
+		pic.drawZone(pic.getGraphics(), seeRight);
+	}
+
+	@Override
+	public Organ[] vary() {
+		return new Organ[] { this };
+	}
 
 	@Override
 	public void active(Frog f) {
@@ -78,16 +106,16 @@ public class Eye extends Organ {
 					for (Input input : cell.inputs) {
 						if (input.nearby(this)) {
 							if (foodAtUp && input.nearby(seeUp)) {
-								input.cell.energy += 500; // 所有的硬编码都是bug，这个500将来要参与进化，下同
+								input.cell.energy += organOutputEnergy;
 							}
 							if (foodAtDown && input.nearby(seeDown)) {
-								input.cell.energy += 500;
+								input.cell.energy += organOutputEnergy;
 							}
 							if (foodAtLeft && input.nearby(seeLeft)) {
-								input.cell.energy += 500;
+								input.cell.energy += organOutputEnergy;
 							}
 							if (foodAtRight && input.nearby(seeRight)) {
-								input.cell.energy += 500;
+								input.cell.energy += organOutputEnergy;
 							}
 						}
 					}

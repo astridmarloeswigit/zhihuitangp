@@ -21,7 +21,7 @@ import com.github.drinkjava2.frog.egg.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 5; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 1; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
@@ -32,7 +32,7 @@ public class Env extends JPanel {
 	public static final int FROG_BRAIN_DISP_WIDTH = 300; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
-	public static final int STEPS_PER_ROUND = 2000;// 每轮测试步数,可调
+	public static final int STEPS_PER_ROUND = 1000;// 每轮测试步数,可调
 
 	/** Frog's brain width, fixed to 1000 unit */
 	public static final float FROG_BRAIN_WIDTH = 1000; // frog的脑宽度固定为1000,不要随便调整,因为器官的相对位置和大小是按脑大小设定的
