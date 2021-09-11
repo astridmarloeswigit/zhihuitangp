@@ -13,6 +13,7 @@ package com.github.drinkjava2.frog.brain.group;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.BrainPicture;
 import com.github.drinkjava2.frog.brain.Cell;
@@ -48,12 +49,17 @@ public class RandomConnectGroup extends Group {
 	public void initFrog(Frog f) {
 		if (!initilized) {
 			initilized = true;
-			inputZone = RandomUtils.randomPosInZone(this);
-			outputZone = RandomUtils.randomPosInZone(this);
+			//organWasteEnergy=.05f;
+			x = Env.FROG_BRAIN_WIDTH / 2;
+			y = Env.FROG_BRAIN_WIDTH / 2;
+			r = Env.FROG_BRAIN_WIDTH / 2;
+			inputZone = RandomUtils.randomPosInAnyFrogOrgan(f);
+			outputZone = RandomUtils.randomPosInAnyFrogOrgan(f);
 		}
 
-		Cell c = new Cell();
+		this.fat = 0;// 每次fat清0，因为遗传下来的fat不为0
 
+		Cell c = new Cell();
 		Input in = new Input(inputZone);
 		in.cell = c;
 		c.inputs = new Input[] { in };
@@ -69,31 +75,20 @@ public class RandomConnectGroup extends Group {
 	@Override
 	public Organ[] vary() {
 		if (fat <= 0)// 如果胖值为0，表示这个组的细胞没有用到，可以小概率丢掉它了
-			if (RandomUtils.percent(50))
+			if (RandomUtils.percent(30))
 				return new Organ[] {};
-		this.varyParam(); // 器官缺省权重变异
+		if (RandomUtils.percent(3)) // 有3%的几率丢掉它，防止这个器官数量只增不减
+			return new Organ[] {};
 		return new Organ[] { this };
 	}
 
-	public RandomConnectGroup(float x, float y, float r) {
-		this.x = x;
-		this.y = y;
-		this.r = r;
-		inputZone = RandomUtils.randomPosInZone(this);
-		outputZone = RandomUtils.randomPosInZone(this);
-	}
-
-	public RandomConnectGroup(Zone z) {
-		inputZone = RandomUtils.randomPosInZone(z);
-		outputZone = RandomUtils.randomPosInZone(z);
-	}
-
-	/** Child class can override this method to drawing picture */
-	public void drawOnBrainPicture(BrainPicture pic) {// 把自已这个器官在脑图上显示出来，子类可以重写这个方法
+	@Override
+	public void drawOnBrainPicture(BrainPicture pic) {// 把自已这个器官在脑图上显示出来
 		Graphics g = pic.getGraphics();// border
 		if (fat <= 0)
-			g.setColor(Color.LIGHT_GRAY); // 缺省是灰色
-		else g.setColor(Color.red);
+			g.setColor(Color.LIGHT_GRAY); // 没用到? 灰色
+		else
+			g.setColor(Color.red); // 用到了?红色
 		pic.drawZone(g, this);
 		pic.drawLine(g, inputZone, outputZone);
 		pic.drawZone(g, inputZone);

@@ -17,7 +17,7 @@ package com.github.drinkjava2.frog.brain;
  * @since 1.0
  */
 public class Cell {
-	public static final float MAX_ENERGY_LIMIT = 1000.0f;
+	public static final float MAX_ENERGY_LIMIT = 100.0f;
 
 	// this cell belong to frog's which organ
 	public Organ organ;

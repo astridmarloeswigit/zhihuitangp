@@ -23,7 +23,8 @@ public class Eat extends Organ {// Eat这个类将食物转化为能量，能量
 	@Override
 	public void active(Frog f) {
 		if (Env.foundAndDeleteFood(f.x, f.y)) {
-			f.frogEngery = f.frogEngery + 50000;// 如果青蛙的坐标与食物重合，吃掉food，能量境加
+			// 所有的硬编码都是bug，包括这个1000
+			f.energy +=  1000;// 如果青蛙的坐标与食物重合，吃掉food，能量境加
 
 			// 能量境加青蛙感觉不到，但是Happy区激活青蛙能感觉到，因为Happy区是一个脑器官
 

@@ -26,7 +26,6 @@ import com.github.drinkjava2.frog.brain.organ.MoveDown;
 import com.github.drinkjava2.frog.brain.organ.MoveLeft;
 import com.github.drinkjava2.frog.brain.organ.MoveRight;
 import com.github.drinkjava2.frog.brain.organ.MoveUp;
-import com.github.drinkjava2.frog.brain.organ.Pain;
 import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
@@ -40,24 +39,31 @@ import com.github.drinkjava2.frog.util.RandomUtils;
  * @since 1.0
  */
 public class Egg implements Serializable {
+	// 大自然可能是漫天撒网，但为了缩短时间，这个程序随机生成的联结将只落在固定的器官上而不是漫天撒网(见4.12提交)，这是程序的优化
+	// 这个优化带来的问题是这个硬编码逻辑不能拷贝到将来的分形结构里去，只适用于少数几个固定的器官。
+	public static int FIXED_ORGAN_QTY=7;
+
 	private static final long serialVersionUID = 1L;
 
 	public List<Organ> organs = new ArrayList<>();
 
 	public List<Group> groups = new ArrayList<>();
 
-	public Egg() {// 无中生有，创建一个蛋，先有蛋，后有鸡
-		organs.add(new Happy().setXYRN(300, 700, 100, "Happy"));
-		organs.add(new Pain().setXYRN(600, 700, 100, "Pain"));
+	public Egg() {// 无中生有，创建一个蛋，先有蛋，后有蛙
+		organs.add(new Happy().setXYRN(300, 700, 100, "Happy")); //Happy必须第一个加入
 		organs.add(new Hungry().setXYRN(300, 100, 100, "Hungry"));
 		organs.add(new MoveUp().setXYRN(800, 100, 60, "Up"));
 		organs.add(new MoveDown().setXYRN(800, 400, 60, "Down"));
 		organs.add(new MoveLeft().setXYRN(700, 250, 60, "Left"));
 		organs.add(new MoveRight().setXYRN(900, 250, 60, "Right"));
-		organs.add(new Eat().setXYRN(0, 0, 0, "Eat"));
 		organs.add(new Eye().setXYRN(100, 400, 100, "Eye"));
-		addRandomConnectionGroups();
 
+		// Pain对提高找食效率没有帮助，将来要和记忆功能一起加入,我们的目标：不出界，吃光所有食物
+		// organs.add(new Pain().setXYRN(600, 700, 100, "Pain"));
+
+		organs.add(new Eat().setXYRN(0, 0, 0, "Eat")); // EAT不是感觉或输出器官，没有位置和大小
+
+		addRandomConnectionGroups();
 	}
 
 	/** Create egg from frog */
@@ -68,10 +74,9 @@ public class Egg implements Serializable {
 		addRandomConnectionGroups();
 	}
 
-	private void addRandomConnectionGroups() {
-		for (int i = 0; i < 20; i++) {
-			organs.add(new RandomConnectGroup(500, 500, 500));
-		}
+	private void addRandomConnectionGroups() {// 每次下蛋时新建5个RandomConnectGroup实例
+		for (int i = 0; i < 5; i++)
+			organs.add(new RandomConnectGroup());
 	}
 
 	/**
@@ -83,8 +88,7 @@ public class Egg implements Serializable {
 	public Egg(Egg x, Egg y) {
 		// x里原来的organ
 		for (Organ organ : x.organs)
-			for (Organ newOrgan : organ.vary())
-				organs.add(newOrgan);
+			organs.add(organ);
 
 		// 从y里借一个organ
 		int yOrganSize = y.organs.size();
@@ -93,7 +97,6 @@ public class Egg implements Serializable {
 			if (o.allowBorrow())
 				organs.add(o);
 		}
-		addRandomConnectionGroups();
 	}
 
 }

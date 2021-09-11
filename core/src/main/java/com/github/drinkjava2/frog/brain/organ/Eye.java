@@ -25,14 +25,14 @@ import com.github.drinkjava2.frog.brain.Zone;
  * @author Yong Zhu
  * @since 1.0
  */
-public class Eye extends Organ {
+public class Eye extends Organ {// Eye类需要重构，目前只有4个感光细胞，不够，Eye要改成Group的子类，Eye只负责感光细胞的排列，感光细胞自已负责变异
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Group子类的初始化
+	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Organ类的初始化
 		if (!initilized) {
 			initilized = true;
-			organOutputEnergy = 300;
+			organOutputEnergy = 30;
 		}
 	}
 

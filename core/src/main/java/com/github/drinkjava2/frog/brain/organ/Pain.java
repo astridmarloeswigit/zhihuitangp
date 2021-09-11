@@ -15,7 +15,6 @@ import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * Pain zone active after some bad thingg happen like close to edge, hurt...
@@ -30,7 +29,7 @@ public class Pain extends Organ { // Pain器官目前激活的条件是离边境
 	public void initFrog(Frog f) {
 		if (!initilized) {
 			initilized = true;
-			organOutputEnergy = 150;
+			organOutputEnergy = 2;
 		}
 	}
 

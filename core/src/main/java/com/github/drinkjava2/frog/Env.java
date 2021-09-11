@@ -21,26 +21,28 @@ import com.github.drinkjava2.frog.egg.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 1; // 测试速度，1~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 5; // 测试速度，1~1000,可调, 数值越小，速度越慢
 
+	/** Delete eggs at beginning of each run */
+	public static final boolean DELETE_EGGS = true;// 每次运行是否先删除保存的蛋
+
+	/** Debug mode will print more debug info */
+	public static final boolean DEBUG_MODE = false; // Debug 模式下会打印出更多的调试信息
+
+	/** Environment x width, unit: pixels */
 	public static final int ENV_WIDTH = 400; // 虚拟环境的宽度, 可调
 
-	/** Virtual environment y size pixels */
+	/** Environment y height, unit: pixels */
 	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
 	public static final int FROG_BRAIN_DISP_WIDTH = 300; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
-	public static final int STEPS_PER_ROUND = 1000;// 每轮测试步数,可调
+	public static final int STEPS_PER_ROUND = 2000;// 每轮测试步数,可调
 
 	/** Frog's brain width, fixed to 1000 unit */
 	public static final float FROG_BRAIN_WIDTH = 1000; // frog的脑宽度固定为1000,不要随便调整,因为器官的相对位置和大小是按脑大小设定的
-
-	/** Delete eggs at beginning of each run */
-	public static final boolean DELETE_EGGS = false;// 每次运行是否先删除保存的蛋
-
-	public static final boolean DEBUG_MODE = false; // Debug 模式下会打印出更多的调试信息
 
 	static {
 		if (DELETE_EGGS)
@@ -97,17 +99,17 @@ public class Env extends JPanel {
 		Random rand = new Random();
 		for (int i = 0; i < eggs.size(); i++) {// 创建青蛙，每个蛋生成4个蛙，并随机取一个别的蛋作为精子
 			int loop = 4;
-			if (i == 0)
-				loop = 8;
-			if (i == eggs.size() - 1)
-				loop = 0;
+			if (i <= 3)// 0,1,2,3
+				loop = 6;
+			if (i >= (eggs.size() - 4))
+				loop = 2;
 			for (int j = 0; j < loop; j++) {
 				Egg zygote = new Egg(eggs.get(i), eggs.get(r.nextInt(eggs.size())));
 				frogs.add(new Frog(rand.nextInt(ENV_WIDTH), rand.nextInt(ENV_HEIGHT), zygote));
 			}
 		}
 
-		System.out.println("Created " + 4 * eggs.size() + " frogs");
+		System.out.println("Created " + frogs.size() + " frogs");
 		for (int i = 0; i < Env.FOOD_QTY; i++) // 生成食物
 			foods[rand.nextInt(ENV_WIDTH)][rand.nextInt(ENV_HEIGHT)] = true;
 	}

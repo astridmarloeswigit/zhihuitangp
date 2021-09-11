@@ -46,14 +46,16 @@ public class EggTool {
 		Frog first = env.frogs.get(0);
 		Frog last = env.frogs.get(env.frogs.size() - 1);
 
-		System.out.print("First frog has " + first.organs.size() + " organs, energy=" + first.frogEngery);
-		System.out.print(", Last frog has " + last.organs.size() + " organs, energy=" + last.frogEngery);
 		if (Env.DEBUG_MODE)
 			for (int i = 0; i < first.organs.size(); i++) {
 				Organ org = first.organs.get(i);
-				System.out.println("Organ(" + i + ")=" + org + ", fat=" + org.fat + ", activeEnergy=" + org.organActiveEnergy
+				System.out.println("Organ(" + i + ")=" + org + ", fat=" + org.fat + ", organWasteEnergy=" + org.organActiveEnergy
 						+ ", outputEnergy=" + org.organOutputEnergy);
 			}
+		
+		System.out.print("First frog has " + first.organs.size() + " organs, energy=" + first.energy);
+		System.out.print(", Last frog has " + last.organs.size() + " organs, energy=" + last.energy);
+ 
 
 		try {
 			List<Egg> newEggs = new ArrayList<>();
@@ -77,9 +79,9 @@ public class EggTool {
 	private static void sortFrogsOrderByEnergyDesc(Env env) {// 按能量多少给青蛙排序
 		Collections.sort(env.frogs, new Comparator<Frog>() {
 			public int compare(Frog a, Frog b) {
-				if (a.frogEngery > b.frogEngery)
+				if (a.energy > b.energy)
 					return -1;
-				else if (a.frogEngery == b.frogEngery)
+				else if (a.energy == b.energy)
 					return 0;
 				else
 					return 1;
