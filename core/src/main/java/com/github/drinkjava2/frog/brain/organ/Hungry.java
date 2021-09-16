@@ -10,7 +10,11 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
+import java.awt.Color;
+
+import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.BrainPicture;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
@@ -25,9 +29,25 @@ public class Hungry extends Organ {
 	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Organ类的初始化
 		if (!initilized) {
 			initilized = true;
-			//organWasteEnergy = 20f;
+			// organWasteEnergy = 20f;
 			organOutputEnergy = 2;
 		}
+	}
+
+	@Override
+	public void drawOnBrainPicture(Frog f, BrainPicture pic) {// 把自已这个器官在脑图上显示出来
+		if (!Application.SHOW_FIRST_FROG_BRAIN)
+			return;
+		if (f.energy < 10000) {
+			pic.fillZone(this);
+		} else {
+			pic.setColor(Color.white);
+			pic.fillZone(this);
+			pic.setColor(Color.BLACK);
+			pic.drawZone(this);
+		}
+		if (this.name != null)
+			pic.drawText(this, String.valueOf(this.name));
 	}
 
 	@Override

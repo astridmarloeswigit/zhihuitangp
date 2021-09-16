@@ -10,6 +10,7 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
+import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.BrainPicture;
@@ -26,9 +27,9 @@ import com.github.drinkjava2.frog.util.RandomUtils;
  * @author Yong Zhu
  * @since 1.0
  */
-public class NewEye extends Organ {// 这个眼睛有nxn个感光细胞，可以看到青蛙周围nxn网络内有没有食物
+public class NewEye extends Organ {// 这个新版的眼睛有nxn个感光细胞，可以看到青蛙周围nxn网络内有没有食物
 	private static final long serialVersionUID = 1L;
-	public int n = 3; // 眼睛有n x n个感光细胞，缺省是3x3点阵,会随机自动变异(加1或减1，最小是1)
+	public int n = 3; // 眼睛有n x n个感光细胞， 用随机试错算法自动变异(加1或减1，最小是3x3)
 
 	@Override
 	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次，缺省啥也不干，通常用于Organ类的初始化
@@ -40,6 +41,8 @@ public class NewEye extends Organ {// 这个眼睛有nxn个感光细胞，可以
 
 	@Override
 	public void drawOnBrainPicture(Frog f, BrainPicture pic) {// 把自已这个器官在脑图上显示出来
+		if (!Application.SHOW_FIRST_FROG_BRAIN)
+			return;
 		super.drawOnBrainPicture(f, pic);
 		float r2 = r / n; // r2是每个感光细胞的半径
 		float x0 = x - r;
@@ -47,10 +50,10 @@ public class NewEye extends Organ {// 这个眼睛有nxn个感光细胞，可以
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				Zone cell = new Zone(x0 + i * 2 * r2 + r2, y0 + j * 2 * r2 + r2, r2);
-				if (Env.foundFoodOrOutEdge(f.x - n / 2 + i, f.y - n / 2 + j))
-					pic.fillZone(pic.getGraphics(), cell);
+				if (Env.foundAnyThing(f.x - n / 2 + i, f.y - n / 2 + j))
+					pic.fillZone(cell);
 				else
-					pic.drawZone(pic.getGraphics(), cell);
+					pic.drawZone(cell);
 			}
 		}
 	}
@@ -74,7 +77,7 @@ public class NewEye extends Organ {// 这个眼睛有nxn个感光细胞，可以
 		float y0 = y - r; // x0,y0是眼睛的左上角
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
-				if (Env.foundFoodOrOutEdge(f.x - n / 2 + i, f.y - n / 2 + j)) {
+				if (Env.foundAnyThing(f.x - n / 2 + i, f.y - n / 2 + j)) {
 					Zone eyeCell = new Zone(x0 + i * 2 * r2 + r2, y0 + j * 2 * r2 + r2, r2);
 					for (Cell cell : f.cells)
 						for (Input input : cell.inputs)

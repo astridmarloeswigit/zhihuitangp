@@ -10,8 +10,10 @@ import java.util.Random;
 
 import javax.swing.JPanel;
 
+import com.github.drinkjava2.frog.brain.group.RandomConnectGroup;
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.egg.EggTool;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * Env is the living space of frog. draw it on JPanel
@@ -22,7 +24,7 @@ import com.github.drinkjava2.frog.egg.EggTool;
 @SuppressWarnings("serial")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED = 5; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
+	public static int SHOW_SPEED = 20; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
 
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = true;// 每次运行是否先删除保存的蛋
@@ -40,7 +42,7 @@ public class Env extends JPanel {
 	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
-	public static final int FROG_BRAIN_DISP_WIDTH = 300; // Frog的脑图在屏幕上的显示大小,可调
+	public static final int FROG_BRAIN_DISP_WIDTH = 400; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
 	public static final int STEPS_PER_ROUND = 2000;// 每轮测试步数,可调
@@ -57,6 +59,10 @@ public class Env extends JPanel {
 	public static boolean pause = false; // 暂停按钮按下将暂停测试
 
 	private static final boolean[][] foods = new boolean[ENV_WIDTH][ENV_HEIGHT];// 食物数组定义
+
+	private static final int TRAP_WIDTH = 350; // 陷阱高, 0~200
+
+	private static final int TRAP_HEIGHT = 10; // 陷阱宽, 0~200
 
 	public List<Frog> frogs = new ArrayList<>();
 
@@ -86,8 +92,17 @@ public class Env extends JPanel {
 		return !(x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT) && Env.foods[x][y];
 	}
 
-	public static boolean foundFoodOrOutEdge(int x, int y) {// 如果指定点看到食物或超出边界
-		return x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT || Env.foods[x][y];
+	public static boolean closeToEdge(Frog f) {// 青蛙靠近边界? 离死不远了
+		return f.x < 20 || f.y < 20 || f.x > (Env.ENV_WIDTH - 20) || f.y > (Env.ENV_HEIGHT - 20);
+	}
+
+	public static boolean inTrap(int x, int y) {// 如果指定点看到食物
+		return x >= ENV_WIDTH / 2 - TRAP_WIDTH / 2 && x <= ENV_WIDTH / 2 + TRAP_WIDTH / 2
+				&& y >= ENV_HEIGHT / 2 - TRAP_HEIGHT / 2 && y <= ENV_HEIGHT / 2 + TRAP_HEIGHT / 2;
+	}
+
+	public static boolean foundAnyThing(int x, int y) {// 如果指定点看到食物或超出边界
+		return x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT || Env.foods[x][y] || inTrap(x, y);
 	}
 
 	public static boolean foundAndDeleteFood(int x, int y) {// 如果x,y有食物，将其清0，返回true
@@ -131,6 +146,14 @@ public class Env extends JPanel {
 				}
 	}
 
+	private void drawTrap(Graphics g) {// 所有走到陷阱边沿上的的青蛙都死掉
+		g.fillRect(ENV_HEIGHT / 2 - TRAP_WIDTH / 2, ENV_HEIGHT / 2 - TRAP_HEIGHT / 2, TRAP_WIDTH, TRAP_HEIGHT);
+		g.setColor(Color.white);
+		g.fillRect(ENV_HEIGHT / 2 - TRAP_WIDTH / 2 + 3, ENV_HEIGHT / 2 - TRAP_HEIGHT / 2 + 3, TRAP_WIDTH - 6,
+				TRAP_HEIGHT - 6);
+		g.setColor(Color.black);
+	}
+
 	static final NumberFormat format100 = NumberFormat.getPercentInstance();
 	static {
 		format100.setMaximumFractionDigits(2);
@@ -152,10 +175,6 @@ public class Env extends JPanel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public static boolean closeToEdge(Frog f) {// 青蛙靠近边界? 离死不远了
-		return f.x < 20 || f.y < 20 || f.x > (Env.WIDTH - 20) || f.y > (Env.HEIGHT - 20);
 	}
 
 	public void run() throws InterruptedException {
@@ -183,6 +202,13 @@ public class Env extends JPanel {
 					if (frog.active(this))
 						allDead = false;
 
+				for (Frog frog : frogs)
+					if (frog.alive && RandomUtils.percent(0.2f)) {// 有很小的机率在青蛙活着时就创建新的器官
+						RandomConnectGroup newConGrp = new RandomConnectGroup();
+						newConGrp.initFrog(frog);
+						frog.organs.add(newConGrp);
+					}
+
 				if (SHOW_SPEED > 0 && i % SHOW_SPEED != 0) // 画青蛙会拖慢速度
 					continue;
 
@@ -197,13 +223,16 @@ public class Env extends JPanel {
 					frog.show(g);
 
 				if (firstFrog.alive) { // 开始显示第一个Frog的动态脑图
-					g.setColor(Color.red);
-					g.drawArc(firstFrog.x - 15, firstFrog.y - 15, 30, 30, 0, 360);
-					g.setColor(Color.BLACK);
+					if (Application.SHOW_FIRST_FROG_BRAIN) {
+						g.setColor(Color.red);
+						g.drawArc(firstFrog.x - 15, firstFrog.y - 15, 30, 30, 0, 360);
+						g.setColor(Color.BLACK);
+					}
 					if (DRAW_BRAIN_AFTER_STEPS > 0 && i % DRAW_BRAIN_AFTER_STEPS == 0)
 						Application.brainPic.drawBrainPicture(firstFrog);
 				}
 
+				drawTrap(g);
 				drawFood(g);
 				Graphics g2 = this.getGraphics();
 				g2.drawImage(buffImg, 0, 0, this);
@@ -213,7 +242,7 @@ public class Env extends JPanel {
 			EggTool.layEggs(this);
 			t2 = System.currentTimeMillis();
 			Application.mainFrame.setTitle("Frog test round: " + round++ + ", 找食效率:" + foodFoundPercent()
-					+ ", time used: " + (t2 - t1) + " ms, first frog x=" + firstFrog.x + ", y=" + firstFrog.y);
+					+ ", time used: " + (t2 - t1) + " ms");
 		} while (true);
 	}
 }

@@ -10,50 +10,51 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
-import java.awt.Color;
-
-import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.BrainPicture;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
- * Happy zone active after ate food
+ * Chance is a random number generator
+ * 
+ * 这个器官是一个随机数发生器，用来打乱青蛙的思维，防止它围着一个食物打转出不来
  */
-public class Happy extends Organ { // Happy器官是进食后的产生的快感，痛苦和快感是条件反射形成的前题
+public class Chance extends Organ { // 至于这个器官能不能被选中，是另外一回事，听天由命了
 	private static final long serialVersionUID = 1L;
-	public float happy = 0; // happy初始值为0, 进食后将由eat器官增加happy值
+	public int percent; // 初始化的机率为5%
 
 	@Override
-	public void drawOnBrainPicture(Frog f, BrainPicture pic) {// 把自已这个器官在脑图上显示出来
-		if (!Application.SHOW_FIRST_FROG_BRAIN)
-			return;
-		if (happy > 0) {
-			pic.setColor(Color.red);
-			pic.fillZone(this);
-		} else {
-			pic.setColor(Color.white);
-			pic.fillZone(this);
-			pic.setColor(Color.BLACK);
-			pic.drawZone(this);
+	public void initFrog(Frog f) {
+		if (!initilized) {
+			initilized = true;
+			percent = 5;
 		}
-		if (this.name != null)
-			pic.drawText(this, String.valueOf(this.name));
+	}
+
+	@Override
+	public Organ[] vary() {
+		if (RandomUtils.percent(5)) {
+			percent = percent + 1 - 2 * RandomUtils.nextInt(2);
+			if (percent < 1)
+				percent = 1;
+			if (percent > 98)
+				percent = 98;
+		}
+		return new Organ[] { this };
 	}
 
 	@Override
 	public void active(Frog f) {
-		if (happy > 0) {
-			happy--;
+		if (RandomUtils.percent(percent)) {// 如果靠近边界，痛苦信号生成
 			for (Cell cell : f.cells) {
 				if (cell.energy > 0)
 					cell.energy--;
 				if (cell.energy < Cell.MAX_ENERGY_LIMIT)
 					for (Input input : cell.inputs)
-						if (input.nearby(this)) // if input zone near by happy zone
-							cell.energy += happy / 10; // 所有的硬编码都是bug，包括这个2和10
+						if (input.nearby(this)) // if input zone nearby this zone
+							cell.energy += 30;
 			}
 		}
 	}

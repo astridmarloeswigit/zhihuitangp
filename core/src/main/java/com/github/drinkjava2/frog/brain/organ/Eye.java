@@ -10,6 +10,7 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
+import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.BrainPicture;
@@ -17,27 +18,31 @@ import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.brain.Zone;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
- * Eye is an organ can see environment, and active brain cells which inputs are
- * located in eye range
+ * Eye can only see 4 direction
  * 
  * @author Yong Zhu
  * @since 1.0
  */
-public class Eye extends Organ {// Eye类需要重构，目前只有4个感光细胞，不够，Eye要改成Group的子类，Eye只负责感光细胞的排列，感光细胞自已负责变异
+public class Eye extends Organ {// 这个Eye是老版的眼睛，只能看到四个方向，但它的调节距离会自动随机调整到一个最佳值，这就是随机试错算法的一个应用
 	private static final long serialVersionUID = 1L;
+	public int seeDistance; // 眼睛能看到的距离
 
 	@Override
 	public void initFrog(Frog f) { // 仅在Frog生成时这个方法会调用一次
 		if (!initilized) {
 			initilized = true;
 			organOutputEnergy = 30;
+			seeDistance = 8;
 		}
 	}
 
 	@Override
 	public void drawOnBrainPicture(Frog f, BrainPicture pic) {// 把自已这个器官在脑图上显示出来
+		if (!Application.SHOW_FIRST_FROG_BRAIN)
+			return;
 		super.drawOnBrainPicture(f, pic);
 		float qRadius = r / 4;
 		float q3Radius = (float) (r * .75);
@@ -45,14 +50,21 @@ public class Eye extends Organ {// Eye类需要重构，目前只有4个感光�
 		Zone seeDown = new Zone(x, y - q3Radius, qRadius);
 		Zone seeLeft = new Zone(x - q3Radius, y, qRadius);
 		Zone seeRight = new Zone(x + q3Radius, y, qRadius);
-		pic.drawZone(pic.getGraphics(), seeUp);
-		pic.drawZone(pic.getGraphics(), seeDown);
-		pic.drawZone(pic.getGraphics(), seeLeft);
-		pic.drawZone(pic.getGraphics(), seeRight);
+		pic.drawZone(seeUp);
+		pic.drawZone(seeDown);
+		pic.drawZone(seeLeft);
+		pic.drawZone(seeRight);
 	}
 
 	@Override
 	public Organ[] vary() {
+		if (RandomUtils.percent(5)) {
+			seeDistance = seeDistance + 1 - 2 * RandomUtils.nextInt(2);
+			if (seeDistance < 1)
+				seeDistance = 1;
+			if (seeDistance > 50)
+				seeDistance = 50;
+		}
 		return new Organ[] { this };
 	}
 
@@ -72,29 +84,28 @@ public class Eye extends Organ {// Eye类需要重构，目前只有4个感光�
 		boolean foodAtLeft = false;
 		boolean foodAtRight = false;
 
-		int seeDist = 10;
-		for (int i = 1; i < seeDist; i++)
+		for (int i = 1; i < seeDistance; i++)
 			if (Env.foundFood(f.x, f.y + i)) {
 				seeFood = true;
 				foodAtUp = true;
 				break;
 			}
 
-		for (int i = 1; i < seeDist; i++)
+		for (int i = 1; i < seeDistance; i++)
 			if (Env.foundFood(f.x, f.y - i)) {
 				seeFood = true;
 				foodAtDown = true;
 				break;
 			}
 
-		for (int i = 1; i < seeDist; i++)
+		for (int i = 1; i < seeDistance; i++)
 			if (Env.foundFood(f.x - i, f.y)) {
 				seeFood = true;
 				foodAtLeft = true;
 				break;
 			}
 
-		for (int i = 1; i < seeDist; i++)
+		for (int i = 1; i < seeDistance; i++)
 			if (Env.foundFood(f.x + i, f.y)) {
 				seeFood = true;
 				foodAtRight = true;
