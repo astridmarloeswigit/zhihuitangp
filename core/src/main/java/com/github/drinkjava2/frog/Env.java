@@ -21,13 +21,21 @@ import com.github.drinkjava2.frog.util.RandomUtils;
  * @author Yong Zhu
  * @since 1.0
  */
-@SuppressWarnings("serial")
+@SuppressWarnings("all")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static int SHOW_SPEED = 20; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 300; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
 
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = true;// 每次运行是否先删除保存的蛋
+
+	public static final int EGG_QTY = 30; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
+
+	public static final int FROG_PER_EGG = 3; // 每个蛋可以孵出几个青蛙
+
+	public static final int SCREEN = 3; // 分几屏测完, 所以每轮待测青蛙总数=EGG_QTY*FROG_PER_EGG*SCREEN
+
+	public static final int FROG_PER_SCREEN = EGG_QTY * FROG_PER_EGG / SCREEN; // 每屏上显示几个青蛙，这个数值由上面三个参数计算得来
 
 	/** Debug mode will print more debug info */
 	public static final boolean DEBUG_MODE = false; // Debug 模式下会打印出更多的调试信息
@@ -52,8 +60,6 @@ public class Env extends JPanel {
 
 	public static final int FOOD_QTY = 1500; // 食物数量, 可调
 
-	public static final int EGG_QTY = 50; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
-
 	private static final Random r = new Random(); // 随机数发生器
 
 	public static boolean pause = false; // 暂停按钮按下将暂停测试
@@ -64,12 +70,12 @@ public class Env extends JPanel {
 
 	private static final int TRAP_HEIGHT = 10; // 陷阱宽, 0~200
 
-	public List<Frog> frogs = new ArrayList<>();
+	public static List<Frog> frogs = new ArrayList<>(); // 这里存放所有待测的青蛙，可能分几次测完，由FROG_PER_SCREEN大小来决定
 
-	public List<Egg> eggs;
+	public static List<Egg> eggs = new ArrayList<>(); // 这里存放从磁盘载入或上轮下的蛋，每个蛋可能生成1~n个青蛙，
 
 	static {
-		System.out.println("唵缚悉波罗摩尼莎诃!"); // 往生咒
+		System.out.println("唵缚悉波罗摩尼莎诃!"); // 杀生前先打印往生咒，见码云issue#IW4H8
 		if (DELETE_EGGS)
 			EggTool.deleteEggs();
 	}
@@ -113,29 +119,30 @@ public class Env extends JPanel {
 		return false;
 	}
 
-	private void rebuildFrogAndFood() {
-		frogs.clear();
+	private void rebuildFood() {
 		for (int i = 0; i < ENV_WIDTH; i++) {// 清除食物
-			for (int j = 0; j < ENV_HEIGHT; j++) {
+			for (int j = 0; j < ENV_HEIGHT; j++)
 				foods[i][j] = false;
-			}
 		}
-		Random rand = new Random();
-		for (int i = 0; i < eggs.size(); i++) {// 创建青蛙，每个蛋生成4个蛙，并随机取一个别的蛋作为精子
-			int loop = 4;
-			if (i <= 3)// 0,1,2,3
-				loop = 6;
-			if (i >= (eggs.size() - 4))
-				loop = 2;
+		for (int i = 0; i < Env.FOOD_QTY; i++) // 生成食物
+			foods[RandomUtils.nextInt(ENV_WIDTH)][RandomUtils.nextInt(ENV_HEIGHT)] = true;
+	}
+
+	private void rebuildFrogs() {
+		frogs.clear();
+		for (int i = 0; i < eggs.size(); i++) {// 创建青蛙，每个蛋生成n个蛙，并随机取一个别的蛋作为精子
+			int loop = FROG_PER_EGG;
+			if (eggs.size() > 20) { // 如果数量多，进行一些优化，让排名靠前的Egg多孵出青蛙
+				if (i < FROG_PER_EGG)// 0,1,2,3
+					loop = FROG_PER_EGG + 1;
+				if (i >= (eggs.size() - FROG_PER_EGG))
+					loop = FROG_PER_EGG - 1;
+			}
 			for (int j = 0; j < loop; j++) {
 				Egg zygote = new Egg(eggs.get(i), eggs.get(r.nextInt(eggs.size())));
-				frogs.add(new Frog(rand.nextInt(ENV_WIDTH), rand.nextInt(ENV_HEIGHT), zygote));
+				frogs.add(new Frog(RandomUtils.nextInt(ENV_WIDTH), RandomUtils.nextInt(ENV_HEIGHT), zygote));
 			}
 		}
-
-		System.out.println("Created " + frogs.size() + " frogs");
-		for (int i = 0; i < Env.FOOD_QTY; i++) // 生成食物
-			foods[rand.nextInt(ENV_WIDTH)][rand.nextInt(ENV_HEIGHT)] = true;
 	}
 
 	private void drawFood(Graphics g) {
@@ -159,90 +166,104 @@ public class Env extends JPanel {
 		format100.setMaximumFractionDigits(2);
 	}
 
-	private String foodFoundPercent() {// 计算找食效率
+	private static int foodFoundAmount() {// 统计找食数等
 		int leftfood = 0;
 		for (int x = 0; x < ENV_WIDTH; x++)
 			for (int y = 0; y < ENV_HEIGHT; y++)
 				if (foods[x][y])
 					leftfood++;
-		return format100.format((FOOD_QTY - leftfood) * 1.00 / FOOD_QTY);
+		return FOOD_QTY - leftfood;
+	}
+
+	private String foodFoundCountText() {// 统计找食数等
+		int foodFound = foodFoundAmount();
+		int maxFound = 0;
+		for (Frog f : frogs)
+			if (f.ateFood > maxFound)
+				maxFound = f.ateFood;
+		return new StringBuilder("找食率:").append(format100.format(foodFound * 1.00 / FOOD_QTY)).append(", 平均: ")
+				.append(foodFound * 1.0f / (EGG_QTY * FROG_PER_EGG)).append("，最多:").append(maxFound).toString();
 	}
 
 	private static void sleep(long millis) {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void run() throws InterruptedException {
-		EggTool.loadEggs(this); // 从磁盘加载egg，或新建一批egg
-		int round = 1;
+	public void run() {
+		EggTool.loadEggs(); // 从磁盘加载egg，或新建一批egg
 		Image buffImg = createImage(this.getWidth(), this.getHeight());
 		Graphics g = buffImg.getGraphics();
-		long t1, t2;
+		long time0;// 计时用
+		int round = 1;
 		do {
-			if (pause) {
-				sleep(300);
-				continue;
-			}
-			t1 = System.currentTimeMillis();
-			rebuildFrogAndFood();
-			boolean allDead = false;
-			Frog firstFrog = frogs.get(0);
-			for (int i = 0; i < STEPS_PER_ROUND; i++) {
-				if (allDead) {
-					System.out.println("All dead at round:" + i);
-					break; // 青蛙全死光了就直接跳到下一轮,以节省时间
-				}
-				allDead = true;
-				for (Frog frog : frogs)
-					if (frog.active(this))
-						allDead = false;
+			rebuildFrogs();
+			for (int screen = 0; screen < SCREEN; screen++) {// 分屏测试，每屏FROG_PER_SCREEN个蛙
+				time0 = System.currentTimeMillis();
+				if (pause)
+					do {
+						sleep(300);
+					} while (pause);
+				rebuildFood();
+				boolean allDead = false;
+				Frog firstFrog = frogs.get(screen * FROG_PER_SCREEN);
+				for (int i = 0; i < STEPS_PER_ROUND; i++) {
+					if (allDead)
+						break; // 青蛙全死光了就直接跳到下一轮,以节省时间
 
-				for (Frog frog : frogs)
-					if (frog.alive && RandomUtils.percent(0.2f)) {// 有很小的机率在青蛙活着时就创建新的器官
-						RandomConnectGroup newConGrp = new RandomConnectGroup();
-						newConGrp.initFrog(frog);
-						frog.organs.add(newConGrp);
+					allDead = true;
+					for (int j = 0; j < FROG_PER_SCREEN; j++) {
+						Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
+						if (f.active(this))
+							allDead = false;
+						if (f.alive && RandomUtils.percent(0.2f)) {// 有很小的机率在青蛙活着时就创建新的器官
+							RandomConnectGroup newConGrp = new RandomConnectGroup();
+							newConGrp.initFrog(f);
+							f.organs.add(newConGrp);
+						}
 					}
 
-				if (SHOW_SPEED > 0 && i % SHOW_SPEED != 0) // 画青蛙会拖慢速度
-					continue;
+					if (SHOW_SPEED > 0 && i % SHOW_SPEED != 0) // 用画青蛙的方式来拖慢速度
+						continue;
 
-				if (SHOW_SPEED < 0) // 如果speed小于0，人为加入延迟
-					sleep(-SHOW_SPEED);
+					if (SHOW_SPEED < 0) // 如果speed小于0，人为加入延迟
+						sleep(-SHOW_SPEED);
 
-				// 开始画青蛙
-				g.setColor(Color.white);
-				g.fillRect(0, 0, this.getWidth(), this.getHeight());
-				g.setColor(Color.BLACK);
-				for (Frog frog : frogs)
-					frog.show(g);
-
-				if (firstFrog.alive) { // 开始显示第一个Frog的动态脑图
-					if (Application.SHOW_FIRST_FROG_BRAIN) {
-						g.setColor(Color.red);
-						g.drawArc(firstFrog.x - 15, firstFrog.y - 15, 30, 30, 0, 360);
-						g.setColor(Color.BLACK);
+					// 开始画青蛙
+					g.setColor(Color.white);
+					g.fillRect(0, 0, this.getWidth(), this.getHeight());
+					g.setColor(Color.BLACK);
+					for (int j = 0; j < FROG_PER_SCREEN; j++) {
+						Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
+						f.show(g);
 					}
-					if (DRAW_BRAIN_AFTER_STEPS > 0 && i % DRAW_BRAIN_AFTER_STEPS == 0)
-						Application.brainPic.drawBrainPicture(firstFrog);
+
+					if (firstFrog.alive) { // 开始显示第一个Frog的动态脑图
+						if (Application.SHOW_FIRST_FROG_BRAIN) {
+							g.setColor(Color.red);
+							g.drawArc(firstFrog.x - 15, firstFrog.y - 15, 30, 30, 0, 360);
+							g.setColor(Color.BLACK);
+						}
+						if (DRAW_BRAIN_AFTER_STEPS > 0 && i % DRAW_BRAIN_AFTER_STEPS == 0)
+							Application.brainPic.drawBrainPicture(firstFrog);
+					}
+					drawTrap(g);
+					drawFood(g);
+					Graphics g2 = this.getGraphics();
+					g2.drawImage(buffImg, 0, 0, this);
+
 				}
-
-				drawTrap(g);
-				drawFood(g);
-				Graphics g2 = this.getGraphics();
-				g2.drawImage(buffImg, 0, 0, this);
-
+				Application.brainPic.drawBrainPicture(firstFrog);
+				Application.mainFrame.setTitle(new StringBuilder("Round: ").append(round).append(", screen:")
+						.append(screen).append(", ").append(foodFoundCountText()).append(", 用时: ")
+						.append(System.currentTimeMillis() - time0).append("ms").toString());
 			}
-			Application.brainPic.drawBrainPicture(firstFrog);
-			EggTool.layEggs(this);
-			t2 = System.currentTimeMillis();
-			Application.mainFrame.setTitle("Frog test round: " + round++ + ", 找食效率:" + foodFoundPercent()
-					+ ", time used: " + (t2 - t1) + " ms");
+			round++;
+			EggTool.layEggs();
 		} while (true);
 	}
+
 }
