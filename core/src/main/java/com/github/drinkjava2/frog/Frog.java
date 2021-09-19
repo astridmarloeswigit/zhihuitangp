@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.egg.Egg;
+import com.github.drinkjava2.frog.objects.Material;
 
 /**
  * Frog = organs + brain cells
@@ -63,14 +64,16 @@ public class Frog {
 	}
 
 	public boolean active(Env v) {
-		if (!alive || energy < 0 || Env.outsideEnv(x, y) || Env.inTrap(x, y)) {// 如果能量小于0则死
-			energy -= 100; // 死掉的青蛙也要消耗能量，保证淘汰出局
+		// 如果能量小于0则死、出界、与非食物的点重合则判死
+		if (!alive || energy < 0 || Env.outsideEnv(x, y) || Env.bricks[x][y] >= Material.KILLFROG) {
+			energy -= 100; // 死掉的青蛙也要消耗能量，确保淘汰出局
 			alive = false;
 			return false;
 		}
 		energy -= 20;
-		for (Organ o : organs)
+		for (Organ o : organs) {
 			o.active(this);
+		}
 		return alive;
 	}
 
