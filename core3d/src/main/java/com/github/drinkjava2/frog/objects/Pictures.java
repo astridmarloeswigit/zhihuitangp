@@ -8,30 +8,32 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.util;
-
-import java.util.Random;
+package com.github.drinkjava2.frog.objects;
 
 /**
- * Random Utilities used in this project
+ * Object means some thing in Env
  * 
  * @author Yong Zhu
  * @since 1.0
  */
-public class RandomUtils {
-	private static final Random rand = new Random();
+public class Pictures implements Object {
 
-	public static int nextInt(int i) {
-		return rand.nextInt(i);
+	@Override
+	public void build() {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public static float nextFloat() {
-		return rand.nextFloat();
-	}
- 
-
-	public static boolean percent(float percent) {
-		return rand.nextFloat() * 100 < percent;
+	@Override
+	public void destory() {
+		// TODO Auto-generated method stub
+		
 	}
 
+	@Override
+	public void active(int screen) {
+		 
+	}
+
+	 
 }

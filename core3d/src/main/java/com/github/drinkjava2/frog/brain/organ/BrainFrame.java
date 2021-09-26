@@ -1,5 +1,5 @@
-/* Copyright 2018-2020 the original author or authors.
- *
+/*
+ * Copyright 2018 the original author or authors. 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -8,30 +8,29 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.util;
+package com.github.drinkjava2.frog.brain.organ;
 
-import java.util.Random;
+import com.github.drinkjava2.frog.Env;
+import com.github.drinkjava2.frog.brain.Organ;
 
 /**
- * Random Utilities used in this project
+ * BrainFrame one used to drawing the brain frame in BrainPicture
  * 
  * @author Yong Zhu
- * @since 1.0
  */
-public class RandomUtils {
-	private static final Random rand = new Random();
+public class BrainFrame extends Organ {
+	private static final long serialVersionUID = 1L;
 
-	public static int nextInt(int i) {
-		return rand.nextInt(i);
+	public BrainFrame() {
+		x = 0;
+		y = 0;
+		z = 0;
+		xr = Env.FROG_BRAIN_RADIUS / 2;
+		yr = xr;
+		zr = xr;
 	}
 
-	public static float nextFloat() {
-		return rand.nextFloat();
+	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
+		return false;
 	}
- 
-
-	public static boolean percent(float percent) {
-		return rand.nextFloat() * 100 < percent;
-	}
-
 }

@@ -1,5 +1,5 @@
-/* Copyright 2018-2020 the original author or authors.
- *
+/*
+ * Copyright 2018 the original author or authors. 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -8,30 +8,23 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.github.drinkjava2.frog.util;
-
-import java.util.Random;
+package com.github.drinkjava2.frog.brain;
 
 /**
- * Random Utilities used in this project
+ * Point has x, y, z value
  * 
  * @author Yong Zhu
- * @since 1.0
+ * @since 2.0.2
  */
-public class RandomUtils {
-	private static final Random rand = new Random();
+@SuppressWarnings("all")
+public class Point {
+	public float x;
+	public float y;
+	public float z;
 
-	public static int nextInt(int i) {
-		return rand.nextInt(i);
+	public Point(float x, float y, float z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
-
-	public static float nextFloat() {
-		return rand.nextFloat();
-	}
- 
-
-	public static boolean percent(float percent) {
-		return rand.nextFloat() * 100 < percent;
-	}
-
 }
