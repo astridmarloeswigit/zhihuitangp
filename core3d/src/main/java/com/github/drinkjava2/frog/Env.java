@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.egg.EggTool;
+import com.github.drinkjava2.frog.objects.LetterTester;
 import com.github.drinkjava2.frog.objects.Material;
 import com.github.drinkjava2.frog.objects.Object;
 import com.github.drinkjava2.frog.util.RandomUtils;
@@ -37,6 +38,9 @@ public class Env extends JPanel {
 
 	public static final int FROG_PER_SCREEN = EGG_QTY * FROG_PER_EGG / SCREEN; // 每屏上显示几个青蛙，这个数值由上面三个参数计算得来
 
+	/** SHOW first frog's brain structure */
+	public static boolean SHOW_FIRST_FROG_BRAIN = true; // 是否显示脑图在Env区的右侧
+
 	/** Draw first frog's brain after some steps */
 	public static int DRAW_BRAIN_AFTER_STEPS = 20; // 以此值为间隔动态画出脑图，设为0则关闭这个动态脑图功能，只显示一个静态、不闪烁的脑图
 
@@ -47,10 +51,11 @@ public class Env extends JPanel {
 	public static final int ENV_HEIGHT = ENV_WIDTH; // 虚拟环境高度, 可调，通常取正方形
 
 	/** Frog's brain display width on screen, not important */
-	public static final int FROG_BRAIN_DISP_WIDTH = 400; // Frog的脑图在屏幕上的显示大小,可调
+	public static final int FROG_BRAIN_DISP_WIDTH = 600; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
-	public static final int STEPS_PER_ROUND = 50000;// 每轮测试步数,可调
+	public static final int STEPS_PER_ROUND = 3000;// 每轮测试步数,可调
+	public static int step;// 当前测试步数
 
 	/** Frog's x radius, brain volume = XSIZE * YSIZE * ZSIZE */
 	public static final int FROG_BRAIN_XSIZE = 50; // frog的脑在X方向长度
@@ -59,6 +64,7 @@ public class Env extends JPanel {
 
 	public static final int FOOD_QTY = 100; // 食物数量, 可调
 
+	// 以下是程序内部变量，不要手工修改它们
 	public static boolean pause = false; // 暂停按钮按下将暂停测试
 
 	public static byte[][] bricks = new byte[ENV_WIDTH][ENV_HEIGHT];// 组成环境的材料，0=无, 1=食, 其它=其它...
@@ -67,7 +73,7 @@ public class Env extends JPanel {
 
 	public static List<Egg> eggs = new ArrayList<>(); // 这里存放从磁盘载入或上轮下的蛋，每个蛋可能生成1~n个青蛙，
 
-	public static Object[] things = new Object[] {};
+	public static Object[] things = new Object[] { new LetterTester() };// 所有外界物体，如食物、字母测试工具都放在这个things里面
 
 	static {
 		System.out.println("唵缚悉波罗摩尼莎诃!"); // 杀生前先打印往生咒，见码云issue#IW4H8
@@ -190,9 +196,9 @@ public class Env extends JPanel {
 				Frog firstFrog = frogs.get(screen * FROG_PER_SCREEN);
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
-					f.initOrgans();
+					f.initOrgans(); // 初始化器官延迟到这一步，是因为脑细胞太占内存，而且测完后会清空
 				}
-				for (int i = 0; i < STEPS_PER_ROUND; i++) {
+				for (step = 0; step < STEPS_PER_ROUND; step++) {
 					for (Object thing : things)// 调用食物、陷阱等物体的动作
 						thing.active(screen);
 					if (allDead)
@@ -204,7 +210,7 @@ public class Env extends JPanel {
 							allDead = false;
 					}
 
-					if (SHOW_SPEED > 0 && i % SHOW_SPEED != 0) // 用画青蛙的方式来拖慢速度
+					if (SHOW_SPEED > 0 && step % SHOW_SPEED != 0) // 用画青蛙的方式来拖慢速度
 						continue;
 
 					if (SHOW_SPEED < 0) // 如果speed小于0，人为加入延迟
@@ -221,22 +227,22 @@ public class Env extends JPanel {
 					}
 
 					if (firstFrog.alive) { // 开始显示第一个Frog的动态脑图
-						if (Application.SHOW_FIRST_FROG_BRAIN) {
+						if (SHOW_FIRST_FROG_BRAIN) {
 							g.setColor(Color.red);
 							g.drawArc(firstFrog.x - 15, firstFrog.y - 15, 30, 30, 0, 360);
 							g.setColor(Color.BLACK);
 						}
-						if (DRAW_BRAIN_AFTER_STEPS > 0 && i % DRAW_BRAIN_AFTER_STEPS == 0)
+						if (DRAW_BRAIN_AFTER_STEPS > 0 && step % DRAW_BRAIN_AFTER_STEPS == 0)
 							Application.brainPic.drawBrainPicture(firstFrog);
 					}
 					Graphics g2 = this.getGraphics();
 					g2.drawImage(buffImg, 0, 0, this);
 				}
+				Application.brainPic.drawBrainPicture(firstFrog);
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
-					f.cubes = new Object[1][1][1];
+					f.cubes = null; // 清空frog脑细胞所占用的内存
 				}
-				Application.brainPic.drawBrainPicture(firstFrog);
 				Application.mainFrame.setTitle(new StringBuilder("Round: ").append(round).append(", screen:")
 						.append(screen).append(", ").append(foodFoundCountText()).append(", 用时: ")
 						.append(System.currentTimeMillis() - time0).append("ms").toString());

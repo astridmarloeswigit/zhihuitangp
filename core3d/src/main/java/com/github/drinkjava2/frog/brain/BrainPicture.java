@@ -16,7 +16,6 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 
@@ -33,6 +32,7 @@ public class BrainPicture extends JPanel {
 	Color color = Color.red;
 	int brainDispWidth; // screen display piexls width
 	float scale; // brain scale
+	int pointDia; // point size
 	int xOffset = 0; // brain display x offset compare to screen
 	int yOffset = 0; // brain display y offset compare to screen
 	float xAngle = (float) (Math.PI / 2.5); // brain rotate on x axis
@@ -44,6 +44,7 @@ public class BrainPicture extends JPanel {
 		this.setLayout(null);// 空布局
 		this.brainDispWidth = brainDispWidth;
 		scale = 0.7f * brainDispWidth / brainWidth;
+		pointDia = Math.max(Math.round(scale), 1);
 		this.setBounds(x, y, brainDispWidth + 1, brainDispWidth + 1);
 		MouseAction act = new MouseAction(this);
 		this.addMouseListener(act);
@@ -51,7 +52,7 @@ public class BrainPicture extends JPanel {
 		this.addMouseMotionListener(act);
 	}
 
-	public void drawCube(Cuboid c) {
+	public void drawCuboid(Cuboid c) {// 在脑图上画一个长立方体框架，视角是TopView
 		float x = c.x;
 		float y = c.y;
 		float z = c.z;
@@ -59,20 +60,20 @@ public class BrainPicture extends JPanel {
 		float ye = c.ye;
 		float ze = c.ze;
 
-		drawTopViewLine(x, y, z, x + xe, y, z);// 画立方体的下面边
-		drawTopViewLine(x + xe, y, z, x + xe, y + ye, z);
-		drawTopViewLine(x + xe, y + ye, z, x, y + ye, z);
-		drawTopViewLine(x, y + ye, z, x, y, z);
+		drawLine(x, y, z, x + xe, y, z);// 画立方体的下面边
+		drawLine(x + xe, y, z, x + xe, y + ye, z);
+		drawLine(x + xe, y + ye, z, x, y + ye, z);
+		drawLine(x, y + ye, z, x, y, z);
 
-		drawTopViewLine(x, y, z, x, y, z + ze);// 画立方体的中间边
-		drawTopViewLine(x + xe, y, z, x + xe, y, z + ze);
-		drawTopViewLine(x + xe, y + ye, z, x + xe, y + ye, z + ze);
-		drawTopViewLine(x, y + ye, z, x, y + ye, z + ze);
+		drawLine(x, y, z, x, y, z + ze);// 画立方体的中间边
+		drawLine(x + xe, y, z, x + xe, y, z + ze);
+		drawLine(x + xe, y + ye, z, x + xe, y + ye, z + ze);
+		drawLine(x, y + ye, z, x, y + ye, z + ze);
 
-		drawTopViewLine(x, y, z + ze, x + xe, y, z + ze);// 画立方体的上面边
-		drawTopViewLine(x + xe, y, z + ze, x + xe, y + ye, z + ze);
-		drawTopViewLine(x + xe, y + ye, z + ze, x, y + ye, z + ze);
-		drawTopViewLine(x, y + ye, z + ze, x, y, z + ze);
+		drawLine(x, y, z + ze, x + xe, y, z + ze);// 画立方体的上面边
+		drawLine(x + xe, y, z + ze, x + xe, y + ye, z + ze);
+		drawLine(x + xe, y + ye, z + ze, x, y + ye, z + ze);
+		drawLine(x, y + ye, z + ze, x, y, z + ze);
 	}
 
 	/*-
@@ -86,7 +87,7 @@ public class BrainPicture extends JPanel {
 		 绕 z 轴旋转 θ
 		x.cosθ-y.sinθ, x.sinθ+y.consθ, z
 	 -*/
-	private void drawTopViewLine(float px1, float py1, float pz1, float px2, float py2, float pz2) {
+	public void drawLine(float px1, float py1, float pz1, float px2, float py2, float pz2) {
 		double x1 = px1 - Env.FROG_BRAIN_XSIZE / 2;
 		double y1 = -py1 + Env.FROG_BRAIN_YSIZE / 2;// 屏幕的y坐标是反的，显示时要正过来
 		double z1 = pz1 - Env.FROG_BRAIN_ZSIZE / 2;
@@ -138,6 +139,41 @@ public class BrainPicture extends JPanel {
 				(int) round(y2) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset);
 	}
 
+	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
+	public void drawCubeCenter(float x, float y, float z) {
+		drawPoint(x+0.5f, y+0.5f, z+0.5f, pointDia);
+	}
+
+	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
+	public void drawPoint(float px1, float py1, float pz1, int diameter) {
+		double x1 = px1 - Env.FROG_BRAIN_XSIZE / 2;
+		double y1 = -py1 + Env.FROG_BRAIN_YSIZE / 2;// 屏幕的y坐标是反的，显示时要正过来
+		double z1 = pz1 - Env.FROG_BRAIN_ZSIZE / 2;
+		x1 = x1 * scale;
+		y1 = y1 * scale;
+		z1 = z1 * scale;
+		double x, y, z;
+		y = y1 * cos(xAngle) - z1 * sin(xAngle);// 绕x轴转
+		z = y1 * sin(xAngle) + z1 * cos(xAngle);
+		y1 = y;
+		z1 = z;
+
+		x = z1 * sin(yAngle) + x1 * cos(yAngle);// 绕y轴转
+		z = z1 * cos(yAngle) - x1 * sin(yAngle);
+		x1 = x;
+		z1 = z;
+
+		x = x1 * cos(zAngle) - y1 * sin(zAngle);// 绕z轴转
+		y = x1 * sin(zAngle) + y1 * cos(zAngle);
+		x1 = x;
+		y1 = y;
+
+		Graphics g = this.getGraphics();
+		g.setColor(color);
+		g.fillOval((int) round(x1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + xOffset,
+				(int) round(y1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset - diameter/2, diameter, diameter);
+	}
+
 	private static final Color[] rainbow = new Color[] { RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, MAGENTA };
 	private static int nextColor = 0;
 
@@ -147,8 +183,26 @@ public class BrainPicture extends JPanel {
 		return rainbow[nextColor++];
 	}
 
+	public static Color rainboColor(float i) {
+		if (i == 0)
+			return Color.black;
+		if (i == 1)
+			return Color.RED;
+		if (i <= 3)
+			return Color.ORANGE;
+		if (i <= 10)
+			return Color.YELLOW;
+		if (i <= 20)
+			return Color.GREEN;
+		if (i <= 50)
+			return Color.CYAN;
+		if (i <= 100)
+			return Color.BLUE;
+		return Color.MAGENTA;
+	}
+
 	public void drawBrainPicture(Frog frog) {
-		if (!Application.SHOW_FIRST_FROG_BRAIN)
+		if (!Env.SHOW_FIRST_FROG_BRAIN)
 			return;
 		Graphics g = this.getGraphics();
 		g.setColor(Color.WHITE);// 先清空旧图
@@ -158,6 +212,22 @@ public class BrainPicture extends JPanel {
 
 		for (Organ organ : frog.organs)// 每个器官负责画出自已在脑图中的位置和形状
 			organ.drawOnBrainPicture(frog, this); // each organ draw itself
+		this.setColor(Color.RED);
+		drawLine(0, 0, 0, 1, 0, 0);
+		drawLine(0, 0, 0, 0, 1, 0);
+		drawLine(0, 0, 0, 0, 0, 1);
+
+		for (int x = 0; x < Env.FROG_BRAIN_XSIZE; x++) {
+			for (int y = 0; y < Env.FROG_BRAIN_YSIZE; y++) {
+				for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
+					if (frog.cubes[x][y][z].active > 0) {
+						setColor(rainboColor(frog.cubes[x][y][z].active));
+						drawCubeCenter(x, y, z);
+					}
+				}
+			}
+
+		}
 	}
 
 	// getters & setters

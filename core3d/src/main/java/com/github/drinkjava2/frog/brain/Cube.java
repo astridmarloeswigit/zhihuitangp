@@ -15,13 +15,26 @@ import java.util.Arrays;
 /**
  * Cube include 0~n cells and 0~n photons
  * 
+ * Cube是脑的空间单位，是一个正立方体，里面可以存放多个脑细胞(Cell)和光子(Photon)
+ * Cube和Cuboid的区别是，Cube是脑的最小空间单元，作为脑细胞存放和光子传播的介质，简化计算，而Cuboid通常是一个长方体，用来描述器官的大小和位置,
+ * 器官的大小和位置是可以变异的
+ * 
  * @author Yong Zhu
  * @since 1.0
  */
 public class Cube {
-	Cell[] cells = new Cell[] {};
+	/** Activity of current cube */
+	public float active = 0; // 这个立方体的激活程度，允许是负值,它反映了在这个小立方体里所有光子的能量汇总值
 
-	Photon[] photons = new Photon[] {};
+	/**
+	 * Fat of brain nerve cell <br/>
+	 * 处理的光子信号越多，这个立方体会越肥，肥度大有两个作用：它对信号的处理会有增强效应 2.它会使脑细胞播种器官产生更多的变异，如数量、分布范围增加。
+	 */
+	public float fat = 0;
+
+	public Cell[] cells = new Cell[] {};
+
+	public Photon[] photons = new Photon[] {};
 
 	public void addCell(Cell cell) {// 每个方格空间可以存在多个脑细胞
 		cells = Arrays.copyOf(cells, cells.length + 1);
