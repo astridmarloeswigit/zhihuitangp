@@ -11,10 +11,8 @@ import javax.swing.JPanel;
 
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.egg.EggTool;
-import com.github.drinkjava2.frog.objects.Food;
 import com.github.drinkjava2.frog.objects.Material;
 import com.github.drinkjava2.frog.objects.Object;
-import com.github.drinkjava2.frog.objects.Trap;
 import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
@@ -26,7 +24,7 @@ import com.github.drinkjava2.frog.util.RandomUtils;
 @SuppressWarnings("all")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 3; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
+	public static final int SHOW_SPEED = 10; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
 
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = true;// 每次运行是否先删除保存的蛋
@@ -54,8 +52,10 @@ public class Env extends JPanel {
 	/** Steps of one test round */
 	public static final int STEPS_PER_ROUND = 50000;// 每轮测试步数,可调
 
-	/** Frog's brain radius */
-	public static final float FROG_BRAIN_RADIUS = 20; // frog的脑半径先固定为20个单元
+	/** Frog's x radius, brain volume = XSIZE * YSIZE * ZSIZE */
+	public static final int FROG_BRAIN_XSIZE = 50; // frog的脑在X方向长度
+	public static final int FROG_BRAIN_YSIZE = 25; // frog的脑在Y方向长度
+	public static final int FROG_BRAIN_ZSIZE = 15; // frog的脑在Z方向长度
 
 	public static final int FOOD_QTY = 100; // 食物数量, 可调
 
@@ -67,7 +67,7 @@ public class Env extends JPanel {
 
 	public static List<Egg> eggs = new ArrayList<>(); // 这里存放从磁盘载入或上轮下的蛋，每个蛋可能生成1~n个青蛙，
 
-	public static Object[] things = new Object[] {  };
+	public static Object[] things = new Object[] {};
 
 	static {
 		System.out.println("唵缚悉波罗摩尼莎诃!"); // 杀生前先打印往生咒，见码云issue#IW4H8
@@ -234,7 +234,7 @@ public class Env extends JPanel {
 				}
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
-					f.cells.clear();
+					f.cubes = new Object[1][1][1];
 				}
 				Application.brainPic.drawBrainPicture(firstFrog);
 				Application.mainFrame.setTitle(new StringBuilder("Round: ").append(round).append(", screen:")

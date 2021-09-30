@@ -11,26 +11,29 @@
 package com.github.drinkjava2.frog.brain.organ;
 
 import com.github.drinkjava2.frog.Env;
+import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Organ;
 
 /**
- * BrainFrame one used to drawing the brain frame in BrainPicture
+ * D means D
  * 
  * @author Yong Zhu
  */
-public class BrainFrame extends Organ {
+public class D extends Organ {
+
 	private static final long serialVersionUID = 1L;
 
-	public BrainFrame() {
-		x = 0;
-		y = 0;
-		z = 0;
-		xr = Env.FROG_BRAIN_RADIUS / 2;
-		yr = xr;
-		zr = xr;
+	public D() {
+		x = 35;
+		y = 15;
+		z = Env.FROG_BRAIN_ZSIZE - 1;
+		xe = 3;
+		ye = 3;
+		ze = 1;
 	}
 
-	public boolean allowBorrow() { // 是否允许在精子中将这个器官借出
-		return false;
+	@Override
+	public void active(Frog f) {
 	}
+
 }
