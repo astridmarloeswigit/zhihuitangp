@@ -33,7 +33,6 @@ import com.github.drinkjava2.frog.objects.Material;
  * @since 1.0
  */
 public class Frog {
-
 	/** brain cells */
 	public Cube[][][] cubes;
 
@@ -56,48 +55,51 @@ public class Frog {
 	}
 
 	public Frog(int x, int y, Egg egg) {
-		initCubes();
 		this.x = x; // x, y 是虑拟环境的坐标
 		this.y = y;
 		for (Organ org : egg.organs)
 			organs.add(org);
 	}
 
-	public void initCubes() {
-		cubes = new Cube[Env.FROG_BRAIN_XSIZE][Env.FROG_BRAIN_YSIZE][Env.FROG_BRAIN_ZSIZE];
-		for (int a = 0; a < Env.FROG_BRAIN_XSIZE; a++)
-			for (int b = 0; b < Env.FROG_BRAIN_YSIZE; b++)
-				for (int c = 0; c < Env.FROG_BRAIN_ZSIZE; c++)
-					cubes[a][b][c] = new Cube();
-	}
-
-	public void initOrgans() {// 调用每个器官的init方法，通常用于脑细胞的播种
+	public void initFrog() {// 仅在测试之前调用这个方法初始化frog以节约内存，测试完成后要清空cubes释放内存
+		try {
+			cubes = new Cube[Env.FROG_BRAIN_XSIZE][][]; // 为了节约内存，先只初始化三维数组的x维，另两维用到时再分配
+		} catch (OutOfMemoryError e) {
+			System.out.println("OutOfMemoryError found for frog, force it die.");
+			this.alive = false;
+			return;
+		}
 		for (Organ org : organs)
 			org.init(this);
 	}
 
-	/** Find a organ in frog by organ's name */
-	public Organ findOrganByName(String organName) {// 根据器官名寻找器官
+	/** Find a organ in frog by organ's class name */
+	@SuppressWarnings("unchecked")
+	public <T extends Organ> T findOrganByName(String organName) {// 根据器官类名寻找器官，不常用
 		for (Organ o : organs)
 			if (organName.equalsIgnoreCase(o.getClass().getSimpleName()))
-				return o;
+				return (T) o;
 		return null;
 	}
 
 	/** Active all cubes in organ with given activeValue */
-	public void activeOrgan(Organ o, float activeValue) {// 激活与器官重合的所有脑区
+	public void activeOrgan(Organ o, float active) {// 激活与器官重合的所有脑区
+		if (!alive)
+			return;
 		for (int x = o.x; x < o.x + o.xe; x++)
 			for (int y = o.y; y < o.y + o.ye; y++)
 				for (int z = o.z; z < o.z + o.ze; z++)
-					cubes[x][y][z].active = activeValue;
+					getCube(x, y, z).setActive(active);
 	}
 
 	/** Deactivate all cubes in organ with given activeValue */
 	public void deactivateOrgan(Organ o) {// 激活与器官重合的所有脑区
+		if (!alive)
+			return;
 		for (int x = o.x; x < o.x + o.xe; x++)
 			for (int y = o.y; y < o.y + o.ye; y++)
 				for (int z = o.z; z < o.z + o.ze; z++)
-					cubes[x][y][z].active = 0;
+					getCube(x, y, z).setActive(0);
 	}
 
 	/** Calculate organ activity by add all organ cubes' active value together */
@@ -106,7 +108,7 @@ public class Frog {
 		for (int x = o.x; x < o.x + o.xe; x++)
 			for (int y = o.y; y < o.y + o.ye; y++)
 				for (int z = o.z; z < o.z + o.ze; z++)
-					activity += this.cubes[x][y][z].active;
+					activity += this.getCube(x, y, z).getActive();
 		return activity;
 	}
 
@@ -119,7 +121,7 @@ public class Frog {
 		}
 		energy -= 20;
 		for (Organ o : organs) {
-			o.active(this); // 调用每个器官的active方法，如果重写了的话
+			o.active(this); // 调用每个器官的active方法， 通常只用于执行器官的外界信息输入、动作输出，脑细胞的遍历不是在这一步
 		}
 		return alive;
 	}
@@ -128,6 +130,25 @@ public class Frog {
 		if (!alive)
 			return;
 		g.drawImage(frogImg, x - 8, y - 8, 16, 16, null);
+	}
+
+	/** Check if cube exist */
+	public boolean existCube(int x, int y, int z) {// 检查指定坐标Cube是否存在
+		return cubes[x] != null && cubes[x][y] != null && cubes[x][y][z] != null;
+	}
+
+	/** Get a cube in position (x,y,z), if not exist, create a new one */
+	public Cube getCube(int x, int y, int z) {// 获取指定坐标的Cube，如果为空，则在指定位置新建Cube
+		if (cubes[x] == null)
+			cubes[x] = new Cube[Env.FROG_BRAIN_YSIZE][];
+		if (cubes[x][y] == null)
+			cubes[x][y] = new Cube[Env.FROG_BRAIN_ZSIZE];
+		if (cubes[x][y][z] == null) {
+			Cube cube = new Cube();
+			cubes[x][y][z] = cube;
+			return cube;
+		} else
+			return cubes[x][y][z];
 	}
 
 }

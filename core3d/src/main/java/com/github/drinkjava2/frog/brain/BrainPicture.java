@@ -141,7 +141,7 @@ public class BrainPicture extends JPanel {
 
 	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
 	public void drawCubeCenter(float x, float y, float z) {
-		drawPoint(x+0.5f, y+0.5f, z+0.5f, pointDia);
+		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, pointDia);
 	}
 
 	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
@@ -171,7 +171,7 @@ public class BrainPicture extends JPanel {
 		Graphics g = this.getGraphics();
 		g.setColor(color);
 		g.fillOval((int) round(x1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + xOffset,
-				(int) round(y1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset - diameter/2, diameter, diameter);
+				(int) round(y1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset - diameter / 2, diameter, diameter);
 	}
 
 	private static final Color[] rainbow = new Color[] { RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, MAGENTA };
@@ -201,7 +201,9 @@ public class BrainPicture extends JPanel {
 		return Color.MAGENTA;
 	}
 
-	public void drawBrainPicture(Frog frog) {
+	public void drawBrainPicture(Frog f) {
+		if (!f.alive)
+			return;
 		if (!Env.SHOW_FIRST_FROG_BRAIN)
 			return;
 		Graphics g = this.getGraphics();
@@ -210,22 +212,24 @@ public class BrainPicture extends JPanel {
 		g.setColor(Color.black); // 画边框
 		g.drawRect(0, 0, brainDispWidth, brainDispWidth);
 
-		for (Organ organ : frog.organs)// 每个器官负责画出自已在脑图中的位置和形状
-			organ.drawOnBrainPicture(frog, this); // each organ draw itself
+		for (Organ organ : f.organs)// 每个器官负责画出自已在脑图中的位置和形状
+			organ.drawOnBrainPicture(f, this); // each organ draw itself
 		this.setColor(Color.RED);
 		drawLine(0, 0, 0, 1, 0, 0);
 		drawLine(0, 0, 0, 0, 1, 0);
 		drawLine(0, 0, 0, 0, 0, 1);
 
 		for (int x = 0; x < Env.FROG_BRAIN_XSIZE; x++) {
-			for (int y = 0; y < Env.FROG_BRAIN_YSIZE; y++) {
-				for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
-					if (frog.cubes[x][y][z].active > 0) {
-						setColor(rainboColor(frog.cubes[x][y][z].active));
-						drawCubeCenter(x, y, z);
-					}
+			if (f.cubes[x] != null)
+				for (int y = 0; y < Env.FROG_BRAIN_YSIZE; y++) {
+					if (f.cubes[x][y] != null)
+						for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
+							if (f.existCube(x, y, z)) {
+								setColor(rainboColor(f.getCube(x, y, z).getActive()));
+								drawCubeCenter(x, y, z);
+							}
+						}
 				}
-			}
 
 		}
 	}
