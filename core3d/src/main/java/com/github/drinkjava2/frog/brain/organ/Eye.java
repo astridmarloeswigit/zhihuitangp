@@ -21,13 +21,21 @@ import com.github.drinkjava2.frog.brain.Organ;
  */
 public class Eye extends Organ {// 眼睛是长方体
 	private static final long serialVersionUID = 1L;
-	public int n = 18; // 眼睛有n x n个感光细胞， 用随机试错算法自动变异(加1或减1，最小是3x3)
 
 	public Eye() {
 		this.shape = new Cuboid(0, 5, 5, 1, 10, 10);
 		this.organName = "eye";
 		this.allowVary = false;
 		this.allowBorrow = false;
+	}
+
+	public void init(Frog f) { // 重写父类方法，播种视网膜细胞，它会将视网膜的激活转变成固定向右发散的多个光子，摸拟波源
+		shape.fillCells(f, this);
+	}
+
+	/** each step will call Organ's active methodd */
+	public void active(Frog f) { // 每一步测试都会调用active方法，通常用于手动生成的器官
+		// do nothing
 	}
 
 	/**
