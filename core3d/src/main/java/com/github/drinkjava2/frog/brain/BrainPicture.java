@@ -1,14 +1,8 @@
 package com.github.drinkjava2.frog.brain;
 
 import static java.awt.Color.BLACK;
-import static java.awt.Color.BLUE;
-import static java.awt.Color.CYAN;
-import static java.awt.Color.GREEN;
-import static java.awt.Color.MAGENTA;
-import static java.awt.Color.ORANGE;
 import static java.awt.Color.RED;
 import static java.awt.Color.WHITE;
-import static java.awt.Color.YELLOW;
 //import static java.awt.BLUE; 
 import static java.lang.Math.cos;
 import static java.lang.Math.round;
@@ -16,29 +10,35 @@ import static java.lang.Math.sin;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JPanel;
 
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.util.ColorUtils;
 
 /**
  * BrainPicture show first frog's brain structure, for debug purpose only
  * 
  * 这个类用来画出脑图，这不是一个关键类，对脑的运行逻辑无影响，但有了脑图后可以直观地看出脑的3维结构，进行有针对性的改进
+ * 可以用鼠标进行平移、缩放、旋转，以及t、f、l、r,x五个键来选择顶视、前视、左视、右视、斜视这5个方向的视图
  * 
  * @author Yong Zhu
  * @since 1.0
  */
 @SuppressWarnings("all")
 public class BrainPicture extends JPanel {
+	private static final float d90 = (float) (Math.PI / 2);
+
 	Color picColor = RED;
 	int brainDispWidth; // screen display piexls width
 	float scale; // brain scale
 	int xOffset = 0; // brain display x offset compare to screen
 	int yOffset = 0; // brain display y offset compare to screen
-	float xAngle = (float) (Math.PI / 2.5); // brain rotate on x axis
-	float yAngle = -(float) (Math.PI / 8); // brain rotate on y axis
+	float xAngle = d90 * .8f; // brain rotate on x axis
+	float yAngle = d90 / 4; // brain rotate on y axis
 	float zAngle = 0;// brain rotate on z axis
 
 	public BrainPicture(int x, int y, float brainWidth, int brainDispWidth) {
@@ -48,9 +48,42 @@ public class BrainPicture extends JPanel {
 		scale = 0.7f * brainDispWidth / brainWidth;
 		this.setBounds(x, y, brainDispWidth + 1, brainDispWidth + 1);
 		MouseAction act = new MouseAction(this);
-		this.addMouseListener(act);
-		this.addMouseWheelListener(act);
-		this.addMouseMotionListener(act);
+		this.addMouseListener(act); // 添加鼠标动作监听
+		this.addMouseWheelListener(act);// 添加鼠标滚轮动作监听
+		this.addMouseMotionListener(act);// 添加鼠标移动动作监听
+		this.setFocusable(true);
+		addKeyListener(new KeyAdapter() {// 处理t,f,l,r，x键盘命令
+			public void keyPressed(KeyEvent e) {
+				switch (e.getKeyCode()) {
+				case 'T':// 顶视
+					xAngle = 0;
+					yAngle = 0;
+					zAngle = 0;
+					break;
+				case 'F':// 前视
+					xAngle = d90;
+					yAngle = 0;
+					zAngle = 0;
+					break;
+				case 'L':// 左视
+					xAngle = d90;
+					yAngle = d90;
+					zAngle = 0;
+					break;
+				case 'R':// 右视
+					xAngle = d90;
+					yAngle = -d90;
+					zAngle = 0;
+					break;
+				case 'X':// 斜视
+					xAngle = d90 * .8f;
+					yAngle = d90 / 4;
+					zAngle = 0;
+					break;
+				default:
+				}
+			}
+		});
 	}
 
 	public void drawCuboid(Cuboid c) {// 在脑图上画一个长立方体框架，视角是TopView
@@ -78,8 +111,8 @@ public class BrainPicture extends JPanel {
 	}
 
 	public void drawCone(Cone c) {// 在脑图上画一个锥体，视角是TopView
-		drawLine(c.x1, c.y1, c.z1, c.x2, c.y2, c.z2);// 画锥体的中心线 
-		//TODO 画出锥体的上下面
+		drawLine(c.x1, c.y1, c.z1, c.x2, c.y2, c.z2);// 画锥体的中心线
+		// TODO 画出锥体的上下面
 	}
 
 	/*-
@@ -145,9 +178,14 @@ public class BrainPicture extends JPanel {
 				(int) round(y2) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset);
 	}
 
-	/** 画出Room的中心点 */
-	public void drawRoomCenter(float x, float y, float z) {
+	/** 画出cell的中心点，通常用来显示器官的激活区 */
+	public void drawCellCenter(float x, float y, float z) {
 		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(1, Math.round(scale * .7)));
+	}
+
+	/** 画出cell的中心小点，通常用来显示光子 */
+	public void drawCellSmallCenter(float x, float y, float z) {
+		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(1, Math.round(scale * .15)));
 	}
 
 	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
@@ -180,33 +218,6 @@ public class BrainPicture extends JPanel {
 				(int) round(y1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset - diameter / 2, diameter, diameter);
 	}
 
-	private static final Color[] rainbow = new Color[] { RED, ORANGE, YELLOW, GREEN, CYAN, BLUE, MAGENTA };
-	private static int nextColor = 0;
-
-	public static Color nextRainbowColor() {
-		if (nextColor == rainbow.length)
-			nextColor = 0;
-		return rainbow[nextColor++];
-	}
-
-	public static Color rainbowColor(float i) {
-		if (i == 0)
-			return BLACK;
-		if (i == 1)
-			return RED;
-		if (i <= 3)
-			return ORANGE;
-		if (i <= 10)
-			return YELLOW;
-		if (i <= 20)
-			return GREEN;
-		if (i <= 50)
-			return CYAN;
-		if (i <= 100)
-			return BLUE;
-		return MAGENTA;
-	}
-
 	private static Cuboid brain = new Cuboid(0, 0, 0, Env.FROG_BRAIN_XSIZE, Env.FROG_BRAIN_YSIZE, Env.FROG_BRAIN_ZSIZE);
 
 	public void drawBrainPicture(Frog f) {// 在这个方法里进行青蛙三维脑结构的绘制
@@ -229,14 +240,20 @@ public class BrainPicture extends JPanel {
 		drawLine(0, 0, 0, 0, 1, 0);
 		drawLine(0, 0, 0, 0, 0, 1);
 
-		for (int x = 0; x < Env.FROG_BRAIN_XSIZE; x++) {
-			if (f.rooms[x] != null)
+		for (int x = 0; x < Env.FROG_BRAIN_XSIZE; x++) {// 开始画整个脑空间的光子和激活点阵图
+			if (f.cells[x] != null)
 				for (int y = 0; y < Env.FROG_BRAIN_YSIZE; y++) {
-					if (f.rooms[x][y] != null)
+					if (f.cells[x][y] != null)
 						for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
-							if (f.existRoom(x, y, z) && f.getRoom(x, y, z).getActive() > 0) {
-								setPicColor(rainbowColor(f.getRoom(x, y, z).getActive()));
-								drawRoomCenter(x, y, z);
+							Cell cell = f.getCell(x, y, z);
+							if (cell != null) {
+								if (cell.getActive() > 0) {
+									setPicColor(ColorUtils.rainbowColor(cell.getActive()));
+									drawCellCenter(x, y, z);
+								} else if (cell.getPhotonQty() > 0) {
+									setPicColor(ColorUtils.colorByCode(cell.getColor()));
+									drawCellSmallCenter(x, y, z);
+								}
 							}
 						}
 				}

@@ -20,23 +20,23 @@ import javax.imageio.ImageIO;
 
 import com.github.drinkjava2.frog.brain.Cuboid;
 import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.brain.Room;
+import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.objects.Material;
 
 /**
- * Frog = organs + rooms <br/>
- * rooms = brain cells + photons <br/>
+ * Frog = organs + cells <br/>
+ * cells = brain cells + photons <br/>
  * organs = cell parameters + cell actions
  * 
- * 青蛙脑由器官播种出的细胞组成，器官Organ会播种出各种脑细胞填充在一个rooms三维数组代表的空间中，每个room里可以存在多个脑细胞和光子，光子是信息的载体，永远不停留。
+ * 青蛙脑由器官播种出的细胞组成，器官Organ会播种出各种脑细胞填充在一个cells三维数组代表的空间中，每个cell里可以存在多个脑细胞和光子，光子是信息的载体，永远不停留。
  * 
  * @author Yong Zhu
  * @since 1.0
  */
 public class Frog {
-	/** brain rooms */
-	public Room[][][] rooms;// 一开始不要初始化，只在调用getRoom方法时才初始化相关维以节约内存
+	/** brain cells */
+	public Cell[][][] cells;// 一开始不要初始化，只在调用getCell方法时才初始化相关维以节约内存
 
 	/** organs */
 	public List<Organ> organs = new ArrayList<>();
@@ -65,7 +65,7 @@ public class Frog {
 
 	public void initFrog() {// 仅在测试之前调用这个方法初始化frog以节约内存，测试完成后要清空units释放内存
 		try {
-			rooms = new Room[Env.FROG_BRAIN_XSIZE][][]; // 为了节约内存，先只初始化三维数组的x维，另两维用到时再分配
+			cells = new Cell[Env.FROG_BRAIN_XSIZE][][]; // 为了节约内存，先只初始化三维数组的x维，另两维用到时再分配
 		} catch (OutOfMemoryError e) {
 			System.out.println("OutOfMemoryError found for frog, force it die.");
 			this.alive = false;
@@ -89,22 +89,28 @@ public class Frog {
 		if (!alive)
 			return;
 		for (int x = o.x; x < o.x + o.xe; x++)
-			for (int y = o.y; y < o.y + o.ye; y++)
-				for (int z = o.z; z < o.z + o.ze; z++)
-					getRoom(x, y, z).setActive(active);
+			if (cells[x] != null)
+				for (int y = o.y; y < o.y + o.ye; y++)
+					if (cells[x][y] != null)
+						for (int z = o.z; z < o.z + o.ze; z++)
+							if (cells[x][y][z] != null)
+								getOrCreateCell(x, y, z).setActive(active);
 	}
 
-	/** Calculate organ activity by add all organ rooms' active value together */
-	public float getCuboidActiveTotalValue(Cuboid o) {// 遍历长方体区域所在room，将它们的激活值汇总返回
+	/** Calculate organ activity by add all organ cells' active value together */
+	public float getCuboidActiveTotalValue(Cuboid o) {// 遍历长方体区域所在cell，将它们的激活值汇总返回
 		float activity = 0;
 		for (int x = o.x; x < o.x + o.xe; x++)
 			for (int y = o.y; y < o.y + o.ye; y++)
 				for (int z = o.z; z < o.z + o.ze; z++)
-					activity += this.getRoom(x, y, z).getActive();
+					activity += this.getOrCreateCell(x, y, z).getActive();
 		return activity;
 	}
 
+	private int activeNo = 0;
+
 	public boolean active(Env v) {// 这个active方法在每一步循环都会被调用，是脑思考的最小帧
+		activeNo++;
 		// 如果能量小于0、出界、与非食物的点重合则判死
 		if (!alive || energy < 0 || Env.outsideEnv(x, y) || Env.bricks[x][y] >= Material.KILLFROG) {
 			energy -= 100; // 死掉的青蛙也要消耗能量，确保淘汰出局
@@ -115,12 +121,17 @@ public class Frog {
 		for (Organ o : organs)
 			o.active(this); // 调用每个器官的active方法， 通常只用于执行器官的外界信息输入、动作输出，脑细胞的遍历不是在这一步
 
-		// 这里是最关键的脑细胞主循环，脑细胞负责捕获和发出光子，光子则沿它的矢量方向每次自动走一格，如果下一格是真空(即数组room元素未初始化）会继续走下去并衰减(为减少运算)，直到能量为0
+		// 这里是最关键的脑细胞主循环，脑细胞负责捕获和发送光子，光子则沿它的矢量方向每次自动走一格，如果下一格是真空(即cell未初始化）会继续走下去并衰减直到为0(为减少运算)
+
 		for (int i = 0; i < Env.FROG_BRAIN_XSIZE; i++)
-			for (int j = 0; j < Env.FROG_BRAIN_YSIZE; j++)
-				for (int k = 0; k < Env.FROG_BRAIN_ZSIZE; k++) {
-					//TODO 脑细胞主循环
-				}
+			if (cells[i] != null)
+				for (int j = 0; j < Env.FROG_BRAIN_YSIZE; j++)
+					if (cells[i][j] != null)
+						for (int k = 0; k < Env.FROG_BRAIN_ZSIZE; k++) {
+							Cell cell = cells[i][j][k];
+							if (cell != null && cell.getActions() != null)
+								cell.execute(this, activeNo, i, j, k);// 调用cell的方法来进行这个运算
+						}
 		return alive;
 	}
 
@@ -130,23 +141,32 @@ public class Frog {
 		g.drawImage(frogImg, x - 8, y - 8, 16, 16, null);
 	}
 
-	/** Check if room exist */
-	public boolean existRoom(int x, int y, int z) {// 检查指定坐标room是否存在
-		return rooms[x] != null && rooms[x][y] != null && rooms[x][y][z] != null;
+	/** Check if cell exist */
+	public Cell getCell(int x, int y, int z) {// 返回指定脑ssf坐标的cell ，如果不存在，返回null
+		if (cells[x] == null || cells[x][y] == null)
+			return null;
+		return cells[x][y][z];
 	}
 
-	/** Get a room in position (x,y,z), if not exist, create a new one */
-	public Room getRoom(int x, int y, int z) {// 获取指定坐标的Room，如果为空，则在指定位置新建Room
-		if (rooms[x] == null)
-			rooms[x] = new Room[Env.FROG_BRAIN_YSIZE][];
-		if (rooms[x][y] == null)
-			rooms[x][y] = new Room[Env.FROG_BRAIN_ZSIZE];
-		if (rooms[x][y][z] == null) {
-			Room unit = new Room();
-			rooms[x][y][z] = unit;
-			return unit;
-		} else
-			return rooms[x][y][z];
+	/** Get a cell in position (x,y,z), if not exist, create a new one */
+	public Cell getOrCreateCell(int x, int y, int z) {// 获取指定坐标的Cell，如果为空，则在指定位置新建Cell
+		if (outBrainBound(x, y, z))
+			return null;
+		if (cells[x] == null)
+			cells[x] = new Cell[Env.FROG_BRAIN_YSIZE][];
+		if (cells[x][y] == null)
+			cells[x][y] = new Cell[Env.FROG_BRAIN_ZSIZE];
+		Cell cell = cells[x][y][z];
+		if (cell == null) {
+			cell = new Cell();
+			cells[x][y][z] = cell;
+		}
+		return cell;
 	}
 
+	/** Check if x,y,z out of frog's brain bound */
+	public static boolean outBrainBound(int x, int y, int z) {// 检查指定坐标是否超出frog脑空间界限
+		return x < 0 || x >= Env.FROG_BRAIN_XSIZE || y < 0 || y >= Env.FROG_BRAIN_YSIZE || z < 0
+				|| z >= Env.FROG_BRAIN_ZSIZE;
+	}
 }

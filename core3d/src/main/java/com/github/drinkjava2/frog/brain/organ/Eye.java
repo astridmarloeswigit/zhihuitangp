@@ -24,18 +24,11 @@ public class Eye extends Organ {// 眼睛是长方体
 
 	public Eye() {
 		this.shape = new Cuboid(0, 5, 5, 1, 10, 10);
+		this.type = Organ.EYE;
 		this.organName = "eye";
-		this.allowVary = false;
-		this.allowBorrow = false;
-	}
-
-	public void init(Frog f) { // 重写父类方法，播种视网膜细胞，它会将视网膜的激活转变成固定向右发散的多个光子，摸拟波源
-		shape.fillCells(f, this);
-	}
-
-	/** each step will call Organ's active methodd */
-	public void active(Frog f) { // 每一步测试都会调用active方法，通常用于手动生成的器官
-		// do nothing
+		this.allowVary = false;// 不允许变异
+		this.allowBorrow = false;// 不允许借出
+		this.color = 0;// red, see ColorUtils
 	}
 
 	/**
@@ -50,11 +43,11 @@ public class Eye extends Organ {// 眼睛是长方体
 		int h = pixels[0].length;
 		Cuboid c = (Cuboid) shape;
 
-		// 在视网膜上产生字母像素点阵，即激活这个脑视网膜所在的rooms区，然后由器官播种出的脑细胞负责将激活能量转为光子输送、存贮到其它位置
+		// 在视网膜上产生字母像素点阵，即激活这个脑视网膜所在的cells区，然后由器官播种出的脑细胞负责将激活能量转为光子输送、存贮到其它位置
 		for (int px = 0; px < w; px++)
 			for (int py = 0; py < h; py++)
 				if (pixels[px][py] > 0)
-					f.getRoom(0, c.y + c.ye - px, c.z + py).setActive(20);
+					f.getOrCreateCell(0, c.y + c.ye - px, c.z + py).setActive(100);
 	}
 
 }

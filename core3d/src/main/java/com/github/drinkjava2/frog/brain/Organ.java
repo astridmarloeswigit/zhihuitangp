@@ -25,8 +25,8 @@ import com.github.drinkjava2.frog.util.RandomUtils;
  * 器官是脑的一部分，多个器官在脑内可以允许部分或完全重叠出现在同一脑内位置，器官都是可以变异的, 器官负责在青蛙脑生成时播种脑细胞
  * 器官是可串行化的，所有器官都会保存在蛋里面
  * 
- * 器官是一种外形为锥圆柱体的脑内区，它的作用是在它的形状范围内播种脑细胞， 这是第一个也是最重要的脑细胞播种器官，它的数
- * 量、形状、大小、角度、位置、神经元分布方式，以及神经元的内部参数可以随机生成和变异, 并由生存竟争来淘汰筛选。
+ * 器官是一种外形为锥圆柱体或长方体的脑内区，它的作用是在它的形状范围内播种脑细胞，
+ * 它的数量、形状、大小、角度、位置、神经元分布方式，以及神经元的内部参数可以随机生成和变异, 并由生存竟争来淘汰筛选。
  * 
  * 器官可以组合成复杂的网络结构或曲折的信号传导路径，例如一个圆柱形神经传导器官，可以变异为由两个圆柱状传导器官首尾相接，然后这两个器官各
  * 自变异，就有可能形成弯的传导路径或更复杂的网络结构。看起来复杂，但大自然可以做到比这更复杂的进化逻辑，先假设大自然是万能的，只要是有用的
@@ -54,13 +54,15 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 	private static final long serialVersionUID = 1L;
 
 	// 以下是各种器官类型，每个神经元都属于一个器官，每个器官都有一个type类型参数
-	public static final int EYE = 1;// 眼细胞，会根据room激活度产生发散到各个方向的光子
-	public static final int EAR = 2;// 耳细胞,类似眼细胞,不同点是为了简化，脑内听觉区和输入区混用一个区，所以它也可吸收光子，倒过来激活room
+	public static final int EMPTY = 0;// 空细胞，不处理光子
+	public static final int EYE = 1;// 眼细胞，会根据cell激活度产生发散到各个方向的光子
+	public static final int EAR = 2;// 耳细胞,类似眼细胞,不同点是为了简化，脑内听觉区和输入区混用一个区，所以它也可吸收光子，倒过来激活cell
 	public static final int CORE = 3; // 什么触突都没有，光溜溜的细胞，但它也有可能根据r半径来中转光子
 	public static final int DYNAMIC = 4; // 只有动态触突的细胞，它忽略静态触突参数
 	public static final int STATIC = 5; // 只有静态触突的细胞，它忽略动态触突参数
 	public static final int MIX = 6; // 同时具有静态和动态触突的细胞
 	public static final int TYPE_QTY = 7;// 所有的type都是预先写好在这里的，自动生成的type也只能在写好的type里选一个
+	public int color = 1;// 这个不重要，表示它生成的光子的显示在脑图中的颜色号，见ColorUtils
 
 	public float fat = 0;// 细胞活跃多，则fat值大，如果fat值很低，则这个器官被丢弃的可能性加大，这个值很重要，它使得孤岛器官被淘汰
 	public boolean allowVary;// 是否允许变异，有一些器官是手工创建的，在项目初级阶段禁止它们参与变异和生存竟争。
@@ -73,7 +75,7 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 
 	public Shape shape; // 器官的形状，不同的形状要写出不同的播种行为
 
-	public float cellDistance; // 细胞播种间隔，每隔多少个room放一个细胞
+	public float cellDistance; // 细胞播种间隔，每隔多少个cell放一个action
 
 	public float centerDensityRate; // 中心相对于边沿的细胞播种密度比，为1时为均匀分布
 
@@ -142,7 +144,9 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 
 	/** Only call once when frog created , Child class can override this method */
 	public void init(Frog f) { // 在青蛙生成时会调用这个方法，进行一些初始化，通常是根据参数来播种脑细胞
-		// 这里是器官播种脑细胞的具体代码,对于手工生成的器官，可以重写这个方法，对于自动生成的器官，必须根据type和shape等来播种，要写死在这里
+		// 里是器官播种脑细胞的具体代码,对于手工生成的器官，也可以重写这个方法，对于自动生成的器官，必须根据type和shape等来播种，要写死在这里
+		if (shape != null)
+			shape.fillCellsWithAction(f, this); // 先均匀播种脑细胞试试
 	}
 
 	/** each step will call Organ's active methodd */
@@ -156,7 +160,7 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 			return;// 如果没有形状，就不画
 		if (!Env.SHOW_FIRST_FROG_BRAIN || !f.alive) // 如果不允许画或青蛙死了，就直接返回
 			return;
-		pic.setPicColor(Color.LIGHT_GRAY); // 缺省是黑色
+		pic.setPicColor(Color.LIGHT_GRAY); // 缺省是灰色
 		shape.drawOnBrainPicture(pic);
 	}
 

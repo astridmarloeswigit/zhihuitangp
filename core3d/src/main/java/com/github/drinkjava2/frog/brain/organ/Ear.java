@@ -26,34 +26,31 @@ import com.github.drinkjava2.frog.brain.Organ;
 @SuppressWarnings("all")
 public class Ear extends Organ {// 耳朵也是长方体，我为什么要用也?
 	private static final long serialVersionUID = 1L;
-	public int n = 18; // 眼睛有n x n个感光细胞， 用随机试错算法自动变异(加1或减1，最小是3x3)
-	public Cuboid a = new Cuboid(10, 10, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
-	public Cuboid b = new Cuboid(10, 15, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
-	public Cuboid c = new Cuboid(15, 10, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
-	public Cuboid d = new Cuboid(15, 15, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
+	public Cuboid a = new Cuboid(12, 10, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
+	public Cuboid b = new Cuboid(12, 15, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
+	public Cuboid c = new Cuboid(17, 10, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
+	public Cuboid d = new Cuboid(17, 15, Env.FROG_BRAIN_ZSIZE - 1, 3, 3, 1);
 
 	public Ear() {
-		this.shape = new Cuboid(10, 10, Env.FROG_BRAIN_ZSIZE - 1, 8, 8, 1);
+		this.shape = new Cuboid(12, 10, Env.FROG_BRAIN_ZSIZE - 1, 8, 8, 1);// 手工固定耳区的大小
+		this.type = Organ.EAR;
 		this.organName = "ear";
-		this.allowVary = false;
-		this.allowBorrow = false;
+		this.allowVary = false;// 不允许变异
+		this.allowBorrow = false;// 不允许借出
+		this.color = 5;// blue， see ColorUtils
 	}
 
 	public void drawOnBrainPicture(Frog f, BrainPicture pic) {// 把自已这个器官在脑图上显示出来，子类可以重写这个方法
-		super.drawOnBrainPicture(f, pic);
+		super.drawOnBrainPicture(f, pic); // 父类方法显示shape形状
 		pic.drawCuboid(a);// 显示abcd位置在脑图上
 		pic.drawCuboid(b);
 		pic.drawCuboid(c);
 		pic.drawCuboid(d);
 	}
 
-	public void init(Frog f) { // 重写父类方法，播种听力输入细胞，它会将听力区的激活转变成固定向下发散的多个光子，摸拟波源
-		shape.fillCells(f, this);
-	}
-
 	/** 给这个耳朵听到一个字母，激活它的听觉输入区, 注意听觉输入区并不等于脑内虚拟听觉成像区，但是第一版...先共用一个区吧 */
 	public void hearSound(Frog f, String letter) {
-		f.setCuboidVales(getCuboidByStr(letter), 20);
+		f.setCuboidVales(getCuboidByStr(letter), 80);
 	}
 
 	/** 给这个耳朵听到一个字母，激活它的听觉输入区, 注意听觉输入区并不等于听觉成像区 */

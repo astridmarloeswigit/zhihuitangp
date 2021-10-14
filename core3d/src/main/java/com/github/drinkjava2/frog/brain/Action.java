@@ -11,21 +11,18 @@
 package com.github.drinkjava2.frog.brain;
 
 /**
- * CellAction defines cell action
+ * Action is the action of cell, one cell can have multiple actions
  * 
- * CellAction的实现类只有一个act方法，它会根据细胞器官所属的类型作为不同的行为
+ * Action是细胞的行为，一个细胞Cell可以拥用多个action
  * 
  * @author Yong Zhu
  * @since 2.0.2
  */
-public interface CellAction {
+public class Action { 
+	public Organ organ; // 细胞属于哪个器官
 
-	/**
-	 * Each cell's act method will be called once at each loop step
-	 * 
-	 * act方法是只有锥器官才具备的方法，在每个测试步长中act方法都会被调用一次，这个方法针对不同的细胞类型有不同的行为逻辑，这是硬
-	 * 编码，所以要准备多套不同的行为（可以参考动物脑细胞的活动逻辑)，然后抛给电脑去随机筛选，不怕多。
-	 * 
-	 */
-	public void act(Cell cell, int x, int y, int z);
+	public Action(Organ organ) {// Action不保存在蛋里，不需要定义空构造器
+		this.organ = organ;
+	}
+
 }
