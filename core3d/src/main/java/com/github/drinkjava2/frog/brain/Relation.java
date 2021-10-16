@@ -11,18 +11,21 @@
 package com.github.drinkjava2.frog.brain;
 
 /**
- * Action is the action of cell, one cell can have multiple actions
+ * Relation is the relationship betweeen 2 holes
  * 
- * Action是细胞的行为，一个细胞Cell可以拥用多个action
+ * Relation 表示细胞上的两个洞之间存在关联关系，多对多关系用很多个一对一关系来表达
  * 
  * @author Yong Zhu
  * @since 2.0.2
  */
-public class Action { 
-	public Organ organ; // 细胞属于哪个器官
+public class Relation {
+	public Hole h1;
+	public Hole h2;
+	public int strength = 1;
 
-	public Action(Organ organ) {// Action不保存在蛋里，不需要定义空构造器
-		this.organ = organ;
+	public Relation(Hole h1, Hole h2) {
+		this.h1 = h1;
+		this.h2 = h2;
 	}
 
 }
