@@ -25,7 +25,8 @@ import com.github.drinkjava2.frog.util.ColorUtils;
  * BrainPicture show first frog's brain structure, for debug purpose only
  * 
  * 这个类用来画出脑图，这不是一个关键类，对脑的运行逻辑无影响，但有了脑图后可以直观地看出脑的3维结构，进行有针对性的改进
- * 可以用鼠标进行平移、缩放、旋转，以及t、f、l、r,x五个键来选择顶视、前视、左视、右视、斜视这5个方向的视图
+ * 可以用鼠标进行平移、缩放、旋转，以及t、f、l、r,x五个键来选择顶视、前视、左视、右视、斜视这5个方向的视图，以及空格暂停、方向键调整切面
+ * 鼠标的动作定义在MouseAction类中。
  * 
  * @author Yong Zhu
  * @since 1.0
@@ -42,8 +43,8 @@ public class BrainPicture extends JPanel {
 	float xAngle = d90 * .8f; // brain rotate on x axis
 	float yAngle = d90 / 4; // brain rotate on y axis
 	float zAngle = 0;// brain rotate on z axis
-	int xMask = 0;// x Mask
-	int yMask = 0;// y Mask
+	int xMask = -1;// x Mask
+	int yMask = -1;// y Mask
 	BufferedImage buffImg;
 	Graphics g;
 	String note;
@@ -85,7 +86,7 @@ public class BrainPicture extends JPanel {
 					if (xMask > Env.FROG_BRAIN_XSIZE)
 						xMask = Env.FROG_BRAIN_XSIZE;
 					break;
-				case ' ':// 暂停切换
+				case ' ':// 暂停及继续
 					Application.pauseAction.actionPerformed(null);
 					break;
 				case 'T':// 顶视
@@ -212,25 +213,11 @@ public class BrainPicture extends JPanel {
 				(int) round(y2) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset);
 	}
 
-	/** 画出cell的中心大点，通常用来显示器官的边界激活点 */
-	public void drawCellBigCenter(float x, float y, float z) {
+	/** 画出cell的中心点 */
+	public void drawCellCenter(float x, float y, float z, float diameter) {
 		if (x > 0 && (x < xMask || y < yMask))
 			return;
-		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(1, Math.round(scale * .7)));
-	}
-
-	/** 画出cell的中心小点，通常用来显示光子 */
-	public void drawCellMiddleCenter(float x, float y, float z) {
-		if (x > 0 && (x < xMask || y < yMask))
-			return;
-		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(1, Math.round(scale * .45)));
-	}
-
-	/** 画出cell的中心小点，通常用来显示光子 */
-	public void drawCellSmallCenter(float x, float y, float z) {
-		if (x > 0 && (x < xMask || y < yMask))
-			return;
-		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(1, Math.round(scale * .20)));
+		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(2, Math.round(scale * diameter)));
 	}
 
 	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
@@ -289,21 +276,23 @@ public class BrainPicture extends JPanel {
 					if (f.cells[x][y] != null)
 						for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
 							Cell cell = f.getCell(x, y, z);
-							if (cell != null && cell.getEnergy() > 0) {// 只显示激活点
-								if (x == 0) {// 如果在左边，显示黑色大圆
+							if (cell != null) {// 只显示激活点
+								if (cell.hasInput && x == 0) {// 如果在左边，显示黑色大圆
 									setPicColor(Color.BLACK);
-									drawCellBigCenter(x, y, z);
-								} else if (z == Env.FROG_BRAIN_ZSIZE - 1) {// 如果在顶上边，显示兰色大圆
+									drawCellCenter(x, y, z, 0.6f);
+								} else if (z == Env.FROG_BRAIN_ZSIZE - 1 && cell.hasInput) {// 如果在顶上边，显示兰色大圆
 									setPicColor(Color.BLUE);
-									drawCellBigCenter(x, y, z);
+									drawCellCenter(x, y, z, 0.6f);
 								}
 
-								if (cell.getPhotonQty() > 0) {// 如果在内部，只显示有光子的cell
-									setPicColor(ColorUtils.colorByCode(cell.getColor()));
+								if (cell.photonQty > 0) {// 如果在内部，只显示有光子的cell
+									setPicColor(ColorUtils.colorByCode(cell.color));
+									float dia = 0.2f;
+									if (cell.color == 0)
+										dia = 0.3f;
 									if (x == xMask || y == yMask)
-										drawCellMiddleCenter(x, y, z);
-									else
-										drawCellSmallCenter(x, y, z);
+										dia = 0.5f;
+									drawCellCenter(x, y, z, dia);
 								}
 							}
 						}

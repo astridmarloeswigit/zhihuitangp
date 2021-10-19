@@ -74,8 +74,8 @@ public class Frog {
 			this.alive = false;
 			return;
 		}
-		for (int i = 0; i < organs.size(); i++) {
-			organs.get(i).init(this, i);
+		for (int orgNo = 0; orgNo < organs.size(); orgNo++) {
+			organs.get(orgNo).init(this, orgNo);
 		}
 	}
 
@@ -89,7 +89,7 @@ public class Frog {
 	}
 
 	/** Set with given activeValue */
-	public void setCuboidVales(Cuboid o, float active) {// 激活长方体区域内的所有脑区
+	public void setCuboidVales(Cuboid o, boolean active) {// 激活长方体区域内的所有脑区
 		if (!alive)
 			return;
 		for (int x = o.x; x < o.x + o.xe; x++)
@@ -98,20 +98,10 @@ public class Frog {
 					if (cells[x][y] != null)
 						for (int z = o.z; z < o.z + o.ze; z++)
 							if (cells[x][y][z] != null)
-								getOrCreateCell(x, y, z).setEnergy(active);
+								getOrCreateCell(x, y, z).hasInput = active;
 	}
 
-	/** Calculate organ activity by add all organ cells' active value together */
-	public float getCuboidActiveTotalValue(Cuboid o) {// 遍历长方体区域所在cell，将它们的激活值汇总返回
-		float activity = 0;
-		for (int x = o.x; x < o.x + o.xe; x++)
-			for (int y = o.y; y < o.y + o.ye; y++)
-				for (int z = o.z; z < o.z + o.ze; z++)
-					activity += this.getOrCreateCell(x, y, z).getEnergy();
-		return activity;
-	}
-
-	private int activeNo = 0;
+	private int activeNo = 0;// 每一帧光子只能走一步，用这个来作标记
 
 	public boolean active(Env v) {// 这个active方法在每一步循环都会被调用，是脑思考的最小帧
 		activeNo++;
@@ -133,25 +123,8 @@ public class Frog {
 					if (cells[i][j] != null)
 						for (int k = 0; k < Env.FROG_BRAIN_ZSIZE; k++) {
 							Cell cell = cells[i][j][k];
-							if (cell != null) {
-								if (cell.organs != null)
-									for (int orgNo : cell.organs)
-										CellActions.act(activeNo, organs.get(orgNo), cell, i, j, k); // 调用每个细胞的act方法
-								if (cell.photons != null) {
-									for (int ii = 0; ii < cell.photons.length; ii++) {
-										Photon p = cell.photons[ii];
-										if (p == null || p.activeNo == activeNo)// 同一轮新产生的光子或处理过的光子不再走了
-											continue;
-										p.activeNo = activeNo;
-										cell.removePhoton(ii);// 原来的位置的先清除，去除它的Java对象引用
-										cell.photonWalk(this, p); // 让光子自已往下走
-									}
-								}
-								if (cell.holes != null)
-									for (Hole h : cell.holes) {// 洞的年龄增加，只有年龄很接近的洞才会产生绑定
-										h.age++;
-									}
-							}
+							if (cell != null)
+								CellActions.act(this, activeNo, cell); // 调用每个细胞的act方法
 						}
 		}
 		return alive;
@@ -180,7 +153,7 @@ public class Frog {
 			cells[x][y] = new Cell[Env.FROG_BRAIN_ZSIZE];
 		Cell cell = cells[x][y][z];
 		if (cell == null) {
-			cell = new Cell();
+			cell = new Cell(x, y, z);
 			cells[x][y][z] = cell;
 		}
 		return cell;
@@ -190,6 +163,58 @@ public class Frog {
 	public static boolean outBrainBound(int x, int y, int z) {// 检查指定坐标是否超出frog脑空间界限
 		return x < 0 || x >= Env.FROG_BRAIN_XSIZE || y < 0 || y >= Env.FROG_BRAIN_YSIZE || z < 0
 				|| z >= Env.FROG_BRAIN_ZSIZE;
+	}
+
+	/** Photon always walk */
+	public void addAndWalk(Photon p) { // 添加光子的同时让它沿光子方向自动走一格
+		p.x += p.mx;
+		p.y += p.my;
+		p.z += p.mz;
+		int rx = Math.round(p.x);
+		int ry = Math.round(p.y);
+		int rz = Math.round(p.z);
+		if (Frog.outBrainBound(rx, ry, rz))
+			return;// 出界直接扔掉
+		Cell cell = getCell(rx, ry, rz);
+		if (cell != null)
+			cell.addPhoton(p);
+	}
+
+	/** Photon always walk */
+	public void addAndWalkAndDig(Photon p) { // 添加光子的同时让它沿光子方向自动走一格
+		p.x += p.mx;
+		p.y += p.my;
+		p.z += p.mz;
+		int rx = Math.round(p.x);
+		int ry = Math.round(p.y);
+		int rz = Math.round(p.z);
+		if (Frog.outBrainBound(rx, ry, rz))
+			return;// 出界直接扔掉
+		Cell cell = getCell(rx, ry, rz);
+		if (cell != null) {
+			cell.addPhoton(p);
+			cell.digHole(p);
+		}
+	}
+
+	public void prepareNewTraining() {// for test purpose, reset some values for prepare next training.
+		for (int i = 0; i < Env.FROG_BRAIN_XSIZE; i++) {
+			if (cells[i] != null)
+				for (int j = 0; j < Env.FROG_BRAIN_YSIZE; j++)
+					if (cells[i][j] != null)
+						for (int k = 0; k < Env.FROG_BRAIN_ZSIZE; k++) {
+							Cell cell = cells[i][j][k];
+							if (cell != null) {
+								cell.deleteAllPhotons();
+								cell.hasInput = false;
+								cell.photonSum = 0;
+								if (cell.holes != null)
+									for (Hole h : cell.holes) {
+										h.age += 100;// 强迫洞的年龄增加,用这个方法来区分开不同批次的训练
+									}
+							}
+						}
+		}
 	}
 
 }

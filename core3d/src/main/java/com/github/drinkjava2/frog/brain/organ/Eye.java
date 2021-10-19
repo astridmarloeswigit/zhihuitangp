@@ -14,6 +14,7 @@ import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Cuboid;
 import com.github.drinkjava2.frog.brain.Organ;
 import com.github.drinkjava2.frog.util.ColorUtils;
+import com.github.drinkjava2.frog.util.PixelsUtils;
 
 /**
  * Eye can only see env material
@@ -24,9 +25,9 @@ public class Eye extends Organ {// 眼睛是长方体
 	private static final long serialVersionUID = 1L;
 
 	public Eye() {
-		this.shape = new Cuboid(0, 5, 5, 1, 13, 13);
+		this.shape = new Cuboid(0, 3, 2, 1, 13, 13);
 		this.type = Organ.EYE;
-		this.organName = "eye";
+		this.organName = "Eye";
 		this.allowVary = false;// 不允许变异
 		this.allowBorrow = false;// 不允许借出
 		this.color = ColorUtils.GRAY;
@@ -34,7 +35,7 @@ public class Eye extends Organ {// 眼睛是长方体
 
 	/** Clear image on retina */
 	public void seeNothing(Frog f) {// 外界可以直接调用这个方法，清除视网膜图像
-		f.setCuboidVales((Cuboid) shape, 0);
+		f.setCuboidVales((Cuboid) shape, false);
 	}
 
 	/**
@@ -53,6 +54,11 @@ public class Eye extends Organ {// 眼睛是长方体
 		for (int px = 0; px < w; px++)
 			for (int py = 0; py < h; py++)
 				if (pixels[px][py] > 0)
-					f.getOrCreateCell(0, c.y + c.ye - px - 1, c.z + py).setEnergy(100);
+					f.getOrCreateCell(0, c.y + c.ye - px - 1, c.z + py).hasInput = true;
+	}
+
+	public void seeImageWithOffset(Frog f, byte[][] pixels, int xOff, int yOff) {// 外界硬塞一个象素图到视网膜上，并给出偏移量
+		byte[][] newPixels = PixelsUtils.offset(pixels, xOff, yOff);
+		seeImage(f, newPixels);
 	}
 }
