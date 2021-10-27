@@ -24,13 +24,13 @@ import com.github.drinkjava2.frog.brain.Photon;
  * 
  * @author Yong Zhu
  */
-public class MoveJelly extends Organ {
+public class Move extends Organ {
 	private static final long serialVersionUID = 1L;
 
-	public MoveJelly() {
+	public Move() {
 		super();
 		this.shape = new Cuboid(0, 0, 0, Env.FROG_BRAIN_XSIZE - 5, Env.FROG_BRAIN_YSIZE, Env.FROG_BRAIN_ZSIZE);
-		this.organName = "MoveJelly"; 
+		this.organName = "Move"; 
 		this.allowVary = false;// 不允许变异
 		this.allowBorrow = false;// 不允许借出
 	}
@@ -50,8 +50,9 @@ public class MoveJelly extends Organ {
 					continue;
 				p.activeNo = activeNo;
 				c.removePhoton(ii);
-				frog.addAndWalkAndDig(p); // 让光子自已往下走，走到哪就停到哪个细胞里,并且还在细胞上挖洞
+				frog.addAndWalk(p); // 让光子自已往下走，走到哪就停到哪个细胞里
 			}
 		}
+
 	}
 }
