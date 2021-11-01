@@ -25,16 +25,16 @@ import com.github.drinkjava2.frog.util.RandomUtils;
 @SuppressWarnings("all")
 public class Env extends JPanel {
 	/** Speed of test */
-	public static final int SHOW_SPEED = 10; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
+	public static int SHOW_SPEED = 10; // 测试速度，-1000~1000,可调, 数值越小，速度越慢
 
 	/** Delete eggs at beginning of each run */
 	public static final boolean DELETE_EGGS = true;// 每次运行是否先删除保存的蛋
 
-	public static final int EGG_QTY = 10; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
+	public static final int EGG_QTY = 50; // 每轮下n个蛋，可调，只有最优秀的前n个青蛙们才允许下蛋
 
 	public static final int FROG_PER_EGG = 4; // 每个蛋可以孵出几个青蛙
 
-	public static final int SCREEN = 1; // 分几屏测完
+	public static final int SCREEN = 4; // 分几屏测完
 
 	public static final int FROG_PER_SCREEN = EGG_QTY * FROG_PER_EGG / SCREEN; // 每屏上显示几个青蛙，这个数值由上面三个参数计算得来
 
@@ -59,10 +59,10 @@ public class Env extends JPanel {
 	public static final int FROG_BRAIN_DISP_WIDTH = 600; // Frog的脑图在屏幕上的显示大小,可调
 
 	/** Steps of one test round */
-	public static final int STEPS_PER_ROUND = 1000;// 每轮测试步数,可调
+	public static final int STEPS_PER_ROUND = 2000;// 每轮测试步数,可调
 	public static int step;// 当前测试步数
 
-	public static final int FOOD_QTY = 3000; // 食物数量, 可调
+	public static final int FOOD_QTY = 2000; // 食物数量, 可调
 
 	// 以下是程序内部变量，不要手工修改它们
 	public static boolean pause = false; // 暂停按钮按下将暂停测试
@@ -73,7 +73,7 @@ public class Env extends JPanel {
 
 	public static List<Egg> eggs = new ArrayList<>(); // 这里存放新建或从磁盘载入上轮下的蛋，每个蛋可能生成几个青蛙，
 
-	public static EnvObject[] things = new EnvObject[] {new Food()};// 所有外界物体，如食物、字母测试工具都放在这个things里面
+	public static EnvObject[] things = new EnvObject[] { new Food() };// 所有外界物体，如食物、字母测试工具都放在这个things里面
 
 	static {
 		System.out.println("唵缚悉波罗摩尼莎诃!"); // 杀生前先打印往生咒，见码云issue#IW4H8
@@ -203,7 +203,6 @@ public class Env extends JPanel {
 					thing.build();
 				boolean allDead = false;
 				Frog firstFrog = frogs.get(screen * FROG_PER_SCREEN);
-				checkIfPause(firstFrog);
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
 					f.initFrog(); // 初始化器官延迟到这一步，是因为脑细胞太占内存，而且当前屏测完后会清空
@@ -217,7 +216,7 @@ public class Env extends JPanel {
 					allDead = true;
 					for (int j = 0; j < FROG_PER_SCREEN; j++) {
 						Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
-						if (f.active(this))
+						if (f.active(this))// 调用青蛙的Active方法，并返回是否还活着
 							allDead = false;
 					}
 
@@ -250,13 +249,15 @@ public class Env extends JPanel {
 					g2.drawImage(buffImg, 0, 0, this);
 				}
 				Application.brainPic.drawBrainPicture(firstFrog);
+				checkIfPause(firstFrog);
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(screen * FROG_PER_SCREEN + j);
 					f.cells = null; // 清空frog脑细胞所占用的内存
 				}
-				Application.mainFrame.setTitle(new StringBuilder("Round: ").append(round).append(", screen:")
-						.append(screen).append(", ").append(foodFoundCountText()).append(", 用时: ")
-						.append(System.currentTimeMillis() - time0).append("ms").toString());
+				Application.mainFrame
+						.setTitle(new StringBuilder("Round: ").append(round).append(", screen:").append(screen)
+								.append(", speed:").append(Env.SHOW_SPEED).append(", ").append(foodFoundCountText())
+								.append(", 用时: ").append(System.currentTimeMillis() - time0).append("ms").toString());
 				for (EnvObject thing : things)// 去除食物、陷阱等物体
 					thing.destory();
 			}

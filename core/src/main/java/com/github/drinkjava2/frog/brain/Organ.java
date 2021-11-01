@@ -15,6 +15,8 @@ import java.io.Serializable;
 
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.organ.Line;
+import com.github.drinkjava2.frog.brain.organ.Lines;
 import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
@@ -44,24 +46,11 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 	private static final long serialVersionUID = 1L;
 
 	// 以下是各种器官类型，每个神经元都属于一个器官，每个器官都有一个type类型参数
-	private static int organNoIndex = 1;
-	public int organNo = organNoIndex++; // 每个器官都有一个唯一的编号,作用是同一个编号的光子间将不产生绑定
-	public int color = 1;// 这个不重要，表示它生成的光子的显示在脑图中的颜色号，见ColorUtils
 	public float fat = 0;// 细胞活跃多，则fat值大，如果fat值很低，则这个器官被丢弃的可能性加大，这个值很重要，它使得孤岛器官被淘汰
 	public boolean allowVary;// 是否允许变异，有一些器官是手工创建的，在项目初级阶段禁止它们参与变异和生存竟争。
 	public boolean allowBorrow;// 是否允许在精子中将这个器官借出，有一些器官是手工创建的，在项目初级阶段禁止它们借出
-	public String organName;// 器官的名字，通常只有手工创建的器官才有名字，可以用frog.findOrganByName来查找到这个器官
-
+	public String organName = this.getClass().getSimpleName();;// 器官的名字，通常只有手工创建的器官才有名字，可以用frog.findOrganByName来查找到这个器官
 	public Shape shape; // 器官的形状，不同的形状要写出不同的播种行为
-
-	// =====注意以下三个字段可以让细胞具备一些固定角度的洞，这个不占内存，但缺点是不灵活，不智能，详见与Cell类中动态洞的对比 =====
-	public Hole[] holes; // 输出洞
-
-	public Organ() {// 缺省构造器，生成具有缺省参数但没有形状的器官
-		allowVary = true;
-		allowBorrow = true;
-		holes = null;
-	}
 
 	/** Only call once after organ be created */
 	public Organ[] vary(Frog f) { // 器官变异，仅会在青蛙下蛋时即new Egg(frog)中被调用一次，返回本身或变异后的一个或一组类似器官返回
@@ -69,7 +58,6 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 			return new Organ[] { this };// 如果不允许变异，器官就把自身返回，存放在蛋里
 		// 各参数 随机有大概率小变异，小概率大变异，极小概率极大变异
 		shape = RandomUtils.vary(shape);
-		holes = RandomUtils.vary(holes);
 		return new Organ[] { this };
 	}
 
@@ -82,13 +70,15 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 
 	/** each step will call Organ's active methodd */
 	public void active(Frog f) {// 每一步测试都会调用active方法，它通常遍历每个细胞，调用它们的cellAct方法
-		if (!f.alive)
+		// 这里是缺省的方法体，子类可以重写这个方法
+		if (!f.alive || shape == null)
 			return;
 		Cuboid c = (Cuboid) shape;
 		for (int px = 0; px < c.xe; px++)
-			for (int py = 0; py < c.ye; py++) {// 要做到近处的分辨率高，远处的分辨率低
-				cellAct(f, f.getOrCreateCell(c.x + px, c.y + py, c.z));
-			}
+			for (int py = 0; py < c.ye; py++)
+				for (int pz = 0; pz < c.ze; pz++) {
+					cellAct(f, f.getCell(c.x + px, c.y + py, c.z + pz));
+				}
 	}
 
 	/** each step will call Organ's active methodd */
@@ -96,13 +86,40 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 	}
 
 	/** Child class can override this method to drawing picture */
-	public void drawOnBrainPicture(Frog f, BrainPicture pic) { // 把器官的轮廓显示在脑图上
-		if (shape == null)
-			return;// 如果没有形状，就不画
-		if (!Env.SHOW_FIRST_FROG_BRAIN || !f.alive) // 如果不允许画或青蛙死了，就直接返回
+	public void drawOnBrainPicture(Frog f, BrainPicture pic) { // 把器官的轮廓显示在脑图上，子类可以重写这个方法
+		if (!Env.SHOW_FIRST_FROG_BRAIN || !f.alive || shape == null) // 如果不允许画或青蛙死了或没形状，就直接返回
 			return;
 		pic.setPicColor(Color.LIGHT_GRAY); // 缺省是灰色
 		shape.drawOnBrainPicture(pic);
+		pic.setPicColor(Color.RED); // 缺省是灰色
+		if (this.organName != null && this.shape.getClass() == Cuboid.class) {
+			int x = ((Cuboid) shape).x;
+			int y = ((Cuboid) shape).y;
+			int z = ((Cuboid) shape).z;
+			pic.drawText(x, y, z, this.organName);
+		}
 	}
 
+	public boolean getLineEnergy(Frog f, Cell c) {
+		Lines ls = f.findOrganByClass(Lines.class);
+		for (Line l : ls.lines) {
+			if (l == null || l.energy < 30)
+				continue;
+			if (l.x2 == c.x && l.y2 == c.y && l.z2 == c.z) {
+				l.energy -= 30;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void addLineEnergy(Frog f, Cell c, float energy) {
+		Lines ls = f.findOrganByClass(Lines.class);
+		for (Line l : ls.lines) {
+			if (l == null || l.energy > 100)
+				continue;
+			if (l.x1 == c.x && l.y1 == c.y && l.z1 == c.z) // 如果线的输入端位于视网膜上，增加线的能量
+				l.energy += energy;
+		}
+	}
 }

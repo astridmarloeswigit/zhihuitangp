@@ -10,45 +10,94 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
-import static com.github.drinkjava2.frog.Env.FROG_BRAIN_ZSIZE;
+import static com.github.drinkjava2.frog.Env.FROG_BRAIN_XSIZE;
 
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Cuboid;
 import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.objects.Material;
-import com.github.drinkjava2.frog.util.ColorUtils;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
  * Eye can only see env material
  * 
+ * Eye被分成上下左右四个独立的感光细胞器官，这样方便编程
+ * 
  * @author Yong Zhu
  */
-public class Eye extends Organ {// 眼睛是长方体
-	private static final int EYE_SIZE = 6;
+public class Eye {// 这个眼睛是从青蛙视角来观察，因为青蛙生活在二次元空间，所以它只能观察上下左右4个方向有无食物
+	// 视距
+	private static final int cx = 5; // 中心点
+	private static final int cy = 15;
+	private static final int cz = FROG_BRAIN_XSIZE / 2; // 中层
 
-	private static final long serialVersionUID = 1L;
+	public static class SeeUp extends Organ {// 这个感光细胞只能看到上方有没有物体
+		private static final long serialVersionUID = 1L;
+		public int seeDistance = 10;
+		public int addEyeEnergy = 6;
 
-	public Eye() {
-		this.shape = new Cuboid(3, 3, FROG_BRAIN_ZSIZE / 2, EYE_SIZE, EYE_SIZE, 1);// 眼晴位于脑的中部
-		this.organName = "Eye";
-		this.allowVary = false;// 不允许变异
-		this.allowBorrow = false;// 不允许借出
-		this.color = ColorUtils.GRAY;
+		public Organ[] vary(Frog f) {// 重写器官的very方法，允许眼睛看到的距离随机进化
+			seeDistance = RandomUtils.varyInLimit(seeDistance, 1, 50);
+			addEyeEnergy = RandomUtils.varyInLimit(addEyeEnergy, 1, 200);
+			return new Organ[] { this };
+		}
+
+		public SeeUp() {
+			shape = new Cuboid(cx, cy + 2, cz, 1, 1, 1);
+		}
+
+		public void cellAct(Frog f, Cell c) {// 如果上方有物体就激活视网膜细胞
+			for (int i = 1; i <= seeDistance; i++)
+				if (Env.foundAnyThing(f.x, f.y - i)) {
+					addLineEnergy(f, c, addEyeEnergy);
+				}
+		}
 	}
 
-	public void cellAct(Frog f, Cell c) {// 眼细胞的作用是根据食物激活视网膜和眼下皮层
-		f.x=0;f.y=0;
-		for (int i = 0; i < 2; i++) {
-			Env.bricks[i][0]=Material.FOOD;
-			Env.bricks[i][1]=Material.FOOD;
-			Env.bricks[i][32]=Material.FOOD;
+	public static class SeeDown extends SeeUp {// 这个感光细胞只能看到下方有没有物体
+		private static final long serialVersionUID = 1L;
+
+		public SeeDown() {
+			shape = new Cuboid(cx, cy - 2, cz, 1, 1, 1);
 		}
-		if (Env.foundAnyThing(f.x - EYE_SIZE / 2 + c.x, f.y - EYE_SIZE / 2 + c.y))
-			c.active();
-		else
-			c.deActive();
+
+		public void cellAct(Frog f, Cell c) {// 如果上方有物体就激活视网膜细胞
+			for (int i = 1; i <= seeDistance; i++)
+				if (Env.foundAnyThing(f.x, f.y + i)) {
+					addLineEnergy(f, c, addEyeEnergy);
+				}
+		}
+	}
+
+	public static class SeeLeft extends SeeUp {// 这个感光细胞只能看到左边有没有物体
+		private static final long serialVersionUID = 1L;
+
+		public SeeLeft() {
+			shape = new Cuboid(cx - 2, cy, cz, 1, 1, 1);
+		}
+
+		public void cellAct(Frog f, Cell c) {// 如果上方有物体就激活视网膜细胞
+			for (int i = 1; i <= seeDistance; i++)
+				if (Env.foundAnyThing(f.x - i, f.y)) {
+					addLineEnergy(f, c, addEyeEnergy);
+				}
+		}
+	}
+
+	public static class SeeRight extends SeeUp {// 这个感光细胞只能看到右边有没有物体
+		private static final long serialVersionUID = 1L;
+
+		public SeeRight() {
+			shape = new Cuboid(cx + 2, cy, cz, 1, 1, 1);
+		}
+
+		public void cellAct(Frog f, Cell c) {// 如果上方有物体就激活视网膜细胞
+			for (int i = 1; i <= seeDistance; i++)
+				if (Env.foundAnyThing(f.x + i, f.y)) {
+					addLineEnergy(f, c, addEyeEnergy);
+				}
+		}
 	}
 
 }

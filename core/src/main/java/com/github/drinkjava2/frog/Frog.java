@@ -21,7 +21,7 @@ import javax.imageio.ImageIO;
 import com.github.drinkjava2.frog.brain.Cell;
 import com.github.drinkjava2.frog.brain.Cuboid;
 import com.github.drinkjava2.frog.brain.Organ;
-import com.github.drinkjava2.frog.brain.Shape;
+import com.github.drinkjava2.frog.brain.organ.Line;
 import com.github.drinkjava2.frog.egg.Egg;
 import com.github.drinkjava2.frog.objects.Material;
 
@@ -45,7 +45,7 @@ public class Frog {// 这个程序大量用到public变量而不是getter/setter
 
 	public int x; // frog在Env中的x坐标
 	public int y; // frog在Env中的y坐标
-	public long energy = 10000000; // 青蛙的能量为0则死掉
+	public long energy = 1000000; // 青蛙的能量为0则死掉
 	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与计算和显示，以节省时间
 	public int ateFood = 0; // 青蛙曾吃过的食物总数，下蛋时如果两个青蛙能量相等，可以比数量
 
@@ -65,60 +65,23 @@ public class Frog {// 这个程序大量用到public变量而不是getter/setter
 			organs.add(org);
 	}
 
-	public void initFrog() {// 仅在测试之前调用这个方法初始化frog以节约内存，测试完成后要清空units释放内存
-		try {
-			cells = new Cell[Env.FROG_BRAIN_XSIZE][][]; // 为了节约内存，先只初始化三维数组的x维，另两维用到时再分配
-		} catch (OutOfMemoryError e) {
-			System.out.println("OutOfMemoryError found for frog, force it die.");
-			this.alive = false;
-			return;
-		}
+	public void initFrog() {
 		for (int orgNo = 0; orgNo < organs.size(); orgNo++) {
 			organs.get(orgNo).init(this, orgNo);
-		}
-	}
-
-	/** Find a organ in frog by organ's name */
-	@SuppressWarnings("unchecked")
-	public <T extends Organ> T findOrganByName(String organName) {// 根据器官名寻找器官，但不是每个器官都有名字
-		for (Organ o : organs)
-			if (o.organName != null && organName.equalsIgnoreCase(o.organName))
-				return (T) o;
-		return null;
-	}
-
-	/** Set with given activeValue */
-	public void activeCellsInShape(Shape sp) {// 激活长方体区域内的所有脑区
-		if (!alive)
-			return;
-		if (sp instanceof Cuboid) {
-			Cuboid o = (Cuboid) sp;
-			for (int x = o.x; x < o.x + o.xe; x++)
-				if (cells[x] != null)
-					for (int y = o.y; y < o.y + o.ye; y++)
-						if (cells[x][y] != null)
-							for (int z = o.z; z < o.z + o.ze; z++)
-								if (cells[x][y][z] != null) {
-									getOrCreateCell(x, y, z).active();
-								}
 		}
 	}
 
 	public boolean active(Env v) {// 这个active方法在每一步循环都会被调用，是脑思考的最小帧
 		// 如果能量小于0、出界、与非食物的点重合则判死
 		if (!alive || energy < 0 || Env.outsideEnv(x, y) || Env.bricks[x][y] >= Material.KILLFROG) {
-			energy -= 100; // 死掉的青蛙也要消耗能量，确保淘汰出局
+			energy -= 1000; // 死掉的青蛙也要消耗能量，确保淘汰出局
 			alive = false;
 			return false;
 		}
 		energy -= 20;
-		for (Organ o : organs)
-			o.active(this); // 调用每个器官的active方法， 通常只用于执行器官的外界信息输入、动作输出，脑细胞的遍历不是在这一步
-
-		// 这里是最关键的脑细胞主循环，依次调用每个器官的active方法，每个器官各自负责调用各自区域（通常是Cuboid)内的细胞的行为
+		// 依次调用每个器官的active方法，每个器官各自负责调用各自区域（通常是Cuboid)内的细胞的行为
 		for (Organ o : organs)
 			o.active(this);
-
 		return alive;
 	}
 
@@ -128,17 +91,41 @@ public class Frog {// 这个程序大量用到public变量而不是getter/setter
 		g.drawImage(frogImg, x - 8, y - 8, 16, 16, null);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends Organ> T findOrganByClass(Class<?> claz) {// 根据器官名寻找器官，但不是每个器官都有名字
+		for (Organ o : organs)
+			if (o != null && o.getClass() == claz)
+				return (T) o;
+		return null;
+	}
+
+	public Cell findFirstCellByClass(Class<?> claz) {// 根据器官名寻找器官，但不是每个器官都有名字
+		Organ o = findOrganByClass(claz);
+		Cuboid c = (Cuboid) o.shape;
+		return this.getCell(c.x, c.y, c.z);
+	}
+
 	/** Check if cell exist */
 	public Cell getCell(int x, int y, int z) {// 返回指定脑ssf坐标的cell ，如果不存在，返回null
-		if (cells[x] == null || cells[x][y] == null)
+		if (cells == null || cells[x] == null || cells[x][y] == null)
 			return null;
 		return cells[x][y][z];
+	}
+
+	public Cell getCell1(Line l) {
+		return cells[l.x1][l.y1][l.z1];
+	}
+
+	public Cell getCell2(Line l) {
+		return cells[l.x2][l.y2][l.z2];
 	}
 
 	/** Get a cell in position (x,y,z), if not exist, create a new one */
 	public Cell getOrCreateCell(int x, int y, int z) {// 获取指定坐标的Cell，如果为空，则在指定位置新建Cell
 		if (outBrainRange(x, y, z))
-			return null;
+			throw new IllegalArgumentException("x,y,z postion out of range, x=" + x + ", y=" + y + ", z=" + z);
+		if (cells == null)
+			cells = new Cell[Env.FROG_BRAIN_XSIZE][][];
 		if (cells[x] == null)
 			cells[x] = new Cell[Env.FROG_BRAIN_YSIZE][];
 		if (cells[x][y] == null)

@@ -10,6 +10,7 @@
  */
 package com.github.drinkjava2.frog.brain;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -33,11 +34,12 @@ import java.util.Arrays;
  * @author Yong Zhu
  * @since 1.0
  */
-public class Cell {
+public class Cell implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public int x;
 	public int y;
 	public int z;
-	public float energy;
+	public float energy=0;
 
 	public Cell(int x, int y, int z) {
 		this.x = x;
@@ -49,24 +51,23 @@ public class Cell {
 
 	public Hole[] holes = null;// 洞（即动态突触），洞由光子产生，洞由时间抹平，洞的角度本身就是关联关系，角度越大，关联关系越大
 
-	/** Active this cell, increase its energy value */
-	public void active() {// 激活这个细胞，也就是说，增加它的能量值，最大到10000饱和
-		energy += 100;
-		if (energy > 10000)
-			energy = 10000;
-	}
-
-	public void deActive() {// 抑制这个细胞，也就是说，减小它的能量值，最小到0
-		energy -= 300;
-		if (energy < 0)
-			energy = 0;
-	}
-
 	public void regOrgan(int orgNo) {// 每个Cell可以被多个Organ登记，通常只在青蛙初始化器官时调用这个方法
 		if (organs == null)
-			organs = new int[] {};
-		organs = Arrays.copyOf(organs, organs.length + 1);
+			organs = new int[1];
+		else
+			organs = Arrays.copyOf(organs, organs.length + 1);
 		organs[organs.length - 1] = orgNo;
 	}
 
+	public void addEnergy(float e) {
+		energy += e;
+		if (energy > 100)
+			energy = 100;
+	}
+
+	public void subEnergy(float e) {
+		energy -= e;
+		if (energy < 0)
+			energy = 0;
+	}
 }
