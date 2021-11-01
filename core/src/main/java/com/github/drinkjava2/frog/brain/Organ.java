@@ -15,8 +15,6 @@ import java.io.Serializable;
 
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.organ.Line;
-import com.github.drinkjava2.frog.brain.organ.Lines;
 import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
@@ -70,8 +68,8 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 
 	/** each step will call Organ's active methodd */
 	public void active(Frog f) {// 每一步测试都会调用active方法，它通常遍历每个细胞，调用它们的cellAct方法
-		// 这里是缺省的方法体，子类可以重写这个方法
-		if (!f.alive || shape == null)
+		// 这里是缺省的方法体，只针对最常见的形状为长方体的器官，子类可以重写这个方法
+		if (!f.alive || shape == null || shape.getClass() != Cuboid.class)
 			return;
 		Cuboid c = (Cuboid) shape;
 		for (int px = 0; px < c.xe; px++)
@@ -91,35 +89,26 @@ public class Organ implements Serializable, Cloneable {// 因为要保存在蛋�
 			return;
 		pic.setPicColor(Color.LIGHT_GRAY); // 缺省是灰色
 		shape.drawOnBrainPicture(pic);
-		pic.setPicColor(Color.RED); // 缺省是灰色
 		if (this.organName != null && this.shape.getClass() == Cuboid.class) {
 			int x = ((Cuboid) shape).x;
 			int y = ((Cuboid) shape).y;
 			int z = ((Cuboid) shape).z;
 			pic.drawText(x, y, z, this.organName);
 		}
+
+		pic.setPicColor(Color.RED);
+		if (this.shape.getClass() == Cuboid.class) { // 显示每个细胞的能量
+			Cuboid c = (Cuboid) shape;
+			for (int px = 0; px < c.xe; px++)
+				for (int py = 0; py < c.ye; py++)
+					for (int pz = 0; pz < c.ze; pz++) {
+						Cell cell = f.getCell(c.x + px, c.y + py, c.z + pz);
+						if (cell != null) {
+							pic.drawText(c.x + px, c.y + py, c.z + pz, "" + cell.energy, 1.5f);
+						}
+					}
+		}
+
 	}
 
-	public boolean getLineEnergy(Frog f, Cell c) {
-		Lines ls = f.findOrganByClass(Lines.class);
-		for (Line l : ls.lines) {
-			if (l == null || l.energy < 30)
-				continue;
-			if (l.x2 == c.x && l.y2 == c.y && l.z2 == c.z) {
-				l.energy -= 30;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static void addLineEnergy(Frog f, Cell c, float energy) {
-		Lines ls = f.findOrganByClass(Lines.class);
-		for (Line l : ls.lines) {
-			if (l == null || l.energy > 100)
-				continue;
-			if (l.x1 == c.x && l.y1 == c.y && l.z1 == c.z) // 如果线的输入端位于视网膜上，增加线的能量
-				l.energy += energy;
-		}
-	}
 }

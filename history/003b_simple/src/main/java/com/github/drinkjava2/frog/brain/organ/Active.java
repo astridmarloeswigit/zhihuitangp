@@ -10,26 +10,38 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
-import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
+import com.github.drinkjava2.frog.brain.Cell;
+import com.github.drinkjava2.frog.brain.Input;
 import com.github.drinkjava2.frog.brain.Organ;
+import com.github.drinkjava2.frog.util.RandomUtils;
 
 /**
- * Happy active after ate food
+ * Active always keep active
+ * 
+ * 这个器官永远激活
  */
-public class Eat extends Organ { // Eat器官的作用就是如果位置与食物重合，增加frog的能量
-	private static final long serialVersionUID = 1L;
-	public int actEngery = 1000;
+public class Active extends Organ {// 以前的实验发现添加一个始终激活的区比用Hungry来驱动更能提高找食效率
 
-	public Organ[] vary(Frog f) {// 重写器官的very方法
-		return new Organ[] { this };
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void initFrog(Frog f) {
+		if (!initilized) {
+			initilized = true;
+			organOutputEnergy = 2f;
+		}
 	}
 
 	@Override
 	public void active(Frog f) {
-		if (Env.foundAndAteFood(f.x, f.y)) {
-			f.ateFood++;
-			f.energy += actEngery;
+		for (Cell cell : f.cells) {
+			if (cell.energy > 0)
+				cell.energy--;
+			if (cell.energy < Cell.MAX_ENERGY_LIMIT)
+				for (Input input : cell.inputs)
+					if (input.nearby(this)) // if input zone near by happy zone
+						cell.energy += organOutputEnergy;
 		}
 	}
 

@@ -39,7 +39,7 @@ public class Cell implements Serializable {
 	public int x;
 	public int y;
 	public int z;
-	public float energy=0;
+	public float energy = 0;
 
 	public Cell(int x, int y, int z) {
 		this.x = x;
@@ -59,10 +59,18 @@ public class Cell implements Serializable {
 		organs[organs.length - 1] = orgNo;
 	}
 
+	public boolean inActive() {
+		if (energy > 30) {
+			energy -= 30;
+			return true;
+		}
+		return false;
+	}
+
 	public void addEnergy(float e) {
 		energy += e;
-		if (energy > 100)
-			energy = 100;
+		if (energy > 1000)
+			energy = 1000;
 	}
 
 	public void subEnergy(float e) {

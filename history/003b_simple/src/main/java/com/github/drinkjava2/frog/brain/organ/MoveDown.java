@@ -10,27 +10,19 @@
  */
 package com.github.drinkjava2.frog.brain.organ;
 
-import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
 import com.github.drinkjava2.frog.brain.Organ;
 
 /**
- * Happy active after ate food
+ * Move down frog 1 unit if outputs of nerve cells active in this zone
  */
-public class Eat extends Organ { // Eat器官的作用就是如果位置与食物重合，增加frog的能量
+public class MoveDown extends Organ {
 	private static final long serialVersionUID = 1L;
-	public int actEngery = 1000;
-
-	public Organ[] vary(Frog f) {// 重写器官的very方法
-		return new Organ[] { this };
-	}
 
 	@Override
 	public void active(Frog f) {
-		if (Env.foundAndAteFood(f.x, f.y)) {
-			f.ateFood++;
-			f.energy += actEngery;
-		}
+		if (outputActive(f))
+			f.y++;
 	}
 
 }
