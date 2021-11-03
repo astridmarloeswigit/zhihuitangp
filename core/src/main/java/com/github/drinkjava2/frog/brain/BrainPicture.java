@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import com.github.drinkjava2.frog.Application;
 import com.github.drinkjava2.frog.Env;
 import com.github.drinkjava2.frog.Frog;
-import com.github.drinkjava2.frog.brain.organ.Line;
 import com.github.drinkjava2.frog.util.ColorUtils;
 
 /**
@@ -124,6 +123,28 @@ public class BrainPicture extends JPanel {
 		this.setFocusable(true);
 	}
 
+	public void drawZone(Zone o) {// 在脑图上画一个正立方体Zone框架，视角是TopView
+		float x = o.x - o.r;
+		float y = o.y - o.r;
+		float z = o.z - o.r;
+		float e = o.r + o.r;
+
+		drawLine(x, y, z, x + e, y, z);// 画立方体的下面边
+		drawLine(x + e, y, z, x + e, y + e, z);
+		drawLine(x + e, y + e, z, x, y + e, z);
+		drawLine(x, y + e, z, x, y, z);
+
+		drawLine(x, y, z, x, y, z + e);// 画立方体的中间边
+		drawLine(x + e, y, z, x + e, y, z + e);
+		drawLine(x + e, y + e, z, x + e, y + e, z + e);
+		drawLine(x, y + e, z, x, y + e, z + e);
+
+		drawLine(x, y, z + e, x + e, y, z + e);// 画立方体的上面边
+		drawLine(x + e, y, z + e, x + e, y + e, z + e);
+		drawLine(x + e, y + e, z + e, x, y + e, z + e);
+		drawLine(x, y + e, z + e, x, y, z + e);
+	}
+
 	public void drawCuboid(Cuboid c) {// 在脑图上画一个长立方体框架，视角是TopView
 		float x = c.x;
 		float y = c.y;
@@ -148,21 +169,17 @@ public class BrainPicture extends JPanel {
 		drawLine(x, y + ye, z + ze, x, y, z + ze);
 	}
 
-	public void drawCone(Cone c) {// 在脑图上画一个锥体，视角是TopView
-		drawLine(c.x1, c.y1, c.z1, c.x2, c.y2, c.z2);// 画锥体的中心线
-		// TODO 画出锥体的上下面
-	}
+	public void drawCell(Cell c) {// 从zone1到z2中心画一条线
+		if (c == null)
+			return;
+		if (c.body != null) {
+			drawZone(c.body);
+			if (c.input != null)
+				drawLine(c.input.x, c.input.y, c.input.z, c.body.x, c.body.y, c.body.z);
+			if (c.output != null)
+				drawLine(c.output.x, c.output.y, c.output.z, c.body.x, c.body.y, c.body.z);
+		}
 
-	/**
-	 * 从cell c1中心画一条线到cell c2中心
-	 */
-	public void drawLine(Cell c1, Cell c2) {
-		drawLine(c1.x + .5f, c1.y + .5f, c1.z + .5f, c2.x + .5f, c2.y + .5f, c2.z + .5f);
-	}
-
-	/** 将Line对象在pic上画一条线 */
-	public void drawLine(Line l) {
-		drawLine(l.x1 + .5f, l.y1 + .5f, l.z1 + .5f, l.x2 + .5f, l.y2 + .5f, l.z2 + .5f);
 	}
 
 	/*-
@@ -227,11 +244,8 @@ public class BrainPicture extends JPanel {
 				(int) round(y2) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset);
 	}
 
-	/** 画出cell的中心点 */
-	public void drawCellCenter(float x, float y, float z, float diameter) {
-		if (x > 0 && (x < xMask || y < yMask))
-			return;
-		drawPoint(x + 0.5f, y + 0.5f, z + 0.5f, (int) Math.max(2, Math.round(scale * diameter)));
+	public void drawLine(Zone a, Zone b) {
+		drawLine(a.x, a.y, a.z, b.x, b.y, b.z);
 	}
 
 	/** 画点，固定以top视角的角度，所以只需要在x1,y1位置画一个点 */
@@ -264,7 +278,7 @@ public class BrainPicture extends JPanel {
 	}
 
 	public void drawText(float px1, float py1, float pz1, String text) {
-		drawText(px1, py1, pz1, text, 1);
+		drawText(px1, py1, pz1, text, 12);
 	}
 
 	public void drawText(float px1, float py1, float pz1, String text, float textSize) {
@@ -291,7 +305,7 @@ public class BrainPicture extends JPanel {
 		y1 = y;
 
 		g.setColor(picColor);
-		g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) round(textSize * scale * .3)));
+		g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, (int) round(textSize * scale)));
 		g.drawString(text, (int) round(x1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + xOffset,
 				(int) round(y1) + Env.FROG_BRAIN_DISP_WIDTH / 2 + yOffset);
 
@@ -310,9 +324,9 @@ public class BrainPicture extends JPanel {
 		g.drawRect(0, 0, brainDispWidth, brainDispWidth);
 		setPicColor(BLACK);
 		drawCuboid(brain);// 先把脑的框架画出来
-		drawText(1, 0, 0, "x");
-		drawText(0, 1, 0, "y");
-		drawText(0, 0, 1, "z");
+		drawText(100, 0, 0, "x");
+		drawText(0, 100, 0, "y");
+		drawText(0, 0, 100, "z");
 
 		for (Organ organ : f.organs)// 每个器官负责画出自已在脑图中的位置和形状
 			organ.drawOnBrainPicture(f, this); // each organ draw itself
@@ -321,19 +335,14 @@ public class BrainPicture extends JPanel {
 		drawLine(0, 0, 0, 0, 1, 0);
 		drawLine(0, 0, 0, 0, 0, 1);
 
-		for (int x = 0; x < Env.FROG_BRAIN_XSIZE; x++) {// 开始画整个脑空间的细胞活跃分布图
-			if (f.cells != null && f.cells[x] != null)
-				for (int y = 0; y < Env.FROG_BRAIN_YSIZE; y++) {
-					if (f.cells[x][y] != null)
-						for (int z = 0; z < Env.FROG_BRAIN_ZSIZE; z++) {
-							Cell cell = f.getCell(x, y, z);
-							if (cell != null && cell.energy > 20) {
-								setPicColor(ColorUtils.grayColor(cell.energy));// 用灰度表示活跃度
-								drawCellCenter(x, y, z, 0.6f);
-							}
-						}
-				}
+		for (Cell cell : f.cells) {
+			if (cell != null && cell.energy > 20) {
+				setPicColor(ColorUtils.grayColor(cell.energy));// 用灰度表示活跃度
+				if (cell.body != null)
+					drawZone(cell.body);
+			}
 		}
+
 		g.setColor(Color.black);
 		if (note != null) // 全局注释
 			g.drawString(note, 30, 55);
