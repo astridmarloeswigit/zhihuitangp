@@ -43,16 +43,32 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
 
 	public int x; // animal在Env中的x坐标
 	public int y; // animal在Env中的y坐标
-	public long energy = 100000; // 青蛙的能量为0则死掉
+	public long energy = 10000000; // 青蛙的能量为0则死掉
 	public boolean alive = true; // 设为false表示青蛙死掉了，将不参与计算和显示，以节省时间
 	public int ateFood = 0; // 青蛙曾吃过的食物总数，下蛋时如果两个青蛙能量相等，可以比数量
 	public int no; // 青蛙在Env.animals中的序号，从1开始， 会在运行期写到当前brick的最低位，可利用Env.animals.get(no-1)快速定位青蛙
+	public int high=0; //青蛙跳在空中的高度, 用于听力测试
+	public static int guaguaRadius = 100; // 呱呱叫的传播半径
+	public boolean guagua = false; // 呱呱叫，不是那个呱呱叫的意思，就是呱呱叫的意思
 
 	public Image animalImage;
 
-	public Animal(int x, int y, Egg egg) {// x, y 是虑拟环境的坐标
-		this.x = x;
-		this.y = y;
+	public Animal(Egg egg) {// x, y 是虑拟环境的坐标
+		if (Env.BORN_AT_RANDOM_PLACE) {
+			x = RandomUtils.nextInt(Env.ENV_WIDTH);
+			y = RandomUtils.nextInt(Env.ENV_HEIGHT);
+		} else {
+			this.x = egg.x + RandomUtils.nextInt(80) - 40;
+			this.y = egg.y + RandomUtils.nextInt(80) - 40;
+			if (this.x < 0)
+				this.x = 0;
+			if (this.y < 0)
+				this.y = 0;
+			if (this.x >= (Env.ENV_WIDTH - 1))
+				this.x = Env.ENV_WIDTH - 1;
+			if (this.y >= (Env.ENV_HEIGHT - 1))
+				this.y = Env.ENV_HEIGHT - 1;
+		}
 		for (Organ org : egg.organs)
 			organs.add(org);
 	}
@@ -60,10 +76,13 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
 	public void initAnimal() { // 初始化animal,通常只是调用每个organ的init方法
 		for (Organ org : organs)
 			org.initOrgan(this);// 每个新器官初始化，如果是Group类，它们会生成许多脑细胞
+		for (int i = 0; i <200; i++) {
+			addRandomLines();			
+		}
 	}
 
 	public void addRandomLines() {// 有一定机率在器官间生成随机的神经连线
-		if (alive && RandomUtils.percent(0.2f)) {// 有很小的机率在青蛙活着时就创建新的器官
+		if (alive && RandomUtils.percent(5f)) {// 有很小的机率在青蛙活着时就创建新的器官
 			Line line = new Line();
 			line.initilized = false;
 			line.initOrgan(this);
@@ -89,7 +108,7 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
 		// 依次调用每个cell的active方法，这是写在organ类里的方法，因为同一个器官的cell具有相同的行为
 		for (Cell cell : cells)
 			cell.organ.active(this, cell);
-		addRandomLines(); // 随机添加神经连线, 这是一个硬编码, 目前一个连线对应一个器官，待改进
+		//addRandomLines(); // 随机添加神经连线, 这是一个硬编码, 目前一个连线对应一个器官，待改进
 		return alive;
 	}
 
@@ -110,6 +129,12 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
 		return x < 0 || x >= Env.FROG_BRAIN_XSIZE || y < 0 || y >= Env.FROG_BRAIN_YSIZE || z < 0
 				|| z >= Env.FROG_BRAIN_ZSIZE;
 	}
+	
+	/** Check if animal close to a position */
+	public boolean isClosePosition(int x, int y, int r) {// 检查是否接近x,y点的r距形范转
+		return  Math.abs(this.x-x)<r && Math.abs(this.y-y)<r;
+	}
+	
 
 	/** Print debug info */
 	public String debugInfo() {// 输出Animal调试内容
