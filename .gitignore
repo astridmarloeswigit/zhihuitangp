@@ -18,6 +18,7 @@ examples/**/build/
 *.jar
 *.war
 *.ear
+*.ser
 *.zip
 *.tar.gz
 *.rar
