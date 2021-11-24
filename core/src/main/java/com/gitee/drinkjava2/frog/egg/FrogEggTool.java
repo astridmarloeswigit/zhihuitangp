@@ -30,14 +30,12 @@ import com.gitee.drinkjava2.frog.organ.frog.FrogEyes;
 import com.gitee.drinkjava2.frog.organ.frog.FrogGuaGua;
 import com.gitee.drinkjava2.frog.organ.frog.FrogGuaGuaStop;
 import com.gitee.drinkjava2.frog.organ.frog.FrogHearGuaGua;
-import com.gitee.drinkjava2.frog.organ.frog.FrogHearWaWa;
+import com.gitee.drinkjava2.frog.organ.frog.FrogHearGuaGuaStop;
 import com.gitee.drinkjava2.frog.organ.frog.FrogJump;
 import com.gitee.drinkjava2.frog.organ.frog.FrogMouth;
 import com.gitee.drinkjava2.frog.organ.frog.FrogMoves;
 import com.gitee.drinkjava2.frog.organ.frog.FrogSeeEarthquake;
 import com.gitee.drinkjava2.frog.organ.frog.FrogSeeEarthquakeStop;
-import com.gitee.drinkjava2.frog.organ.frog.FrogWaWa;
-import com.gitee.drinkjava2.frog.organ.frog.FrogWaWaStop;
 import com.gitee.drinkjava2.frog.util.LocalFileUtils;
 
 /**
@@ -127,18 +125,18 @@ public class FrogEggTool {
 				egg.organs.add(new FrogEyes.SeeLeft().setXYZRHN(200 - 90, 500, 500, r, h, "SeeLeft"));
 				egg.organs.add(new FrogEyes.SeeRight().setXYZRHN(200 + 90, 500, 500, r, h, "SeeRight"));
 				
-                egg.organs.add(new FrogSeeEarthquake().setXYZRHN(350, 30, 500, r / 4, h, "SeeEarthquake")); // 能看到震心是否活动
-                egg.organs.add(new FrogSeeEarthquakeStop().setXYZRHN(350, 90, 500, r / 4, h, "SeeEarthquakeStop")); // 能看到震心不活动时激活
                 egg.organs.add(new FrogJump().setXYZRHN(350, 150, 500, r / 4, h, "Jump")); // 跳
                 egg.organs.add(new FrogDrop().setXYZRHN(350, 210, 500, r / 4, h, "Drop")); // 回地上
-				
-				egg.organs.add(new FrogGuaGua().setXYZRHN(500, 30, 500, r / 4, h, "GuaGua")); // 呱呱叫
-                egg.organs.add(new FrogGuaGuaStop().setXYZRHN(500, 90, 500, r / 4, h, "GuaGuaStop")); // 停止呱呱叫
-                egg.organs.add(new FrogHearGuaGua().setXYZRHN(500, 150, 500, r / 4, h, "GuaGuaStop")); // 停止呱呱叫               
                 
-				egg.organs.add(new FrogWaWa().setXYZRHN(650, 30, 500, r / 4, h, "WaWa")); // 哇哇叫
-				egg.organs.add(new FrogWaWaStop().setXYZRHN(650, 90, 500, r / 4, h, "WaWaStop")); // 停止哇哇叫
-				egg.organs.add(new FrogHearWaWa().setXYZRHN(650, 150, 500, r / 4, h, "GuaGuaStop")); // 停止呱呱叫
+                egg.organs.add(new FrogSeeEarthquake().setXYZRHN(800, 150, 500, r / 4, h, "SeeEarthQuake")); //看到地震开始了
+                egg.organs.add(new FrogSeeEarthquakeStop().setXYZRHN(800, 210, 500, r / 4, h, "SeeEarthQuakeStop")); //看到地震停止了
+                
+                for (int i = 0; i < 3; i++) { //以下分别是呱呱叫、停止呱呱叫、听到呱呱叫，听到呱呱叫停止器官
+                    egg.organs.add(new FrogGuaGua().setXYZRHN(400+i*80, 30, 500, 2, h, "")); 
+                    egg.organs.add(new FrogGuaGuaStop().setXYZRHN(400+i*80, 60, 500, 2, h, ""));
+                    egg.organs.add(new FrogHearGuaGua().setXYZRHN(400+i*80, 90, 500, 2, h, ""));
+                    egg.organs.add(new FrogHearGuaGuaStop().setXYZRHN(400+i*80, 120, 500, 2, h, "")); 
+                }
 
 				Env.frog_eggs.add(egg);
 			}

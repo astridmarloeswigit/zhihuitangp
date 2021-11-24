@@ -11,19 +11,20 @@
 package com.gitee.drinkjava2.frog.organ.frog;
 
 import com.gitee.drinkjava2.frog.Animal;
+import com.gitee.drinkjava2.frog.Env;
 import com.gitee.drinkjava2.frog.brain.Organ;
 
 /**
- * GuaGua stop GuaGua sound
+ * GuaGuaStop stop GuaGua sound
  */
-public class FrogGuaGuaStop extends Organ {// 呱呱这个器官的作用就是停止呱呱叫声
-	private static final long serialVersionUID = 1L;
-
-	@Override
-	public void active(Animal a) {
-        if(this.beActivedByCells(a)){
-            a.guagua = false;
-        }
-	}
+public class FrogGuaGuaStop extends Organ {// 呱呱这个器官的作用就是停止发出呱呱叫声
+    private static final long serialVersionUID = 1L;
+ 
+    @Override
+    public void active(Animal a) {
+        if (a.x < Env.ENV_WIDTH / 2 && this.beActivedByCells(a)) { //只有青蛙位于左侧才能呱呱
+            sound[this.roundX()] = false; //叫声的频道只取决于GuaGua器官在脑内的x位置
+        } 
+    }
 
 }

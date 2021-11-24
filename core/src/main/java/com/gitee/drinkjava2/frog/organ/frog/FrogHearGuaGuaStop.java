@@ -11,23 +11,19 @@
 package com.gitee.drinkjava2.frog.organ.frog;
 
 import com.gitee.drinkjava2.frog.Animal;
-import com.gitee.drinkjava2.frog.Env;
-import com.gitee.drinkjava2.frog.Frog;
 import com.gitee.drinkjava2.frog.brain.Organ;
 
 /**
  * Ear hear sound
  */
-public class FrogHearWaWa extends Organ {// 这个器官能听到附近青蛙哇哇叫声
+public class FrogHearGuaGuaStop extends Organ {// 这个器官能听到左侧青蛙呱呱叫声停止
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void active(Animal a) {
-        for (Frog frog : Env.frogs){
-            if(frog.wawa && a.isClosePosition(frog.x, frog.y, frog.crockRadius)){
-                activeCells(a, 30);
-                return;
-            }
+    public void active(Animal a) { 
+        if( !Organ.sound[this.roundX()]){ //这个听力器官能听到的频道只取决于此器官在脑内的x位置
+            activeCells(a, 30);
+            return;
         }
     }
 
