@@ -13,29 +13,38 @@ package com.gitee.drinkjava2.frog.objects;
 import java.awt.Color;
 
 /**
- * Object means some thing in Env
+ * Material store material types
  * 
- * 用不同的数字常量代表虚拟环境中不同的组成材料，0为空，小于10的不可见，大于20的将杀死在同一位置出现的青蛙,例如砖头和青蛙不可以重叠出现在同一位置
+ * 虚拟环境中每个点由一个int代表，多个材料可以同时出现在同一个点，每种材料用int中的一个bit位来表示，
+ * 小于等于16384的位数用来标记青蛙序号，可利用Env.frogs.get(no-1)获取青蛙对象，其它各种材料用整数中其它位来表示
  * 
  * @author Yong Zhu
  * @since 1.0
  */
-public class Material {
-	public static final byte NO = 0; // nothing
-	public static final byte SEESAW_BASE = 1; // 1~9 is invisible to frog
+public class Material {// NOSONAR
 
-	public static final byte VISIBLE = 10; // if>=10 will visible to frog
-	public static final byte FOOD = VISIBLE + 1;
-	public static final byte SEESAW = VISIBLE + 2;
+    public static final int FROG_TAG = 0b11111111111111; // 16383 小于等于16384的位数用来标记青蛙序号，可利用Env.frogs.get(no-1)快速定位青蛙
 
-	public static final byte KILLFROG = 20; // if>=20 will kill frog
-	public static final byte BRICK = KILLFROG + 1;// brick will kill frog
-	public static final byte TRAP = KILLFROG + 2; // trap will kill frog
+    private static int material = FROG_TAG + 1; // 大于16384用来作为各种材料的标记
 
-	public static Color color(byte material) {
-		if (material == TRAP)
-			return Color.LIGHT_GRAY;
-		else
-			return Color.BLACK;
-	}
+    public static final int FOOD = nextMaterial();
+    public static final int SNAKE = nextMaterial(); // 蛇的图形
+    public static final int KILL_ANIMAL = nextMaterial(); // if>=KILLFROG will kill animal
+    public static final int BRICK = nextMaterial();// brick will kill frog
+    public static final int TRAP = nextMaterial(); // trap will kill frog
+
+    private static int nextMaterial() {// 每次将material左移1位
+        material = material << 1;
+        if (material < 0)
+            throw new IllegalArgumentException("Material out of maximum range");
+        return material;
+    }
+
+    public static Color color(int material) {
+        if ((material & TRAP) > 0)
+            return Color.LIGHT_GRAY;
+        else
+            return Color.BLACK;
+    }
+
 }
