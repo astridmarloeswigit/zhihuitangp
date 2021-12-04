@@ -9,9 +9,9 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import com.gitee.drinkjava2.frog.brain.Cells3D;
 import com.gitee.drinkjava2.frog.egg.Egg;
 import com.gitee.drinkjava2.frog.egg.FrogEggTool;
+import com.gitee.drinkjava2.frog.gene.Gene;
 import com.gitee.drinkjava2.frog.objects.EnvObject;
 import com.gitee.drinkjava2.frog.objects.Food;
 import com.gitee.drinkjava2.frog.objects.Material;
@@ -37,16 +37,16 @@ public class Env extends JPanel {
 
 	public static final int FROG_PER_EGG = 4; // 每个青蛙蛋可以孵出几个青蛙
 
-	public static final boolean BORN_AT_RANDOM_PLACE = true;// 孵出动物落在地图上随机位置，而不是在蛋所在地
-
 	public static final int SCREEN = 1; // 分几屏测完
+	
+    public static final boolean BORN_AT_RANDOM_PLACE = true;// 孵出动物落在地图上随机位置，而不是在蛋所在地
 
 	/** Frog's brain size */ // 脑细胞位于脑范围内，是个三维结构，在animal中用一个List<Cell>来存贮表示的同时，也用一个Cell3D动态数组来表示
-	public static final int BRAIN_XSIZE = 20; // 脑在X方向长度
-	public static final int BRAIN_YSIZE = 20; // 脑在Y方向长度
-	public static final int BRAIN_ZSIZE = 20; // 脑在Z方向长度
+	public static final int BRAIN_XSIZE = 100; // 脑在X方向长度，取值最大为1000
+	public static final int BRAIN_YSIZE = 100; // 脑在Y方向长度，取值最大为1000
+	public static final int BRAIN_ZSIZE = 100; // 脑在Z方向长度，取值最大为1000
 	
-    public static final int CELLS_MAX_QTY = 100; //脑细胞总数不能超过这个值
+    public static final int CELLS_MAX_QTY = 4000; //脑细胞总数不能超过这个值
 
 	/** SHOW first animal's brain structure */
 	public static boolean SHOW_FIRST_ANIMAL_BRAIN = true; // 是否显示脑图在Env区的右侧
@@ -135,21 +135,6 @@ public class Env extends JPanel {
 			return true;
 		else
 			return false;
-	}
-
-	public static boolean foundAndAteFrog(int x, int y) {// 如果x,y有青蛙，将其杀死，返回true
-		if (x < 0 || y < 0 || x >= ENV_WIDTH || y >= ENV_HEIGHT)
-			return false;// 如果出界返回false;
-		int frogNo = Env.bricks[x][y] & Material.FROG_TAG;
-		if (frogNo > 0) {
-			Frog f = frogs.get(frogNo - 1);
-			if (f.alive) {
-				Env.frog_ated++;
-				f.kill();
-				return true;
-			}
-		}
-		return false;
 	}
 
     public static void setMaterial(int x, int y, int material) {
@@ -307,6 +292,11 @@ public class Env extends JPanel {
 				checkIfPause();
 				for (int j = 0; j < FROG_PER_SCREEN; j++) {
 					Frog f = frogs.get(current_screen * FROG_PER_SCREEN + j);
+                    if (j == 0) {
+                    System.out.println("======== cells: "+f.cells.size()+" =========");
+                    //Gene.printGene(f);
+                    }
+					
 					f.cells=null; // 清空frog脑细胞所占用的内存
 					f.cells3D=null;
 				}

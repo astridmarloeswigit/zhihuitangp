@@ -10,6 +10,8 @@
  */
 package com.gitee.drinkjava2.frog.brain;
 
+import java.awt.Color;
+
 import com.gitee.drinkjava2.frog.Animal;
 
 /**
@@ -29,7 +31,8 @@ import com.gitee.drinkjava2.frog.Animal;
 public class Cell { //cell数量非常庞大，不需要序列化
     public int x; //x,y,z 是细胞的中心点在脑中的位置
     public int y;
-    public int z;
+    public int z; 
+    public Color color; //这个颜色只是用于调试
 
     public int geneIndex; //指向青蛙基因单例中的行号。每个细胞的基因都相同，但是不同的是在基因链中的行号
 
@@ -47,9 +50,15 @@ public class Cell { //cell数量非常庞大，不需要序列化
         this.geneIndex = geneIndex;
         this.splitCount = splitCount;
         this.splitLimit = splitLimit;
-        animal.cells.add(this);
-        animal.cells3D.putCell(this, animal.cells.size()); //在cell3D中登记cell序号
-        animal.normalAward(); //TODO: 调试用，待删
+        if (!Animal.outBrainRange(x, y, z)) {
+            Cell c= animal.cells3D.getCell(x, y, z);
+            if(c!=null)
+                animal.normalPenalty();
+            else {
+            animal.cells.add(this);
+            animal.cells3D.putCell(this, animal.cells.size()); //在cell3D中登记cell序号
+            }
+        }
     }
 
     public void split(Animal animal, int direction) {//细胞在一个或多个方向上分裂克隆，有6（对应立方体的6个面)、7(包含本身点)、27(包含立方体侧边、项点方向)等选项，这里先采用6个方向的方案
@@ -59,23 +68,23 @@ public class Cell { //cell数量非常庞大，不需要序列化
         if ((direction & 1) > 0) {//上
             zz++;
             clone(animal, xx, yy, zz); //简单在指定隔壁位置克隆，暂不采用推开其它细胞的高运算量方案，这个要等图型卡加速用上后再考虑推开其它细胞
-        }
+        }  else
         if ((direction & 0b10) > 0) {//下
             zz--;
             clone(animal, xx, yy, zz);
-        }
+        } else
         if ((direction & 0b100) > 0) {//左
             xx--;
             clone(animal, xx, yy, zz);
-        }
+        }   else
         if ((direction & 0b1000) > 0) {//右
             xx++;
             clone(animal, xx, yy, zz);
-        }
+        }   else
         if ((direction & 0b10000) > 0) {//前
             yy--;
             clone(animal, xx, yy, zz);
-        }
+        }   else
         if ((direction & 0b100000) > 0) {//后
             yy++;
             clone(animal, xx, yy, zz);
@@ -85,7 +94,12 @@ public class Cell { //cell数量非常庞大，不需要序列化
     public void clone(Animal animal, int xx, int yy, int zz) {//在指定坐标克隆当前细胞
         if (Animal.outBrainRange(xx, yy, zz))
             return;
-        new Cell(animal, xx, yy, zz, geneIndex, splitCount, splitLimit); 
+        if (animal.cells3D.existCell(xx, yy, zz)) {
+           // animal.tinyPenalty();
+        } else {
+            if(splitCount<splitLimit)
+                new Cell(animal, xx, yy, zz, geneIndex, splitCount, splitLimit);
+        }
     }
 
     public void act() {
