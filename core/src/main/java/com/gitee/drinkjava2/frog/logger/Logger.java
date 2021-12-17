@@ -39,8 +39,8 @@ public final class Logger {
         LoggerCenter.add(getLoggingEvent(LevelEnum.ERROR, msg, argArray));
     }
 
-    public static void error(Object... argArray) {
-        LoggerCenter.add(getLoggingEvent(LevelEnum.ERROR, "", argArray));
+    public static void error(Object argArray) {
+        LoggerCenter.add(getLoggingEvent(LevelEnum.ERROR, "", new Object[]{argArray}));
     }
 
     private static LoggingEvent getLoggingEvent(LevelEnum level, String message, Object[] argumentArray) {

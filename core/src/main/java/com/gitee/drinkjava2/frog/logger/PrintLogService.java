@@ -58,7 +58,7 @@ public class PrintLogService extends Thread {
     private void appendThrowableInfo(LoggingEvent event, StringBuilder sb) {
         Throwable throwable = event.getThrowable();
         if (null != throwable) {
-            sb.append(throwable);
+            sb.append(throwable).append(LINE_SEPARATOR);
             StackTraceElement[] stack = throwable.getStackTrace();
             for (StackTraceElement element : stack) {
                 sb.append(TAB).append(element).append(LINE_SEPARATOR);
