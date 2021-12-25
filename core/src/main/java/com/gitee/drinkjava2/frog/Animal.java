@@ -10,6 +10,8 @@
  */
 package com.gitee.drinkjava2.frog;
 
+import static com.gitee.drinkjava2.frog.brain.Cells.GENE_NUMBERS;
+
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -19,7 +21,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import com.gitee.drinkjava2.frog.egg.Egg;
-import com.gitee.drinkjava2.frog.judge.BrainColorJudge;
+import com.gitee.drinkjava2.frog.judge.BrainRainbowColorJudge;
 import com.gitee.drinkjava2.frog.judge.BrainShapeJudge;
 import com.gitee.drinkjava2.frog.objects.Material;
 import com.gitee.drinkjava2.frog.util.RandomUtils;
@@ -39,7 +41,7 @@ import com.gitee.drinkjava2.frog.util.Tree8Util;
 public abstract class Animal {// 这个程序大量用到public变量而不是getter/setter，主要是为了编程方便和简洁，但缺点是编程者需要小心维护各个变量
     public static BufferedImage FROG_IMAGE;
     public static BufferedImage snakeImage;
-    public static int GENE_NUMBERS = 4; //目前有多少条基因，因为cell是个long型，所以最多允许64条
+
     public ArrayList<ArrayList<Integer>> genes = new ArrayList<>(); // Animal的基因只保存一份，这是人工生命与实际生物（每个细胞都保留一份基因）的最大不同
 
     static {
@@ -89,38 +91,36 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
         }
     }
 
+    public void initAnimal() { // 初始化animal,生成脑细胞是在这一步，这个方法是在当前屏animal生成之后调用，比方说有一千个青蛙分为500屏测试，每屏只生成2个青蛙的脑细胞，可以节约内存
+        geneMutation(); //有小概率基因突变
+        createCellsFromGene(); //运行基因语言，生成脑细胞
+        BrainShapeJudge.judge(this); //外界判断，对这个动物打分
+        BrainRainbowColorJudge.judge(this);
+    }
+
     private static final int MIN_ENERGY_LIMIT = Integer.MIN_VALUE + 5000;
     private static final int MAX_ENERGY_LIMIT = Integer.MAX_VALUE - 5000;
 
-    //energy大小是环境对animal唯一的奖罚，也是animal唯一的下蛋竟争标准。调用下面几个方法来进行不同程度的奖罚
-
-    public void adjustEnergy(int en) {
-        energy += en;
+    //@formatter:off 下面几行是重要的奖罚方法，会经常调整或注释掉，集中放在一起，不要格式化为多行   
+    public void changeEnergy(int energy_) {//正数为奖励，负数为惩罚， energy大小是环境对animal唯一的奖罚，也是animal唯一的下蛋竞争标准
+        energy += energy_;
         if (energy > MAX_ENERGY_LIMIT)
             energy = MAX_ENERGY_LIMIT;
         if (energy < MIN_ENERGY_LIMIT)
             energy = MIN_ENERGY_LIMIT;
     }
 
-    //@formatter:off 下面几行是重要的奖罚方法，会经常调整或注释掉，集中放在一起，不要格式化为多行   
-    public void award5000()      { adjustEnergy(5000);}
-    public void award500()   { adjustEnergy(500);}
-    public void award50()     { adjustEnergy(50);}
-    public void award1()   { adjustEnergy(1);}
+    public void awardAAAA()      { changeEnergy(8000);}
+    public void awardAAA()   { changeEnergy(800);}
+    public void awardAA()     { changeEnergy(80);}     //TODO:如果改为20，就可能出现缺色，所以下面要用细胞8叉树从底向上扩张的算法把缺色补上
+    public void awardA()   { changeEnergy(1);}
     
-    public void penalty5000()    { adjustEnergy(-5000);}
-    public void penalty500() { adjustEnergy(-500);}
-    public void penalty50()   { adjustEnergy(-50);}
-    public void penalty1()   { adjustEnergy(-1);}
-    public void kill() {  this.alive = false; adjustEnergy(-5000);  Env.clearMaterial(x, y, animalMaterial);  } //kill是最大的惩罚
+    public void penaltyAAAA()    { changeEnergy(-8000);}
+    public void penaltyAAA() { changeEnergy(-800);}
+    public void penaltyAA()   { changeEnergy(-80);}
+    public void penaltyA()   { changeEnergy(-1);}
+    public void kill() {  this.alive = false; changeEnergy(-5);  Env.clearMaterial(x, y, animalMaterial);  } //kill是最大的惩罚
     //@formatter:on
-
-    public void initAnimal() { // 初始化animal,生成脑细胞是在这一步，这个方法是在当前屏animal生成之后调用，比方说有一千个青蛙分为500屏测试，每屏只生成2个青蛙的脑细胞，可以节约内存
-        geneMutation(); //有小概率基因突变
-        createCellsFromGene(); //运行基因语言，生成脑细胞
-        BrainShapeJudge.judge(this);
-        BrainColorJudge.judge(this);
-    }
 
     public boolean active() {// 这个active方法在每一步循环都会被调用，是脑思考的最小帧
         // 如果能量小于0、出界、与非食物的点重合则判死
@@ -167,7 +167,14 @@ public abstract class Animal {// 这个程序大量用到public变量而不是ge
                     }
                 }
             }
+        }
 
+        for (int g = 0; g < GENE_NUMBERS; g++) {//随机变异删除一个基因
+            if (RandomUtils.percent(3)) {
+                ArrayList<Integer> gene = genes.get(g);
+                if (!gene.isEmpty())
+                    gene.remove(RandomUtils.nextInt(gene.size()));
+            }
         }
     }
 
