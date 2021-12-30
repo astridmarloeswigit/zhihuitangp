@@ -83,7 +83,7 @@ public class Env extends JPanel {
 
     public static int food_ated = 0; // 用来统计总共多少个食物被青蛙吃掉
 
-    public static int frog_ated = 0; // 用来统计总共多少个青蛙被蛇吃掉
+    public static int frog_ated = 0; // 用来统计总共多少个食物被青蛙吃掉
 
     public static boolean pause = false; // 暂停按钮按下将暂停测试
 

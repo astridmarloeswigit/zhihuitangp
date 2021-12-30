@@ -8,16 +8,22 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.gitee.drinkjava2.frog.brain;
+package com.gitee.drinkjava2.frog;
+
+import com.gitee.drinkjava2.frog.egg.Egg;
+import com.gitee.drinkjava2.frog.objects.Material;
 
 /**
- * Cells代表不同的脑细胞参数，对应每个参数，细胞有不同的行为，
+ * Frog is child class of Animal, Animal's name is Sam.
+ * Frog是Animal的一个子类
  * 
- * @author Yong Zhu
- * @since 10.0
+ * @since 1.0
  */
-@SuppressWarnings("all")
-public class Cells   { 
-    public static int GENE_NUMBERS = 4; //目前有多少条基因，每个脑细胞用是一个long来存储，所以最多允许64条基因，每个基因控制一个细胞的参数
-    
+public class Frog extends Animal {
+
+    public Frog(Egg egg) {
+        super(egg);
+        animalMaterial = Material.FROG_TAG;
+        animalImage = Animal.FROG_IMAGE;
+    }
 }

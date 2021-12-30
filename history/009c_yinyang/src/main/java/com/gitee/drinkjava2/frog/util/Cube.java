@@ -8,16 +8,25 @@
  * OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package com.gitee.drinkjava2.frog.brain;
+package com.gitee.drinkjava2.frog.util;
 
 /**
- * Cells代表不同的脑细胞参数，对应每个参数，细胞有不同的行为，
- * 
+ *  Cube has x,y,z value
+ *  
  * @author Yong Zhu
- * @since 10.0
+ * @since 2021-11-07
  */
-@SuppressWarnings("all")
-public class Cells   { 
-    public static int GENE_NUMBERS = 4; //目前有多少条基因，每个脑细胞用是一个long来存储，所以最多允许64条基因，每个基因控制一个细胞的参数
-    
+public class Cube {
+    public int x;//x,y,z是cube的左下前点坐标
+    public int y;
+    public int z;
+    public int size;//size是cube的边长
+
+    public Cube(int x, int y, int z, int size) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.size = size;
+    }
+
 }
